@@ -1,6 +1,17 @@
 #include <iostream>
 #include <grb/grb.hpp>
+#include <iomanip>
 #include <algorithm>
+
+template <typename MatrixType>
+void print_matrix(MatrixType& matrix) {
+  for (auto elem : matrix) {
+    float value = elem;
+    grb::index_t idx = elem;
+    std::cout << "(" << std::setw(2) << idx[0] << ", " << std::setw(2) << idx[1] << "): ";
+    std::cout << std::setprecision(3) << std::setw(5) << value << std::endl;
+  }
+}
 
 int main(int argc, char** argv) {
   grb::matrix<float, int> matrix("data/chesapeake.mtx");
@@ -43,11 +54,7 @@ int main(int argc, char** argv) {
   }
 
   printf("Before sorting:\n");
-  for (auto elem : matrix) {
-    float value = elem;
-    grb::index_t idx = elem;
-    printf("%lu %lu %f\n", idx[0], idx[1], value);
-  }
+  print_matrix(matrix);
 
   auto a = *matrix.begin();
   auto b = *(matrix.begin() + 1);
@@ -59,11 +66,7 @@ int main(int argc, char** argv) {
                                           });
 
   printf("After sorting:\n");
-  for (auto elem : matrix) {
-    float value = elem;
-    grb::index_t idx = elem;
-    printf("%lu %lu %f\n", idx[0], idx[1], value);
-  }
+  print_matrix(matrix);
 
   return 0;
 }
