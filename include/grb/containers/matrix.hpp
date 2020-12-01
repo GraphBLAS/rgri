@@ -7,7 +7,7 @@
 namespace grb {
 
 template <typename T,
-          typename I = uint64_t,
+          typename I = std::uint64_t,
           typename Allocator = std::allocator<T>>
 class matrix {
 public:
