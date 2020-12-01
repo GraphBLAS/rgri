@@ -68,5 +68,16 @@ int main(int argc, char** argv) {
   printf("After sorting:\n");
   print_matrix(matrix);
 
+  auto iter = matrix.find({38, 22});
+
+  if (iter != matrix.end()) {
+    printf("Element 39, 23 exists! Setting to 12.\n");
+    *iter = 12;
+  } else {
+    printf("element 39, 23 does not exist.\n");
+  }
+
+  print_matrix(matrix);
+
   return 0;
 }

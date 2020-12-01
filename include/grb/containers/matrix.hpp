@@ -45,6 +45,8 @@ public:
     return matrix_iterator<matrix>(*this, m_, rowptr_[m_]);
   }
 
+  iterator find(index_t index);
+
   void load_matrix(const std::string& fname, bool one_indexed = true);
 
 private:
