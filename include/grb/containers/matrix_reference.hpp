@@ -16,6 +16,11 @@ public:
       idx_(idx) {
   }
 
+  matrix_reference& operator=(const matrix_reference& other) {
+    value_reference() = other.value_reference();
+    return *this;
+  }
+
   matrix_reference& operator=(const value_type& value) {
     value_reference() = value;
     return *this;
@@ -45,3 +50,15 @@ public:
 };
 
 } // end grb
+
+namespace std {
+
+template <typename MatrixType>
+void swap(grb::matrix_reference<MatrixType> a, grb::matrix_reference<MatrixType> b) {
+  using value_type = typename grb::matrix_reference<MatrixType>::value_type;
+  value_type value = a;
+  a = b.value_reference();
+  b = value;
+}
+
+} // end std
