@@ -25,7 +25,7 @@ public:
   matrix(const matrix&) = default;
   matrix& operator=(const matrix&) = default;
 
-  matrix(const std::string& fname) {
+  matrix(std::string fname) {
     load_matrix(fname);
   }
 
