@@ -34,11 +34,19 @@ public:
     return matrix_.values_[idx_];
   }
 
-  operator value_type() const noexcept {
+  operator value_type() noexcept {
     return value_reference();
   }
 
   operator index_t() const noexcept {
+    return {row_, (size_type) matrix_.colind_[idx_]};
+  }
+
+  value_type& value() noexcept {
+    return value_reference();
+  }
+
+  index_t index() const noexcept {
     return {row_, (size_type) matrix_.colind_[idx_]};
   }
 
