@@ -43,6 +43,8 @@ struct csr_matrix_impl_ {
     return iterator(*this, m_, rowptr_[m_]);
   }
 
+  iterator find(index_t idx);
+
   size_type m_, n_;
   size_type nnz_;
 

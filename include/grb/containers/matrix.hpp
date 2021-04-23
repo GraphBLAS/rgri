@@ -51,7 +51,9 @@ public:
     return iterator(backend_matrix_.end());
   }
 
-  // iterator find(index_t index);
+  iterator find(index_t index) {
+    return backend_matrix_.find(index);
+  }
 
 private:
   backend_type backend_matrix_;

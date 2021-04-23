@@ -13,6 +13,8 @@ public:
   using size_type = typename MatrixType::size_type;
   using difference_type = typename MatrixType::difference_type;
   using reference = typename MatrixType::reference;
+  using pointer = csr_matrix_impl_iterator;
+
   using iterator_category = std::random_access_iterator_tag;
 
 

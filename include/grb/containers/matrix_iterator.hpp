@@ -12,10 +12,15 @@ public:
   using index_type = typename BackendIteratorType::index_type;
   using size_type = typename BackendIteratorType::size_type;
   using difference_type = typename BackendIteratorType::difference_type;
-  using backend_reference = typename BackendIteratorType::reference;
-  using reference = matrix_reference<backend_reference>;
-  using iterator_category = typename BackendIteratorType::iterator_category;
+
   using backend_iterator = BackendIteratorType;
+  using backend_reference = typename BackendIteratorType::reference;
+
+  using pointer = matrix_iterator;
+
+  using reference = matrix_reference<backend_reference>;
+
+  using iterator_category = typename BackendIteratorType::iterator_category;
 
   matrix_iterator(BackendIteratorType iterator) : iterator_(iterator) {}
 
