@@ -24,8 +24,19 @@ template <typename T,
           typename I,
           typename Allocator>
 csr_matrix_impl_<T, I, Allocator>::csr_matrix_impl_(const grb::import_matrix_type_<T, I>& matrix)
-  : m_(matrix.m_), n_(matrix.m_), nnz_(matrix.nnz_)
+ : m_(matrix.m_), n_(matrix.m_), nnz_(matrix.nnz_)
 {
+  assign_tuples(matrix.matrix_);
+}
+
+// NOTE: tuples must contain unique indices inside the bounds of the matrix.
+template <typename T,
+          typename I,
+          typename Allocator>
+void
+csr_matrix_impl_<T, I, Allocator>::assign_tuples(const tuples_type& tuples)
+{
+  nnz_ = tuples.size();
   rowptr_.resize(m()+1);
   colind_.resize(nnz());
   values_.resize(nnz());
@@ -34,7 +45,7 @@ csr_matrix_impl_<T, I, Allocator>::csr_matrix_impl_(const grb::import_matrix_typ
   
   size_type r = 0;
   size_type c = 0;
-  for (const auto& tuple : matrix.matrix_) {
+  for (const auto& tuple : tuples) {
     value_type v = std::get<0>(tuple);
     size_type i = std::get<1>(tuple);
     size_type j = std::get<2>(tuple);
@@ -61,6 +72,56 @@ csr_matrix_impl_<T, I, Allocator>::csr_matrix_impl_(const grb::import_matrix_typ
   for ( ; r < m_; r++) {
     rowptr_[r+1] = nnz_;
   }
+}
+
+
+// NOTE: new_tuples must be unique indices that do not occur
+//       in the sparse matrix.
+template <typename T,
+          typename I,
+          typename Allocator>
+void
+csr_matrix_impl_<T, I, Allocator>::insert_tuples(tuples_type& new_tuples) {
+  // a < b
+  auto sort_fn = [](auto a, auto b) {
+                   if (std::get<1>(a) < std::get<1>(b)) {
+                     return true;
+                   }
+                   else if (std::get<1>(a) == std::get<1>(b)) {
+                     if (std::get<2>(a) < std::get<2>(b)) {
+                      return true;
+                     }
+                   }
+                   return false;
+                 };
+
+  std::sort(new_tuples.begin(), new_tuples.end(), sort_fn);
+
+  tuples_type current_tuples;
+  current_tuples.reserve(nnz());
+  for (auto iter = begin(); iter != end(); ++iter) {
+    float value = *iter;
+    index_t idx = *iter;
+    current_tuples.push_back({value, idx[0], idx[1]});
+  }
+
+  std::sort(current_tuples.begin(), current_tuples.end(), sort_fn);
+
+  tuples_type output_tuples(current_tuples.size() + new_tuples.size());
+
+  std::merge(current_tuples.begin(), current_tuples.end(),
+             new_tuples.begin(), new_tuples.end(),
+             output_tuples.begin(), sort_fn);
+
+  assign_tuples(output_tuples);
+}
+
+template <typename T,
+          typename I,
+          typename Allocator>
+csr_matrix_impl_<T, I, Allocator>::csr_matrix_impl_(index_t shape)
+ : m_(shape[0]), n_(shape[1]), nnz_(0) {
+  rowptr_.resize(m()+1, 0);
 }
 
 } // end grb

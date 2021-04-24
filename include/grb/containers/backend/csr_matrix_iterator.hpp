@@ -80,10 +80,12 @@ public:
     idx_++;
     if (idx_ >= matrix_.rowptr_[row_+1]) {
       row_++;
+      fast_forward();
       idx_ = matrix_.rowptr_[row_];
     }
   }
 
+  // TODO, BUGFIX: this should use `fast_backward` instead of just row_--
   void decrement() {
     if (idx_ > 0) {
       idx_--;
