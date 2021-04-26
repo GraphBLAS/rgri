@@ -8,6 +8,7 @@
 #include "matrix_reference.hpp"
 #include "matrix_iterator.hpp"
 #include "backend/csr_matrix.hpp"
+#include <grb/exceptions/exception.hpp>
 
 namespace grb {
 
@@ -67,6 +68,18 @@ public:
       iter = find(index);
     }
     return *iter;
+  }
+
+  reference at(index_t index) {
+    if (index[0] >= shape()[0] || index[1] >= shape()[1]) {
+      throw grb::out_of_range("grb::matrix::at(): called with out of range indices");
+    }
+    auto iter = find(index);
+    if (iter == end()) {
+      throw grb::out_of_range("grb::matrix::at(): element not present in matrix");
+    } else {
+      return *iter;
+    }
   }
 
 private:

@@ -21,6 +21,8 @@ struct csr_matrix_impl_ {
 
   using tuples_type = std::vector<std::tuple<value_type, index_type, index_type>>;
 
+  csr_matrix_impl_() : m_(0), n_(0), nnz_(0) {}
+
   csr_matrix_impl_(index_t shape);
 
   csr_matrix_impl_(const import_matrix_type_<value_type, index_type>& matrix);
