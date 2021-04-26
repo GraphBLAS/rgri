@@ -5,15 +5,20 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <initializer_list>
 #include "matrix_reference.hpp"
 #include "matrix_iterator.hpp"
 #include "backend/csr_matrix.hpp"
+#include "backend/dense_matrix.hpp"
 #include <grb/exceptions/exception.hpp>
+
+#include <grb/util/matrix_hints.hpp>
 
 namespace grb {
 
 template <typename T,
           typename I = std::size_t,
+          typename Hint = grb::sparse,
           typename Allocator = std::allocator<T>>
 class matrix {
 public:
@@ -23,7 +28,11 @@ public:
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
-  using backend_type = csr_matrix_impl_<value_type, index_type, allocator_type>;
+  using hint_type = Hint;
+
+  // using backend_type = csr_matrix_impl_<value_type, index_type, allocator_type>;
+  using backend_type = typename pick_backend_type<Hint>:: template type<T, I, Allocator>;
+
   using backend_reference = typename backend_type::reference;
   using backend_iterator = typename backend_type::iterator;
 
@@ -38,6 +47,13 @@ public:
   matrix() = default;
   matrix(const matrix&) = default;
   matrix& operator=(const matrix&) = default;
+
+  matrix(std::initializer_list<size_type> dimensions) {
+    if (dimensions.size() != 2) {
+      throw invalid_argument("grb::matrix::matrix(std::initializer_list<size_type>): invalid list size");
+    }
+    backend_matrix_ = backend_type(index_t{*dimensions.begin(), *(dimensions.begin()+1)});
+  }
 
   matrix(index_t dimensions) : backend_matrix_(dimensions) {}
 
@@ -68,6 +84,9 @@ public:
   }
 
   iterator find(index_t index) {
+    if (index[0] >= shape()[0] || index[1] >= shape()[1]) {
+      return end();
+    }
     return backend_matrix_.find(index);
   }
 

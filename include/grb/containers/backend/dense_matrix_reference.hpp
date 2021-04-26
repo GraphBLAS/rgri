@@ -5,25 +5,23 @@
 namespace grb {
 
 template <typename MatrixType>
-class csr_matrix_impl_reference {
+class dense_matrix_impl_reference {
 public:
   using value_type = typename MatrixType::value_type;
   using index_type = typename MatrixType::index_type;
   using size_type = typename MatrixType::size_type;
   using difference_type = typename MatrixType::difference_type;
 
-  csr_matrix_impl_reference(MatrixType& matrix, size_type row, index_type idx)
+  dense_matrix_impl_reference(MatrixType& matrix, size_type idx)
     : matrix_(matrix),
-      row_(row),
-      idx_(idx) {
-  }
+      idx_(idx) {}
 
-  csr_matrix_impl_reference& operator=(const csr_matrix_impl_reference& other) {
+  dense_matrix_impl_reference& operator=(const dense_matrix_impl_reference& other) {
     value_reference() = other.value_reference();
     return *this;
   }
 
-  csr_matrix_impl_reference& operator=(const value_type& value) {
+  dense_matrix_impl_reference& operator=(const value_type& value) {
     value_reference() = value;
     return *this;
   }
@@ -49,12 +47,11 @@ public:
   }
 
   index_t index() const noexcept {
-    return {row_, (size_type) matrix_.colind_[idx_]};
+    return {idx_ / matrix_.n(), idx_ % matrix_.n()};
   }
 
  private:
-   size_type row_ = 0;
-   index_type idx_ = 0;
+   size_type idx_ = 0;
 
    MatrixType& matrix_;
 };
@@ -64,8 +61,8 @@ public:
 namespace std {
 
 template <typename MatrixType>
-void swap(grb::csr_matrix_impl_reference<MatrixType> a, grb::csr_matrix_impl_reference<MatrixType> b) {
-  using value_type = typename grb::csr_matrix_impl_reference<MatrixType>::value_type;
+void swap(grb::dense_matrix_impl_reference<MatrixType> a, grb::dense_matrix_impl_reference<MatrixType> b) {
+  using value_type = typename grb::dense_matrix_impl_reference<MatrixType>::value_type;
   value_type value = a;
   a = b.value_reference();
   b = value;

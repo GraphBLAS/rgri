@@ -5,7 +5,8 @@
 #include <grb_testing/catch.hpp>
 
 TEMPLATE_PRODUCT_TEST_CASE( "can create insert into matrix", "[matrix][template]",
-	(grb::matrix), ((float, int), (float, size_t)) ) {
+  (grb::matrix), ((float, int, grb::sparse), (float, size_t, grb::sparse),
+                  (float, int, grb::dense),  (float, size_t, grb::dense))) {
 
   using value_type = typename TestType::value_type;
 

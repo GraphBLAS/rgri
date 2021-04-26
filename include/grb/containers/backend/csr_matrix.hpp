@@ -13,7 +13,10 @@ template <typename T,
 struct csr_matrix_impl_ {
   using value_type = T;
   using index_type = I;
+
   using allocator_type = Allocator;
+  using index_allocator_type = typename allocator_type:: template rebind<index_type>::other;
+
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
   using iterator = csr_matrix_impl_iterator<csr_matrix_impl_>;
@@ -58,9 +61,9 @@ struct csr_matrix_impl_ {
   size_type m_, n_;
   size_type nnz_;
 
-  std::vector<index_type> rowptr_;
-  std::vector<index_type> colind_;
-  std::vector<value_type> values_;
+  std::vector<index_type, index_allocator_type> rowptr_;
+  std::vector<index_type, index_allocator_type> colind_;
+  std::vector<value_type, allocator_type> values_;
 
   friend iterator;
   friend reference;

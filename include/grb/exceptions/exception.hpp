@@ -32,4 +32,17 @@ private:
   std::string what_arg_;
 };
 
+class invalid_argument final : public grb::exception
+{
+public:
+  invalid_argument(const std::string& what_arg) : what_arg_(what_arg) {}
+
+  const char* what() const throw() {
+    return what_arg_.c_str();
+  }
+
+private:
+  std::string what_arg_;
+};
+
 } // end grb
