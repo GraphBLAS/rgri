@@ -41,12 +41,14 @@ struct csr_matrix_impl_ {
     return nnz_;
   }
 
-  iterator begin() {
-    return iterator(*this, 0, rowptr_[0]);
+  iterator begin() const {
+    // TODO: I should perhaps not do this.
+    return iterator(*const_cast<csr_matrix_impl_*>(this), 0, rowptr_[0]);
   }
 
-  iterator end() {
-    return iterator(*this, m_, rowptr_[m_]);
+  iterator end() const {
+    // TODO: I should perhaps not do this.
+    return iterator(*const_cast<csr_matrix_impl_*>(this), m_, rowptr_[m_]);
   }
 
   iterator find(index_t idx);

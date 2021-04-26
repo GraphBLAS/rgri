@@ -28,7 +28,10 @@ public:
   using backend_iterator = typename backend_type::iterator;
 
   using iterator = matrix_iterator<backend_iterator>;
+  using const_iterator = const_matrix_iterator<backend_iterator>;
+
   using reference = matrix_reference<backend_reference>;
+  using const_reference = const_matrix_reference<backend_reference>;
 
   using tuples_type = std::vector<std::tuple<value_type, index_type, index_type>>;
 
@@ -54,6 +57,14 @@ public:
 
   iterator end() {
     return iterator(backend_matrix_.end());
+  }
+
+  const_iterator begin() const {
+    return const_iterator(backend_matrix_.begin());
+  }
+
+  const_iterator end() const {
+    return const_iterator(backend_matrix_.end());
   }
 
   iterator find(index_t index) {
@@ -87,6 +98,8 @@ private:
 
   friend iterator;
   friend reference;
+  friend const_iterator;
+  friend const_reference;
 };
 
 } // end grb
