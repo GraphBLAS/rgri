@@ -3,10 +3,10 @@
 namespace grb {
 
 template <typename BackendReferenceType>
-class const_matrix_reference;
+class const_transpose_matrix_view_reference;
 
 template <typename BackendReferenceType>
-class matrix_reference {
+class transpose_matrix_view_reference {
 public:
   using value_type = typename BackendReferenceType::value_type;
   using index_type = typename BackendReferenceType::index_type;
@@ -15,17 +15,17 @@ public:
 
   using backend_reference = BackendReferenceType;
 
-  using reference = matrix_reference;
-  using const_reference = const_matrix_reference<backend_reference>;
+  using reference = transpose_matrix_view_reference;
+  using const_reference = const_transpose_matrix_view_reference<backend_reference>;
 
-  matrix_reference(backend_reference ref) : ref_(ref) {}
+  transpose_matrix_view_reference(backend_reference ref) : ref_(ref) {}
 
-  matrix_reference& operator=(const matrix_reference& other) {
+  transpose_matrix_view_reference& operator=(const transpose_matrix_view_reference& other) {
     ref_ = other.ref_;
     return *this;
   }
 
-  matrix_reference& operator=(const value_type& value) {
+  transpose_matrix_view_reference& operator=(const value_type& value) {
     ref_ = value;
     return *this;
   }
@@ -43,7 +43,8 @@ public:
   }
 
   operator index_t() const noexcept {
-    return ref_;
+  	auto [i, j] = ref_.index();
+    return {j, i};
   }
 
   value_type& value() noexcept {
@@ -62,7 +63,7 @@ private:
 };
 
 template <typename BackendReferenceType>
-class const_matrix_reference {
+class const_transpose_matrix_view_reference {
 public:
   using value_type = typename BackendReferenceType::value_type;
   using index_type = typename BackendReferenceType::index_type;
@@ -71,27 +72,23 @@ public:
 
   using backend_reference = BackendReferenceType;
 
-  using reference = matrix_reference<backend_reference>;
-  using const_reference = const_matrix_reference;
+  using reference = transpose_matrix_view_reference<backend_reference>;
+  using const_reference = const_transpose_matrix_view_reference;
 
-  const_matrix_reference(backend_reference ref) : ref_(ref) {}
+  const_transpose_matrix_view_reference(backend_reference ref) : ref_(ref) {}
 
-  const_matrix_reference& operator=(const const_matrix_reference& other) {
+  const_transpose_matrix_view_reference& operator=(const const_transpose_matrix_view_reference& other) {
     ref_ = other.ref_;
     return *this;
   }
 
-  const_matrix_reference& operator=(const value_type& value) {
+  const_transpose_matrix_view_reference& operator=(const value_type& value) {
     ref_ = value;
     return *this;
   }
 
-  value_type value_reference() noexcept {
-    return ref_.value_reference();
-  }
-
   value_type value_reference() const noexcept {
-    return ref_;
+    return ref_.value_reference();
   }
 
   operator value_type() const noexcept {
@@ -99,7 +96,8 @@ public:
   }
 
   operator index_t() const noexcept {
-    return ref_;
+  	auto [i, j] = ref_.index();
+    return {j, i};
   }
 
   value_type value() const noexcept {
@@ -122,8 +120,8 @@ private:
 namespace std {
 
 template <typename MatrixType>
-void swap(grb::matrix_reference<MatrixType> a, grb::matrix_reference<MatrixType> b) {
-  using value_type = typename grb::matrix_reference<MatrixType>::value_type;
+void swap(grb::transpose_matrix_view_reference<MatrixType> a, grb::transpose_matrix_view_reference<MatrixType> b) {
+  using value_type = typename grb::transpose_matrix_view_reference<MatrixType>::value_type;
   value_type value = a;
   a = b.value_reference();
   b = value;

@@ -38,6 +38,10 @@ public:
     return value_reference();
   }
 
+  operator value_type() const noexcept {
+    return value_reference();
+  }
+
   operator index_t() const noexcept {
     return index();
   }

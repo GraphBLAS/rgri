@@ -40,11 +40,19 @@ public:
     return value_reference();
   }
 
+  operator value_type() const noexcept {
+    return value_reference();
+  }
+
   operator index_t() const noexcept {
     return index();
   }
 
   value_type& value() noexcept {
+    return value_reference();
+  }
+
+  const value_type& value() const noexcept {
     return value_reference();
   }
 
