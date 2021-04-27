@@ -83,6 +83,8 @@ public:
     return const_iterator(backend_matrix_.end());
   }
 
+  // TODO: write const versions of find() and at()
+
   iterator find(index_t index) {
     if (index[0] >= shape()[0] || index[1] >= shape()[1]) {
       return end();
