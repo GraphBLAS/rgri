@@ -1,5 +1,8 @@
+#pragma once
+
 #include <vector>
 #include <string>
+#include <type_traits>
 
 #include <grb/grb.hpp>
 #include <grb_testing/catch.hpp>
@@ -10,12 +13,16 @@ void check_size(const MatrixType& matrix, size_t m, size_t n, size_t nnz) {
       grb::index_t shape = matrix.shape();
       REQUIRE( shape[0] == m );
       REQUIRE( shape[1] == n );
-      REQUIRE( matrix.size() == nnz );
+      using hint_type = typename MatrixType::hint_type;
+      if (std::is_same<hint_type, grb::sparse>::value) {
+        REQUIRE( matrix.size() == nnz );
+      }
     }
 }
 
 TEMPLATE_PRODUCT_TEST_CASE( "matrix can be read in, access dimensions, etc.", "[matrix][template]",
-	(grb::matrix), ((float, int), (float, size_t)) ) {
+	(grb::matrix), ((float, int, grb::sparse), (float, size_t, grb::sparse),
+	                (float, int, grb::dense),  (float, size_t, grb::dense))) {
 
 	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
 	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 170}};

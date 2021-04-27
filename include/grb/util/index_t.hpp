@@ -16,6 +16,14 @@ struct index_t {
     return std::make_tuple(i, j);
   }
 
+  bool operator==(index_t other) {
+    return i == other.i && j == other.j;
+  }
+
+  bool operator!=(index_t other) {
+    return !(*this == other);
+  }
+
   size_type operator[](size_type idx) const noexcept {
     if (idx == 0) {
       return i;

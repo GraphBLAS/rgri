@@ -5,117 +5,158 @@
 
 namespace grb {
 
-template <typename MatrixType>
+template <typename BackendIteratorType>
+class const_matrix_iterator;
+
+template <typename BackendIteratorType>
 class matrix_iterator {
 public:
-  using value_type = typename MatrixType::value_type;
-  using index_type = typename MatrixType::index_type;
-  using size_type = typename MatrixType::size_type;
-  using difference_type = typename MatrixType::difference_type;
-  using reference = matrix_reference<MatrixType>;
-  using iterator_category = std::random_access_iterator_tag;
+  using value_type = typename BackendIteratorType::value_type;
+  using index_type = typename BackendIteratorType::index_type;
+  using size_type = typename BackendIteratorType::size_type;
+  using difference_type = typename BackendIteratorType::difference_type;
+
+  using backend_iterator = BackendIteratorType;
+  using backend_reference = typename BackendIteratorType::reference;
+
   using pointer = matrix_iterator;
 
+  using iterator = matrix_iterator;
+  using const_iterator = const_matrix_iterator<backend_iterator>;
 
-  matrix_iterator(MatrixType& matrix) : matrix_(matrix) {
-    fast_forward();
-  }
+  using reference = matrix_reference<backend_reference>;
 
-  matrix_iterator(MatrixType& matrix, size_type row, index_type idx)
-    : matrix_(matrix),
-      row_(row),
-      idx_(idx) {
-    fast_forward();
-  }
+  using iterator_category = typename BackendIteratorType::iterator_category;
+
+  matrix_iterator(BackendIteratorType iterator) : iterator_(iterator) {}
+
+  matrix_iterator(const matrix_iterator& other) : iterator_(other.iterator_) {}
 
   matrix_iterator& operator=(const matrix_iterator& other) {
-    row_ = other.row_;
-    idx_ = other.idx_;
+    iterator_ = other.iterator_;
     return *this;
   }
 
   matrix_iterator& operator++() {
-    increment();
+    ++iterator_;
     return *this;
   }
 
   matrix_iterator& operator--() {
-    decrement();
+    --iterator_;
     return *this;
   }
 
   bool operator<(const matrix_iterator& other) {
-    return idx_ < other.idx_;
+    return iterator_ < other.iterator_;
   }
 
   matrix_iterator operator+(const difference_type offset) {
-    matrix_iterator other(matrix_, row_, idx_);
-    difference_type n = offset;
-    if (n > 0) {
-      while (n > 0) {
-        other.increment();
-        n--;
-      }
-    }
-    if (n < 0) {
-      while (n < 0) {
-        other.decrement();
-        n++;
-      }
-    }
-    return other;
+    return matrix_iterator(iterator_ + offset);
   }
 
   matrix_iterator operator-(const difference_type offset) {
-    matrix_iterator other(matrix_, row_, idx_);
-    return other + (-offset);
+    return matrix_iterator(iterator_ - offset);
   }
 
   difference_type operator-(const matrix_iterator& other) const noexcept {
-    return difference_type(idx_) - difference_type(other.idx_);
-  }
-
-  void increment() {
-    idx_++;
-    if (idx_ >= matrix_.rowptr_[row_+1]) {
-      row_++;
-      idx_ = matrix_.rowptr_[row_];
-    }
-  }
-
-  void decrement() {
-    if (idx_ > 0) {
-      idx_--;
-      if (idx_ < matrix_.rowptr_[row_]) {
-        row_--;
-        idx_ = matrix_.rowptr_[row_+1]-1;
-      }
-    }
+    return iterator_ - other.iterator_;
   }
 
   bool operator==(const matrix_iterator& other) const noexcept {
-    return &matrix_ == &other.matrix_ && row_ == other.row_ && idx_ == other.idx_;
+    return iterator_ == other.iterator_;
   }
 
   bool operator!=(const matrix_iterator& other) const noexcept {
-    return !(*this == other);
+    return iterator_ != other.iterator_;
   }
 
-  matrix_reference<MatrixType> operator*() noexcept {
-    return matrix_reference<MatrixType>(matrix_, row_, idx_);
+  reference operator*() noexcept {
+    return reference(*iterator_);
   }
 
-  void fast_forward() noexcept {
-    while (matrix_.rowptr_[row_] == matrix_.rowptr_[row_+1] && row_ < matrix_.m_) {
-        row_++;
-    }
+private:
+
+  BackendIteratorType iterator_;
+
+  friend const_iterator;
+};
+
+template <typename BackendIteratorType>
+class const_matrix_iterator {
+public:
+  using value_type = typename BackendIteratorType::value_type;
+  using index_type = typename BackendIteratorType::index_type;
+  using size_type = typename BackendIteratorType::size_type;
+  using difference_type = typename BackendIteratorType::difference_type;
+
+  using backend_iterator = BackendIteratorType;
+  using backend_reference = typename BackendIteratorType::reference;
+
+  using pointer = matrix_iterator<backend_iterator>;
+  using const_pointer = const_matrix_iterator;
+
+  using iterator = matrix_iterator<backend_iterator>;
+  using const_iterator = const_matrix_iterator;
+
+  using reference = matrix_reference<backend_reference>;
+  using const_reference = const_matrix_reference<backend_reference>;
+
+  using iterator_category = typename BackendIteratorType::iterator_category;
+
+  const_matrix_iterator(BackendIteratorType iterator) : iterator_(iterator) {}
+
+  const_matrix_iterator(const const_matrix_iterator& other) : iterator_(other.iterator_) {}
+  const_matrix_iterator(const iterator& other) : iterator_(other.iterator_) {}
+
+  const_matrix_iterator& operator=(const const_matrix_iterator& other) {
+    iterator_ = other.iterator_;
+    return *this;
   }
 
- private:
-   index_type row_ = 0;
-   index_type idx_ = 0;
+  const_matrix_iterator& operator++() {
+    ++iterator_;
+    return *this;
+  }
 
-   MatrixType& matrix_;
+  const_matrix_iterator& operator--() {
+    --iterator_;
+    return *this;
+  }
+
+  bool operator<(const const_matrix_iterator& other) {
+    return iterator_ < other.iterator_;
+  }
+
+  const_matrix_iterator operator+(const difference_type offset) {
+    return const_matrix_iterator(iterator_ + offset);
+  }
+
+  const_matrix_iterator operator-(const difference_type offset) {
+    return const_matrix_iterator(iterator_ - offset);
+  }
+
+  difference_type operator-(const const_matrix_iterator& other) const noexcept {
+    return iterator_ - other.iterator_;
+  }
+
+  bool operator==(const const_matrix_iterator& other) const noexcept {
+    return iterator_ == other.iterator_;
+  }
+
+  bool operator!=(const const_matrix_iterator& other) const noexcept {
+    return iterator_ != other.iterator_;
+  }
+
+  const_reference operator*() noexcept {
+    return const_reference(*iterator_);
+  }
+
+private:
+
+  BackendIteratorType iterator_;
+
+  friend iterator;
 };
 
 } // end grb

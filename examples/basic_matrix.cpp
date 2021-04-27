@@ -71,10 +71,10 @@ int main(int argc, char** argv) {
   auto iter = matrix.find({38, 22});
 
   if (iter != matrix.end()) {
-    printf("Element 39, 23 exists! Setting to 12.\n");
+    printf("Element 39, 22 exists! Setting to 12.\n");
     *iter = 12;
   } else {
-    printf("element 39, 23 does not exist.\n");
+    printf("element 39, 22 does not exist.\n");
   }
 
   print_matrix(matrix);
