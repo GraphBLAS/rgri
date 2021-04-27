@@ -20,7 +20,7 @@ public:
 
 	using hint_type = Hint;
 
-	using backend_type = typename pick_backend_type<Hint>:: template type<T, I, Allocator>;
+	using backend_type = grb::matrix<value_type, index_type, hint_type, allocator_type>;
 
 	using iterator = typename backend_type::iterator;
 	using const_iterator = typename backend_type::const_iterator;
@@ -34,8 +34,8 @@ public:
 
 	vector(size_type dimension) : backend_matrix_({1, dimension}) {}
 
-	index_t shape() const noexcept {
-		return backend_matrix_.shape();
+	size_type shape() const noexcept {
+		return backend_matrix_.shape()[1];
 	}
 
 	size_type size() const noexcept {
