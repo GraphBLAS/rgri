@@ -24,6 +24,8 @@ public:
   using reference = typename MatrixType::reference;
   using const_reference = typename MatrixType::const_reference;
 
+  using tuples_type = typename MatrixType::tuples_type;
+
   transpose_matrix_view(MatrixType& matrix) : matrix_(matrix) {}
 
   index_t shape() const noexcept {
@@ -50,6 +52,21 @@ public:
     return const_iterator(matrix_.end());
   }
 
+  index_t transpose_index(index_t index) const noexcept {
+    return index_t{index[1], index[0]};
+  }
+
+  iterator find(index_t index) {
+    return iterator(matrix_.find(transpose_index(index)));
+  }
+
+  reference operator[](index_t index) {
+    return reference(matrix_[transpose_index(index)]);
+  }
+
+  reference at(index_t index) {
+    return reference(matrix_.at(transpose_index(index)));
+  }
 
 private:
 	MatrixType& matrix_;
