@@ -8,6 +8,8 @@
 
 namespace grb {
 
+namespace experimental {
+
 template <typename MatrixType,
           typename ValueTransform,
           typename IndexTransform,
@@ -81,5 +83,7 @@ private:
   const IndexTransform& index_transform_;
   const ShapeTransform& shape_transform_;
 };
+
+} // end experimental
 
 } // end grb

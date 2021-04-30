@@ -5,6 +5,8 @@
 
 namespace grb {
 
+namespace experimental {
+
 template <typename BackendIteratorType, typename ValueTransform, typename IndexTransform>
 class const_transform_matrix_view_iterator;
 
@@ -25,13 +27,16 @@ public:
   using backend_iterator = BackendIteratorType;
   using backend_reference = typename BackendIteratorType::reference;
 
+  using backend_const_iterator = typename BackendIteratorType::const_iterator;
+  using backend_const_reference = typename BackendIteratorType::const_reference;
+
   using pointer = transform_matrix_view_iterator;
 
   using iterator = transform_matrix_view_iterator;
-  using const_iterator = const_transform_matrix_view_iterator<backend_iterator, value_transform_type, index_transform_type>;
+  using const_iterator = const_transform_matrix_view_iterator<backend_const_iterator, value_transform_type, index_transform_type>;
 
   using reference = transform_matrix_view_reference<backend_reference, value_transform_type, index_transform_type>;
-  using const_reference = const_transform_matrix_view_reference<backend_reference, value_transform_type, index_transform_type>;
+  using const_reference = const_transform_matrix_view_reference<backend_const_reference, value_transform_type, index_transform_type>;
 
   using iterator_category = typename BackendIteratorType::iterator_category;
 
@@ -119,38 +124,30 @@ public:
   using size_type = typename BackendIteratorType::size_type;
   using difference_type = typename BackendIteratorType::difference_type;
 
-  using backend_iterator = BackendIteratorType;
+  using backend_iterator = typename BackendIteratorType::iterator;
   using backend_reference = typename BackendIteratorType::reference;
-  using const_backend_reference = typename BackendIteratorType::const_reference;
+  using backend_const_iterator = typename BackendIteratorType::const_iterator;
+  using backend_const_reference = typename BackendIteratorType::const_reference;
 
-  using pointer = transform_matrix_view_iterator<BackendIteratorType, ValueTransform, IndexTransform>;
+  using pointer = transform_matrix_view_iterator<backend_iterator, ValueTransform, IndexTransform>;
 
   using iterator = pointer;
-  using const_iterator = const_transform_matrix_view_iterator<backend_iterator, value_transform_type, index_transform_type>;
+  using const_iterator = const_transform_matrix_view_iterator<backend_const_iterator, value_transform_type, index_transform_type>;
 
   using reference = transform_matrix_view_reference<backend_reference, value_transform_type, index_transform_type>;
-  using const_reference = const_transform_matrix_view_reference<const_backend_reference, value_transform_type, index_transform_type>;
+  using const_reference = const_transform_matrix_view_reference<backend_const_reference, value_transform_type, index_transform_type>;
 
   using iterator_category = typename BackendIteratorType::iterator_category;
 
-  const_transform_matrix_view_iterator(BackendIteratorType iterator,
-                                 const ValueTransform& value_transform,
-                                 const IndexTransform& index_transform)
+  const_transform_matrix_view_iterator(iterator other)
+    : iterator_(other.iterator_),
+      value_transform_(other.value_transform_),
+      index_transform_(other.index_transform_) {}
+
+  const_transform_matrix_view_iterator(backend_iterator iterator,
+                                       const ValueTransform& value_transform,
+                                       const IndexTransform& index_transform)
     : iterator_(iterator),
-      value_transform_(value_transform),
-      index_transform_(index_transform) {}
-
-  const_transform_matrix_view_iterator(const const_transform_matrix_view_iterator& other,
-                                       const ValueTransform& value_transform,
-                                       const IndexTransform& index_transform)
-    : iterator_(other.iterator_),
-      value_transform_(value_transform),
-      index_transform_(index_transform) {}
-
-  const_transform_matrix_view_iterator(const iterator& other,
-                                       const ValueTransform& value_transform,
-                                       const IndexTransform& index_transform)
-    : iterator_(other.iterator_),
       value_transform_(value_transform),
       index_transform_(index_transform) {}
 
@@ -207,5 +204,7 @@ private:
 
   friend iterator;
 };
+
+} // end experimental
 
 } // end grb

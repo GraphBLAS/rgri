@@ -25,6 +25,7 @@ public:
   using const_iterator = const_matrix_iterator<backend_iterator>;
 
   using reference = matrix_reference<backend_reference>;
+  using const_reference = const_matrix_reference<backend_reference>;
 
   using iterator_category = typename BackendIteratorType::iterator_category;
 

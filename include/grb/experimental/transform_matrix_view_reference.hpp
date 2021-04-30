@@ -2,6 +2,8 @@
 
 namespace grb {
 
+namespace experimental {
+
 template <typename BackendReferenceType,
           typename ValueTransform,
           typename IndexTransform>
@@ -135,13 +137,15 @@ private:
   friend reference;
 };
 
+} // end experimental
+
 } // end grb
 
 namespace std {
 
 template <typename MatrixType, typename ValueTransform, typename IndexTransform>
-void swap(grb::transform_matrix_view_reference<MatrixType, ValueTransform, IndexTransform> a, grb::transform_matrix_view_reference<MatrixType, ValueTransform, IndexTransform> b) {
-  using value_type = typename grb::transform_matrix_view_reference<MatrixType, ValueTransform, IndexTransform>::value_type;
+void swap(grb::experimental::transform_matrix_view_reference<MatrixType, ValueTransform, IndexTransform> a, grb::experimental::transform_matrix_view_reference<MatrixType, ValueTransform, IndexTransform> b) {
+  using value_type = typename grb::experimental::transform_matrix_view_reference<MatrixType, ValueTransform, IndexTransform>::value_type;
   value_type value = a;
   a = b.value_reference();
   b = value;
