@@ -50,6 +50,10 @@ public:
     return value_reference();
   }
 
+  value_type value() const noexcept {
+    return value_reference();
+  }
+
   index_t index() const noexcept {
     return *this;
   }

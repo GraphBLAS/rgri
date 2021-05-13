@@ -54,7 +54,7 @@ struct csr_matrix_impl_ {
     return iterator(*const_cast<csr_matrix_impl_*>(this), m_, rowptr_[m_]);
   }
 
-  iterator find(index_t idx);
+  iterator find(index_t idx) const;
 
   void insert_tuples(tuples_type& tuples);
 

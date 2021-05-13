@@ -10,11 +10,11 @@ template <typename T,
           typename I,
           typename Allocator>
 csr_matrix_impl_iterator<csr_matrix_impl_<T, I, Allocator>>
-csr_matrix_impl_<T, I, Allocator>::find(index_t index) {
+csr_matrix_impl_<T, I, Allocator>::find(index_t index) const {
   size_type row = index[0];
   for (index_type idx = rowptr_[row]; idx < rowptr_[row+1]; idx++) {
     if (colind_[idx] == index[1]) {
-      return iterator(*this, row, idx);
+      return iterator(*const_cast<csr_matrix_impl_*>(this), row, idx);
     }
   }
   return end();

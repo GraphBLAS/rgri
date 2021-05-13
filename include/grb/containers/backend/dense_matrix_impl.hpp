@@ -10,8 +10,8 @@ template <typename T,
           typename I,
           typename Allocator>
 dense_matrix_impl_iterator<dense_matrix_impl_<T, I, Allocator>>
-dense_matrix_impl_<T, I, Allocator>::find(index_t index) {
-  return iterator(*this, index[0]*n() + index[1]);
+dense_matrix_impl_<T, I, Allocator>::find(index_t index) const {
+  return iterator(*const_cast<dense_matrix_impl_*>(this), index[0]*n() + index[1]);
 }
 
 template <typename T,

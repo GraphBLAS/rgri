@@ -92,6 +92,13 @@ public:
     return backend_matrix_.find(index);
   }
 
+  const_iterator find(index_t index) const {
+    if (index[0] >= shape()[0] || index[1] >= shape()[1]) {
+      return end();
+    }
+    return const_iterator(backend_matrix_.find(index));
+  }
+
   reference operator[](index_t index) {
     auto iter = find(index);
     if (iter == end()) {

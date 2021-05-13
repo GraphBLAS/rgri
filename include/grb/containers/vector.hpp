@@ -62,6 +62,10 @@ public:
 		return backend_matrix_.find({1, index});
 	}
 
+	const_iterator find(size_type index) const {
+		return backend_matrix_.find({1, index});
+	}
+
 	reference operator[](size_type index) {
 		return backend_matrix_[{1, index}];
 	}
