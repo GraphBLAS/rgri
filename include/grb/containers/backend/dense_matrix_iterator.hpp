@@ -21,7 +21,9 @@ public:
   dense_matrix_impl_iterator(MatrixType& matrix) : matrix_(matrix) {}
 
   dense_matrix_impl_iterator(MatrixType& matrix, size_type idx)
-    : matrix_(matrix), idx_(idx) {}
+    : matrix_(matrix), idx_(idx) {
+    fast_forward();
+  }
 
   dense_matrix_impl_iterator& operator=(const dense_matrix_impl_iterator& other) {
     idx_ = other.idx_;
@@ -42,24 +44,46 @@ public:
     return idx_ < other.idx_;
   }
 
+  // TODO: these methods can be optimized.
   dense_matrix_impl_iterator operator+(const difference_type offset) {
-    return dense_matrix_impl_iterator(matrix_, idx_ + offset);
+    dense_matrix_impl_iterator iter(*this);
+    if (offset > 0) {
+      for (size_t i = 0; i < offset; i++) {
+        ++iter;
+      }
+    }
+    if (offset < 0) {
+      for (difference_type i = 0; i >= offset; i--) {
+        --iter;
+      }
+    }
+    return iter;
   }
 
   dense_matrix_impl_iterator operator-(const difference_type offset) {
     return dense_matrix_impl_iterator(matrix_, idx_) + (-offset);
   }
 
+  // TODO: this can be optimized.
   difference_type operator-(const dense_matrix_impl_iterator& other) const noexcept {
+    auto min = std::min(*this, other);
+    auto max = std::max(*this, other);
+    size_t i = 0;
+    while (min != max) {
+      ++min;
+      i++;
+    }
     return difference_type(idx_) - difference_type(other.idx_);
   }
 
   void increment() {
     idx_++;
+    fast_forward();
   }
 
   void decrement() {
     idx_--;
+    fast_backward();
   }
 
   bool operator==(const dense_matrix_impl_iterator& other) const noexcept {
@@ -72,6 +96,18 @@ public:
 
   reference operator*() noexcept {
     return reference(matrix_, idx_);
+  }
+
+  void fast_forward() noexcept {
+    while (idx_ < matrix_.m()*matrix_.n() && !matrix_.flags_[idx_]) {
+      idx_++;
+    }
+  }
+
+  void fast_backward() noexcept {
+    while (idx_ > 0 && !matrix_.flags_[idx_]) {
+      idx_--;
+    }
   }
 
 private:

@@ -21,7 +21,7 @@ struct dense_matrix_impl_ {
 
   using tuples_type = std::vector<std::tuple<value_type, index_type, index_type>>;
 
-  dense_matrix_impl_() : m_(0), n_(0) {}
+  dense_matrix_impl_() : m_(0), n_(0), nnz_(0) {}
 
   dense_matrix_impl_(index_t shape);
 
@@ -38,7 +38,7 @@ struct dense_matrix_impl_ {
   }
 
   size_type nnz() const {
-    return m()*n();
+    return nnz_;
   }
 
   iterator begin() const {
@@ -53,11 +53,13 @@ struct dense_matrix_impl_ {
 
   iterator find(index_t idx) const;
 
-  void insert_tuples(tuples_type& tuples);
+  void insert_tuples(const tuples_type& tuples);
 
   size_type m_, n_;
+  size_type nnz_;
 
   std::vector<value_type> values_;
+  std::vector<bool> flags_;
 
   friend iterator;
   friend reference;

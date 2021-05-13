@@ -11,14 +11,19 @@ template <typename T,
           typename Allocator>
 dense_matrix_impl_iterator<dense_matrix_impl_<T, I, Allocator>>
 dense_matrix_impl_<T, I, Allocator>::find(index_t index) const {
-  return iterator(*const_cast<dense_matrix_impl_*>(this), index[0]*n() + index[1]);
+  size_t idx = index[0]*n() + index[1];
+  if (flags_[idx]) {
+    return iterator(*const_cast<dense_matrix_impl_*>(this), idx);
+  } else {
+    return end();
+  }
 }
 
 template <typename T,
           typename I,
           typename Allocator>
 dense_matrix_impl_<T, I, Allocator>::dense_matrix_impl_(const grb::import_matrix_type_<T, I>& matrix)
- : m_(matrix.m_), n_(matrix.m_)
+ : m_(matrix.m_), n_(matrix.m_), nnz_(0)
 {
   assign_tuples(matrix.matrix_);
 }
@@ -31,14 +36,9 @@ void
 dense_matrix_impl_<T, I, Allocator>::assign_tuples(const tuples_type& tuples)
 {
   values_.assign(m()*n(), T());
+  flags_.assign(m()*n(), false);
 
-  for (const auto& tuple : tuples) {
-    value_type value = std::get<0>(tuple);
-    index_type i = std::get<1>(tuple);
-    index_type j = std::get<2>(tuple);
-
-    values_[i*n() + j] = value;
-  }
+  insert_tuples(tuples);
 }
 
 
@@ -48,22 +48,25 @@ template <typename T,
           typename I,
           typename Allocator>
 void
-dense_matrix_impl_<T, I, Allocator>::insert_tuples(tuples_type& new_tuples) {
+dense_matrix_impl_<T, I, Allocator>::insert_tuples(const tuples_type& new_tuples) {
   for (const auto& tuple : new_tuples) {
     value_type value = std::get<0>(tuple);
     index_type i = std::get<1>(tuple);
     index_type j = std::get<2>(tuple);
 
     values_[i*n() + j] = value;
+    flags_[i*n() + j] = true;
   }
+  nnz_ += new_tuples.size();
 }
 
 template <typename T,
           typename I,
           typename Allocator>
 dense_matrix_impl_<T, I, Allocator>::dense_matrix_impl_(index_t shape)
- : m_(shape[0]), n_(shape[1]) {
+ : m_(shape[0]), n_(shape[1]), nnz_(0) {
   values_.assign(m()*n(), T());
+  flags_.assign(m()*n(), false);
 }
 
 } // end grb

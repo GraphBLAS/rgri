@@ -14,9 +14,7 @@ void check_size(const MatrixType& matrix, size_t m, size_t n, size_t nnz) {
       REQUIRE( shape[0] == m );
       REQUIRE( shape[1] == n );
       using hint_type = typename MatrixType::hint_type;
-      if (std::is_same<hint_type, grb::sparse>::value) {
-        REQUIRE( matrix.size() == nnz );
-      }
+      REQUIRE( matrix.size() == nnz );
     }
 }
 
