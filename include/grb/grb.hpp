@@ -3,6 +3,8 @@
 
 #include "util/util.hpp"
 
+#include "detail/monoid_traits.hpp"
+
 #include "exceptions/exception.hpp"
 #include "containers/matrix.hpp"
 #include "containers/vector.hpp"
