@@ -3,45 +3,49 @@
 
 namespace grb {
 
-template <typename T>
-struct is_monoid {
+// Check whether binary operator `Fn` has
+// an identity for the type `T`.
+template <typename Fn, typename T>
+struct has_identity {
   template <typename U>
 	static constexpr
-	decltype(U::identity(), bool())
-	test_get(int) {
+	decltype(U:: template identity<T>(), bool())
+	test_identity(int) {
 	  return true;
 	}
 
 	template <typename U>
-	static constexpr bool test_get(...) {
+	static constexpr bool test_identity(...) {
 	  return false;
 	}
 
-	static constexpr bool value = test_get<T>(int());
+	static constexpr bool value = test_identity<Fn>(int());
 };
 
-template <typename T>
-inline constexpr bool is_monoid_v = is_monoid<T>::value;
+// Check whether binary operator `Fn` has
+// an identity for the type `T`.
+template <typename Fn, typename T>
+inline constexpr bool has_identity_v = has_identity<Fn, T>::value;
 
-template <typename Fn, typename Enable = void>
+template <typename Fn, typename T, typename Enable = void>
 class monoid_traits;
 
 template <typename T>
-class monoid_traits<std::plus<T>>
+class monoid_traits<std::plus<T>, T>
 {
 public:
+
 	static constexpr T identity() noexcept {
 		return T(0);
 	}
 };
 
-template <typename Fn>
-class monoid_traits<Fn, std::enable_if_t<grb::is_monoid_v<Fn>>>
+template <typename Fn, typename T>
+class monoid_traits<Fn, T, std::enable_if_t<grb::has_identity_v<Fn, T>>>
 {
 public:
-	template <typename U>
-	static constexpr U identity() noexcept {
-		return Fn:: template identity<U>();
+	static T identity() {
+		return Fn:: template identity<T>();
 	}
 };
 
