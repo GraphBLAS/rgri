@@ -128,6 +128,8 @@ public:
     return *iter;
   }
 
+  /// Return a reference to the stored element at index `index`.  If the
+  /// element is not present, will throw an exception.
   reference at(index_t index) {
     if (index[0] >= shape()[0] || index[1] >= shape()[1]) {
       throw grb::out_of_range("grb::matrix::at(): called with out of range indices");
