@@ -2,6 +2,42 @@
 
 namespace grb {
 	
+/// Multiply the GraphBLAS matrix `a` by the matrix `b`
+/// using conventional matrix multiplication with the `*`
+/// and `+` operators.
+template <typename AMatrixType,
+          typename BMatrixType>
+auto multiply(const AMatrixType& a, const BMatrixType& b) {
+  using a_value_type = typename AMatrixType::value_type;
+  using b_value_type = typename BMatrixType::value_type;
+
+  size_t M = a.shape()[0];
+  size_t K = a.shape()[1];
+  size_t N = b.shape()[1];
+
+  if (a.shape()[1] != b.shape()[0]) {
+    throw grb::invalid_argument("Dimensions of matrices given to grb::multiply() are not compatible.");
+  }
+
+  using c_value_type = decltype(a_value_type() * b_value_type());
+  using index_type = typename AMatrixType::index_type;
+
+  grb::matrix<c_value_type, index_type> c({M, N});
+
+  for (auto ref : a) {
+    for (size_t j = 0; j < N; j++) {
+      a_value_type a_value = ref.value();
+      auto [i, k] = ref.index();
+      auto iter = b.find({k, j});
+      if (iter != b.end()) {
+        b_value_type b_value = *iter;
+        c[{i, j}] += a_value*b_value;
+      }
+    }
+  }
+  return c;
+}
+
 // C = mask(alpha*C + AB) U ~mask(C)
 
 template <typename MatrixType,
