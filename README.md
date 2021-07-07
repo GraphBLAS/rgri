@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
 ```
 
-More documentation is available on [read the docs](https://rgri.readthedocs.io/en/latest/?).
+More documentation is [available here](https://rgri.readthedocs.io/en/main/?).
 
 ## Compiling with RGRI
 RGRI is a header-only library. To compile with RGRI, add the `include` directory to your path (something like `-I$HOME/src/rgri/include`) and include `grb/grb.hpp` in your source files.  RGRI requires C++17, which will likely require the compile flag `-std=gnu++17`, `-std=c++17` or higher.  Check the directory `examples` for examples.
