@@ -31,7 +31,7 @@ auto multiply(const AMatrixType& a, const BMatrixType& b) {
       auto iter = b.find({k, j});
       if (iter != b.end()) {
         b_value_type b_value = *iter;
-        c[{i, j}] += a_value*b_value;
+        c[{i, j}] = c[{i, j}] + a_value*b_value;
       }
     }
   }
