@@ -17,3 +17,7 @@ Docs
 
 .. doxygenclass:: grb::matrix
    :members:
+
+.. doxygenfunction:: grb::multiply
+
+.. doxygenfunction:: grb::sum

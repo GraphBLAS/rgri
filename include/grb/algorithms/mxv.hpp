@@ -4,7 +4,7 @@ namespace grb {
 	
 /// Multiply the GraphBLAS matrix `a` by the matrix `b`
 /// using conventional matrix multiplication with the `*`
-/// and `+` operators.
+/// and `+` operators, returning another matrix `c`.
 template <typename AMatrixType,
           typename BMatrixType>
 auto multiply(const AMatrixType& a, const BMatrixType& b) {
@@ -36,6 +36,18 @@ auto multiply(const AMatrixType& a, const BMatrixType& b) {
     }
   }
   return c;
+}
+
+/// Compute the sum of all elements in the matrix `matrix`,
+/// using the conventional `+` operator.
+template <typename MatrixType>
+auto sum(const MatrixType& matrix) {
+  using value_type = typename MatrixType::value_type;
+  value_type x = 0;
+  for (auto ref : matrix) {
+    x += ref.value();
+  }
+  return x;
 }
 
 // C = mask(alpha*C + AB) U ~mask(C)
