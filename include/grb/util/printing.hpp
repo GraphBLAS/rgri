@@ -6,6 +6,8 @@
 
 namespace grb {
 
+/// Print the GraphBLAS matrix object `matrix` to standard output,
+/// optionally adding the string `label` to label the output.
 template <typename MatrixType>
 void print(const MatrixType& matrix, std::string label = "") {
 	if (label != "") {
