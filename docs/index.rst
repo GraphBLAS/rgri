@@ -12,8 +12,8 @@ Welcome to RGRI's documentation!
 
 :ref:`genindex`
 
-Classes
--------
+GraphBLAS Objects
+-----------------
 .. doxygenclass:: grb::matrix
    :members:
 
@@ -44,6 +44,22 @@ Example
 
      return 0;
    }
+
+Binary Operators
+----------------
+.. doxygenstruct:: grb::plus
+
+.. doxygenstruct:: grb::minus
+
+.. doxygenstruct:: grb::multiplies
+
+.. doxygentypedef:: grb::times
+
+.. doxygenstruct:: grb::max
+
+.. doxygenstruct:: grb::min
+
+.. doxygenstruct:: grb::modulus
 
 Algorithms
 ----------
