@@ -45,8 +45,16 @@ Example
      return 0;
    }
 
-Methods
--------
+Algorithms
+----------
 .. doxygenfunction:: grb::multiply
 
 .. doxygenfunction:: grb::sum
+
+.. doxygenfunction:: grb::ewise(const AMatrixType&, const BMatrixType&, const BinaryOp&)
+
+.. doxygenfunction:: grb::ewise(const AMatrixType&, const BMatrixType&, CMatrixType&, const BinaryOp&, const Accumulator&)
+
+Utility Functions
+-----------------
+.. doxygenfunction:: grb::print
