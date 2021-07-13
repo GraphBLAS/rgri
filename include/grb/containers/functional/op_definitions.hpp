@@ -3,6 +3,8 @@
 namespace grb {
 
 // Binary operators
+
+/// Binary Operator to perform addition. Uses the `+` operator.
 struct plus {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
@@ -15,6 +17,7 @@ struct plus {
 	}
 };
 
+/// Binary Operator to perform subtraction. Uses the `-` operator.
 struct minus {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
@@ -22,6 +25,7 @@ struct minus {
 	}
 };
 
+/// Binary Operator to perform multiplication. Uses the `*` operator.
 struct multiplies {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
@@ -34,8 +38,10 @@ struct multiplies {
 	}
 };
 
+/// Binary Operator to perform multiplication.  Uses the `*` operator.
 using times = multiplies;
 
+/// Binary Operator to perform division. Uses the `/` operator.
 struct divides {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
@@ -45,6 +51,8 @@ struct divides {
 
 // omit std::functional comparisons
 
+/// Binary Operator to perform max, returning the greater of the two values,
+/// or the first element if they are equal.  Uses the `<` operator.
 struct max {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
@@ -61,6 +69,8 @@ struct max {
 	}
 };
 
+/// Binary Operator to perform min, returning the lesser of the two values,
+/// or the first element if they are equal.  Uses the `<` operator.
 struct min {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
@@ -77,6 +87,7 @@ struct min {
 	}
 };
 
+/// Binary Operator to perform modulus, uses the `%` operator.
 struct modulus {
 	template <typename T, typename U>
 	constexpr auto operator()(const T& a, const U& b) const {
