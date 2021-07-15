@@ -62,7 +62,13 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
   if (item != "coordinate") {
     throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
   }
+  bool pattern;
   ss >> item;
+  if (item == "pattern") {
+    pattern = true;
+  } else {
+    pattern = false;
+  }
   // TODO: do something with real vs. integer vs. pattern?
   ss >> item;
   bool symmetric;
@@ -107,7 +113,12 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
     size_type i, j;
     value_type v;
     std::istringstream ss(buf);
-    ss >> i >> j >> v;
+    if (!pattern) {
+      ss >> i >> j >> v;
+    } else {
+      ss >> i >> j;
+      v = value_type(1);
+    }
     if (one_indexed) {
       i--;
       j--;
