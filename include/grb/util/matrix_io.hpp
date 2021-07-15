@@ -43,8 +43,38 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
 
   std::string buf;
 
-  bool outOfComments = false;
+  // Make sure the file is matrix market matrix, coordinate, and check whether
+  // it is symmetric. If the matrix is symmetric, non-diagonal elements will
+  // be inserted in both (i, j) and (j, i).  Error out if skew-symmetric or
+  // Hermitian.
+  std::getline(f, buf);
+  std::istringstream ss(buf);
+  std::string item;
+  ss >> item;
+  if (item != "%%MatrixMarket") {
+    throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
+  }
+  ss >> item;
+  if (item != "matrix") {
+    throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
+  }
+  ss >> item;
+  if (item != "coordinate") {
+    throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
+  }
+  ss >> item;
+  // TODO: do something with real vs. integer vs. pattern?
+  ss >> item;
+  bool symmetric;
+  if (item == "general") {
+    symmetric = false;
+  } else if (item == "symmetric") {
+    symmetric = true;
+  } else {
+    throw std::runtime_error(fname + " has an unsupported matrix type");
+  }
 
+  bool outOfComments = false;
   while (!outOfComments) {
     std::getline(f, buf);
 
@@ -54,14 +84,23 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
   }
 
   size_type m, n, nnz;
-  std::istringstream ss(buf);
+  // std::istringstream ss(buf);
+  ss.clear();
+  ss.str(buf);
   ss >> m >> n >> nnz;
 
+  // NOTE for symmetric matrices: `nnz` holds the number of stored values in
+  // the matrix market file, while `matrix.nnz_` will hold the total number of
+  // stored values (including "mirrored" symmetric values).
   import_matrix_type_<T, I> matrix;
   matrix.m_ = m;
   matrix.n_ = n;
   matrix.nnz_ = nnz;
-  matrix.matrix_.reserve(nnz);
+  if (!symmetric) {
+    matrix.matrix_.reserve(nnz);
+  } else {
+    matrix.matrix_.reserve(nnz*2);
+  }
 
   size_type c = 0;
   while (std::getline(f, buf)) {
@@ -79,6 +118,11 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
     }
 
     matrix.matrix_.push_back(std::tuple<T, I, I>(v, i, j));
+
+    if (symmetric && i != j) {
+      matrix.matrix_.push_back(std::tuple<T, I, I>(v, j, i));
+      matrix.nnz_++;
+    }
 
     c++;
     if (c > nnz) {

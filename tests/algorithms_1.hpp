@@ -12,7 +12,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can perform ewise", "[matrix][template]",
 
   // These test matrices can have any kind of values.
 	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
-	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 170}};
+	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 340}};
 	for (size_t i = 0; i < fnames.size(); i++) {
 		const auto& fname = fnames[i];
 		const auto& detail = details[i];
@@ -20,7 +20,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can perform ewise", "[matrix][template]",
 	    TestType a_matrix(fname);
 	    TestType b_matrix(fname);
 
-      auto c_matrix = grb::ewise(a_matrix, b_matrix, grb::plus{}, grb::plus{});
+      auto c_matrix = grb::ewise(a_matrix, b_matrix, grb::plus{});
 
       auto c_sum = grb::sum(c_matrix);
 

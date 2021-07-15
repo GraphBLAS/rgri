@@ -35,7 +35,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can iterate through matrix, modify values", "[matri
 
   // Each of the test matrices should have `1` as the value for each nonzero.
 	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
-	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 170}};
+	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 340}};
 	for (size_t i = 0; i < fnames.size(); i++) {
 		const auto& fname = fnames[i];
 		const auto& detail = details[i];
