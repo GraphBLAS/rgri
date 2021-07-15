@@ -115,4 +115,37 @@ void mxv(const MatrixType& a, const VectorType1& b, VectorType2& c,
 
 }
 
+
+template <typename AMatrixType,
+          typename BMatrixType>
+size_t multiply_flops(const AMatrixType& a, const BMatrixType& b) {
+  size_t M = a.shape()[0];
+  size_t K = a.shape()[1];
+  size_t N = b.shape()[1];
+
+  if (a.shape()[1] != b.shape()[0]) {
+    throw grb::invalid_argument("Dimensions of matrices given to grb::multiply() are not compatible.");
+  }
+
+  std::vector<size_t> a_nnz(K);
+  std::vector<size_t> b_nnz(K);
+
+  for (auto ref : a) {
+    auto [i, k] = ref.index();
+    a_nnz[k]++;
+  }
+
+  for (auto ref : b) {
+    auto [k, j] = ref.index();
+    b_nnz[k]++;
+  }
+
+  size_t n_flops = 0;
+  for (size_t i = 0; i < K; i++) {
+    n_flops += a_nnz[i]*b_nnz[i];
+  }
+
+  return n_flops;
+}
+
 } // end grb
