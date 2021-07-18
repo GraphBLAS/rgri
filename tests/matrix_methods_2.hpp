@@ -2,7 +2,7 @@
 #include <string>
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
+#include <catch.hpp>
 
 template <typename MatrixType>
 void check_matrix(MatrixType& matrix, size_t m, size_t n, size_t nnz, size_t expected_value) {
