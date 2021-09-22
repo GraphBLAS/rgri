@@ -55,6 +55,9 @@ struct dense_matrix_impl_ {
 
   void insert_tuples(const tuples_type& tuples);
 
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last);
+
   size_type m_, n_;
   size_type nnz_;
 

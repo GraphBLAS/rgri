@@ -21,8 +21,11 @@ auto multiply(const AMatrixType& a, const BMatrixType& b) {
 
   using c_value_type = decltype(a_value_type() * b_value_type());
   using index_type = typename AMatrixType::index_type;
+  // TODO: handle hint_types other than `grb::sparse`, `grb::dense`
+  using backend_type = typename grb::pick_ewise_hint<typename AMatrixType::hint_type,
+                                                     typename BMatrixType::hint_type>::type;
 
-  grb::matrix<c_value_type, index_type> c({M, N});
+  grb::matrix<c_value_type, index_type, backend_type> c({M, N});
 
   for (auto ref : a) {
     for (size_t j = 0; j < N; j++) {

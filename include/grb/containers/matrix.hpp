@@ -142,6 +142,11 @@ public:
     }
   }
 
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last) {
+    backend_matrix_.insert(first, last);
+  }
+
 private:
   backend_type backend_matrix_;
 

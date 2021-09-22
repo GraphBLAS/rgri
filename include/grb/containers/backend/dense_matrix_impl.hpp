@@ -63,6 +63,27 @@ dense_matrix_impl_<T, I, Allocator>::insert_tuples(const tuples_type& new_tuples
 template <typename T,
           typename I,
           typename Allocator>
+template <typename InputIt>
+void
+dense_matrix_impl_<T, I, Allocator>::insert(InputIt first, InputIt last) {
+  size_t inserted = 0;
+  for (auto iter = first; iter != last; iter++) {
+    index_type i = std::get<0>(*iter);
+    index_type j = std::get<1>(*iter);
+    value_type value = std::get<2>(*iter);
+
+    if (!flags_[i*n() + j]) {
+      inserted++;
+      flags_[i*n() + j] = true;
+      values_[i*n() + j] = value;
+    }
+  }
+  nnz_ += inserted;
+}
+
+template <typename T,
+          typename I,
+          typename Allocator>
 dense_matrix_impl_<T, I, Allocator>::dense_matrix_impl_(index_t shape)
  : m_(shape[0]), n_(shape[1]), nnz_(0) {
   values_.assign(m()*n(), T());

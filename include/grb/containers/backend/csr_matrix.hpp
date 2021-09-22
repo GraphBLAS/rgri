@@ -31,6 +31,7 @@ struct csr_matrix_impl_ {
   csr_matrix_impl_(const import_matrix_type_<value_type, index_type>& matrix);
 
   void assign_tuples(const tuples_type& tuples);
+  void assign_tuples(const std::vector<std::tuple<index_type, index_type, value_type>>& tuples);
 
   size_type m() const {
     return m_;
@@ -57,6 +58,9 @@ struct csr_matrix_impl_ {
   iterator find(index_t idx) const;
 
   void insert_tuples(tuples_type& tuples);
+
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last);
 
   size_type m_, n_;
   size_type nnz_;

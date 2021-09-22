@@ -26,11 +26,11 @@ public:
     return *this;
   }
 
-  value_type& value_reference() noexcept {
+  decltype(auto) value_reference() noexcept {
     return matrix_.values_[idx_];
   }
 
-  const value_type& value_reference() const noexcept {
+  decltype(auto) value_reference() const noexcept {
     return matrix_.values_[idx_];
   }
 
@@ -46,7 +46,7 @@ public:
     return index();
   }
 
-  value_type& value() noexcept {
+  decltype(auto) value() noexcept {
     return value_reference();
   }
 

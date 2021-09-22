@@ -74,6 +74,51 @@ csr_matrix_impl_<T, I, Allocator>::assign_tuples(const tuples_type& tuples)
   }
 }
 
+// NOTE: tuples must contain unique indices inside the bounds of the matrix.
+template <typename T,
+          typename I,
+          typename Allocator>
+void
+csr_matrix_impl_<T, I, Allocator>::assign_tuples(const std::vector<std::tuple<index_type, index_type, value_type>>& tuples)
+{
+  nnz_ = tuples.size();
+  rowptr_.resize(m()+1);
+  colind_.resize(nnz());
+  values_.resize(nnz());
+
+  rowptr_[0] = 0;
+  
+  size_type r = 0;
+  size_type c = 0;
+  for (const auto& tuple : tuples) {
+    value_type v = std::get<2>(tuple);
+    size_type i = std::get<0>(tuple);
+    size_type j = std::get<1>(tuple);
+
+    values_[c] = v;
+    colind_[c] = j;
+
+    while (r < i) {
+      if (r+1 > m_) {
+        // TODO better exception
+        throw std::runtime_error("csr_matrix_impl_: given invalid matrix");
+      }
+      rowptr_[r+1] = c;
+      r++;
+    }
+    c++;
+
+    if (c > nnz_) {
+      // TODO better exception
+      throw std::runtime_error("csr_matrix_impl_: given invalid matrix");
+    }
+  }
+
+  for ( ; r < m_; r++) {
+    rowptr_[r+1] = nnz_;
+  }
+}
+
 
 // NOTE: new_tuples must be unique indices that do not occur
 //       in the sparse matrix.
@@ -114,6 +159,32 @@ csr_matrix_impl_<T, I, Allocator>::insert_tuples(tuples_type& new_tuples) {
              output_tuples.begin(), sort_fn);
 
   assign_tuples(output_tuples);
+}
+
+// Note: undefined (?) which element will be inserted if equal elements already exist
+template <typename T,
+          typename I,
+          typename Allocator>
+template <typename InputIt>
+void
+csr_matrix_impl_<T, I, Allocator>::insert(InputIt first, InputIt last) {
+  // a < b
+  auto sort_fn = [](auto a, auto b) {
+                   if (std::get<0>(a) < std::get<0>(b)) {
+                     return true;
+                   }
+                   else if (std::get<0>(a) == std::get<0>(b)) {
+                     if (std::get<1>(a) < std::get<1>(b)) {
+                      return true;
+                     }
+                   }
+                   return false;
+                 };
+
+  std::vector<std::tuple<index_type, index_type, value_type>> merged_tuples(nnz() + (last - first));
+  std::set_union(begin(), end(), first, last, merged_tuples.begin(), sort_fn);
+
+  assign_tuples(merged_tuples);
 }
 
 template <typename T,

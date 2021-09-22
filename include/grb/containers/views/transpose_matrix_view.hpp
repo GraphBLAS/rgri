@@ -26,6 +26,8 @@ public:
 
   using tuples_type = typename MatrixType::tuples_type;
 
+  using hint_type = typename MatrixType::hint_type;
+
   transpose_matrix_view(MatrixType& matrix) : matrix_(matrix) {}
 
   index_t shape() const noexcept {
