@@ -1,19 +1,59 @@
 #include <grb/grb.hpp>
+#include <iostream>
+
+template <typename T = void, typename U = T, typename V = void>
+class plus;
+
+template <typename T, typename U, typename V>
+class plus {
+public:
+  V operator()(const T& left, const U& right) {
+    return left + right;
+  }
+};
+
+template <typename T, typename U>
+class plus<T, U, void> {
+public:
+  auto operator()(const T& left, const U& right) {
+    return left + right;
+  }
+};
+
+template <>
+class plus<void, void, void>
+{
+public:
+  template <typename T, typename U>
+  auto operator()(const T& left, const U& right) {
+    return left + right;
+  }
+};
+
+void foo(std::string) {}
 
 int main(int argc, char** argv) {
 	grb::matrix<float, int, grb::sparse> matrix({1024, 1024});
 
-  matrix[{12, 13}] = 12;
-  matrix[{34, 12}] = 12;
-  matrix[{0, 2}] = 0.1;
-  matrix[{123, 123}] = 14;
-  matrix[{141, 191}] = 12;
+  plus<int> p;
 
-  grb::print(matrix, "Original matrix:");
+  std::cout << 12 << " " << 13 << " " << p(12, 13) << std::endl;
 
-  auto transpose_matrix = grb::transpose(matrix);
+  plus<> q;
 
-  grb::print(transpose_matrix, "Transposed matrix:");
+  std::cout << 12 << " " << 13 << " " << q(12, 13) << std::endl;
+
+  plus f;
+
+  std::cout << 12 << " " << 13 << " " << f(12, 13) << std::endl;
+
+  plus <int, float> f2;
+
+  plus <int, float, int> f3;
+
+  auto lel = f3(12, 13);
+
+  foo(lel);
 
   return 0;
 }
