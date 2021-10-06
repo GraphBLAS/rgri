@@ -1,0 +1,10 @@
+{
+  "name": "rgri",
+  "version-string": "0.1.0",
+  "port-version": 1,
+  "homepage": "https://github.com/BenBrock/rgri",
+  "description": "Reference implementation of GraphBLAS.",
+  "dependencies": [
+    "catch2"
+  ]
+}

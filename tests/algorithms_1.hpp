@@ -2,7 +2,7 @@
 #include <string>
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
+#include <catch.hpp>
 
 TEMPLATE_PRODUCT_TEST_CASE( "can perform ewise", "[matrix][template]",
   (grb::matrix), ((float, int, grb::sparse), (float, size_t, grb::sparse),
