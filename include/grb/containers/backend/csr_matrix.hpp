@@ -67,12 +67,13 @@ public:
   template <typename InputIt>
   void insert(InputIt first, InputIt last);
 
-  void insert(value_type&& value) {
-    insert(&value, &value + 1);
-  }
+  std::pair<iterator, bool> insert(value_type&& value);
 
-  iterator find(key_type&& key) noexcept;
-  const_iterator find(key_type&& key) const noexcept;
+  template <class M>
+  std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj);
+
+  iterator find(key_type key) noexcept;
+  const_iterator find(key_type key) const noexcept;
 
   csr_matrix(grb::index<I> shape);
 
@@ -162,6 +163,7 @@ csr_matrix<T, I, Allocator>::assign_tuples(InputIt first, InputIt last)
 }
 
 
+// Currently assumes NO DUPLICATES in range first -> last
 template <typename T,
           typename I,
           typename Allocator>
@@ -195,8 +197,8 @@ void csr_matrix<T, I, Allocator>::insert(InputIt first, InputIt last) {
   std::vector<grb::matrix_entry<T, I>> output_indices(my_sorted_indices.size() + sorted_indices_toadd.size());
 
   auto new_last = std::set_union(
-                      sorted_indices_toadd.begin(), sorted_indices_toadd.end(),
                       my_sorted_indices.begin(), my_sorted_indices.end(),
+                      sorted_indices_toadd.begin(), sorted_indices_toadd.end(),
                       output_indices.begin(), sort_fn);
 /*
   std::vector<std::tuple<index_type, index_type, value_type>> merged_tuples(nnz() + (last - first));
@@ -213,7 +215,7 @@ template <typename T,
           typename Allocator>
 
 typename csr_matrix<T, I, Allocator>::iterator
-csr_matrix<T, I, Allocator>::find(key_type&& key) noexcept
+csr_matrix<T, I, Allocator>::find(key_type key) noexcept
 {
   index_type i = key[0];
   for (index_type j_ptr = rowptr_[i]; j_ptr < rowptr_[i+1]; j_ptr++) {
@@ -228,7 +230,7 @@ template <typename T,
           typename I,
           typename Allocator>
 typename csr_matrix<T, I, Allocator>::const_iterator
-csr_matrix<T, I, Allocator>::find(key_type&& key) const noexcept
+csr_matrix<T, I, Allocator>::find(key_type key) const noexcept
 {
   index_type i = key[0];
   for (index_type j_ptr = rowptr_[i]; j_ptr < rowptr_[i+1]; j_ptr++) {
@@ -237,6 +239,40 @@ csr_matrix<T, I, Allocator>::find(key_type&& key) const noexcept
     }
   }
   return end();
+}
+
+template <typename T,
+          typename I,
+          typename Allocator>
+std::pair<typename csr_matrix<T, I, Allocator>::iterator, bool>
+csr_matrix<T, I, Allocator>::insert(typename csr_matrix<T, I, Allocator>::value_type&& value) {
+  auto&& [idx, v] = value;
+  auto iter = find(idx);
+  if (iter != end()) {
+    return {iter, false};
+  } else {
+    insert(&value, &value + 1);
+    auto iter = find(idx);
+    return {iter, true};
+  }
+}
+
+template <typename T,
+          typename I,
+          typename Allocator>
+template <class M>
+std::pair<typename csr_matrix<T, I, Allocator>::iterator, bool>
+csr_matrix<T, I, Allocator>::insert_or_assign(csr_matrix<T, I, Allocator>::key_type k, M&& obj) {
+  auto iter = find(k);
+
+  if (iter != end()) {
+    auto&& [index, value] = *iter;
+    value = std::forward<M>(obj);
+    return {iter, false};
+  } else {
+    auto&& [iter, flag] = insert({k, std::forward<M>(obj)});
+    return {iter, true};
+  }
 }
 
 } // end grb
