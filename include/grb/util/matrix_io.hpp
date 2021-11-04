@@ -8,27 +8,15 @@
 #include <vector>
 #include <tuple>
 
+#include <grb/containers/backend/coo_matrix.hpp>
+
 namespace grb {
-
-// (value, column index, row index)
-template <typename T, typename I>
-struct import_matrix_type_{
-	using value_type = T;
-	using index_type = I;
-	using size_type = std::size_t;
-
-	size_type m_, n_;
-	size_type nnz_;
-
-	std::vector<std::tuple<T, I, I>> matrix_;
-};
 
 // Read in a matrix market file `fname`, returning a sorted vector
 // of nonzero tuples.
-template <typename T, typename I>
+template <typename T, typename I = std::size_t>
 inline
-import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed = true) {
-	using value_type = T;
+coo_matrix<T, I> mmread(std::string fname, bool one_indexed = true) {
 	using index_type = I;
 	using size_type = std::size_t;
 
@@ -38,7 +26,7 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
 
   if (!f.is_open()) {
   	// TODO better choice of exception.
-    throw std::runtime_error("read_MatrixMarket: cannot open " + fname);
+    throw std::runtime_error("mmread: cannot open " + fname);
   }
 
   std::string buf;
@@ -98,26 +86,26 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
   // NOTE for symmetric matrices: `nnz` holds the number of stored values in
   // the matrix market file, while `matrix.nnz_` will hold the total number of
   // stored values (including "mirrored" symmetric values).
-  import_matrix_type_<T, I> matrix;
-  matrix.m_ = m;
-  matrix.n_ = n;
-  matrix.nnz_ = nnz;
-  if (!symmetric) {
-    matrix.matrix_.reserve(nnz);
+  coo_matrix<T, I> matrix({m, n});
+  if (symmetric) {
+    matrix.reserve(2*nnz);
   } else {
-    matrix.matrix_.reserve(nnz*2);
+    matrix.reserve(nnz);
   }
+  /*
+    TODO: reserve? (for general and for symmetric)
+  */
 
   size_type c = 0;
   while (std::getline(f, buf)) {
     size_type i, j;
-    value_type v;
+    T v;
     std::istringstream ss(buf);
     if (!pattern) {
       ss >> i >> j >> v;
     } else {
       ss >> i >> j;
-      v = value_type(1);
+      v = T(1);
     }
     if (one_indexed) {
       i--;
@@ -128,11 +116,10 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
     	throw std::runtime_error("read_MatrixMarket: file has nonzero out of bounds.");
     }
 
-    matrix.matrix_.push_back(std::tuple<T, I, I>(v, i, j));
+    matrix.insert({{i, j}, v});
 
     if (symmetric && i != j) {
-      matrix.matrix_.push_back(std::tuple<T, I, I>(v, j, i));
-      matrix.nnz_++;
+      matrix.insert({{j, i}, v});
     }
 
     c++;
@@ -141,20 +128,7 @@ import_matrix_type_<T, I> read_MatrixMarket(std::string fname, bool one_indexed 
     }
   }
 
-  // a < b
-  auto sort_fn = [](auto a, auto b) {
-  	               if (std::get<1>(a) < std::get<1>(b)) {
-  	                 return true;
-  	               }
-  	               else if (std::get<1>(a) == std::get<1>(b)) {
-  	               	 if (std::get<2>(a) < std::get<2>(b)) {
-  	               	 	return true;
-  	               	 }
-  	               }
-  	               return false;
-                 };
-
-  std::sort(matrix.matrix_.begin(), matrix.matrix_.end(), sort_fn);
+  // std::sort(matrix.matrix_.begin(), matrix.matrix_.end(), sort_fn);
 
   f.close();
 

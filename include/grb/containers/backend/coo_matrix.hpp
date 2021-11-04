@@ -32,6 +32,10 @@ public:
   	return tuples_.size();
   }
 
+  void reserve(size_type new_cap) {
+  	tuples_.reserve(new_cap);
+  }
+
   iterator begin() noexcept {
     return tuples_.begin();
   }
