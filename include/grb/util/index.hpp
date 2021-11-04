@@ -8,7 +8,7 @@
 namespace grb {
 
 template <typename T = std::size_t>
-requires(std::is_integral_v<T> && !std::is_const_v<T>)
+requires(std::is_integral_v<T> && !std::is_reference_v<T>)
 class index {
 public:
   using index_type = T;
@@ -31,6 +31,8 @@ public:
   }
 
   index(index_type first, index_type second) : first(first), second(second) {}
+
+  bool operator==(const index&) const noexcept = default;
 
   index() = default;
   ~index() = default;

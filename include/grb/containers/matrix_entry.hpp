@@ -14,7 +14,8 @@ public:
   using index_type = I;
   using map_type = T;
 
-  matrix_entry(grb::index<I> index, map_type value) : value_(value), index_(index) {}
+  matrix_entry(grb::index<I> index, const map_type& value) : value_(value), index_(index) {}
+  matrix_entry(grb::index<I> index, map_type&& value) : value_(std::move(value)), index_(index) {}
 
   template <typename U>
   matrix_entry(std::pair<std::pair<U, U>, T> tuple)

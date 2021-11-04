@@ -2,7 +2,7 @@
 #pragma once
 
 #include <grb/util/index.hpp>
-#include <grb/containers/matrix_element.hpp>
+#include <grb/containers/matrix_entry.hpp>
 #include <grb/util/matrix_io.hpp>
 #include <grb/containers/backend/csr_matrix_iterator.hpp>
 #include <limits>
