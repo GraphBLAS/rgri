@@ -1,4 +1,6 @@
 #include <grb/containers/backend/csr_matrix.hpp>
+#include <grb/containers/backend/coo_matrix.hpp>
+#include <grb/util/matrix_io.hpp>
 #include <ranges>
 #include <fmt/core.h>
 #include <iterator>
@@ -13,7 +15,7 @@ void foo(R&& r) {
 }
 
 int main(int argc, char** argv) {
-  grb::csr_matrix<float, int> x({1024, 1024});
+  grb::coo_matrix<float, int> x({1024, 1024});
 
   std::tuple<std::tuple<int, int>, float> elem{{12, 12}, 42.0f};
 
@@ -21,13 +23,20 @@ int main(int argc, char** argv) {
   x.insert({{12, 12}, 42.0f});
   x.insert({{13, 14}, 42.0f});
   x.insert({{52, 33}, 42.0f});
+  x.insert_or_assign({52, 33}, 13.0f);
+  x.insert_or_assign({52, 33}, 44.0f);
 
   fmt::print("{}, {}: {}\n", x.shape()[0], x.shape()[1], x.size());
 
-  std::ranges::for_each(x, [](grb::matrix_ref<float> entry) {
-                                    auto&& [index, value] = entry;
-                                    fmt::print("{}, {}: {}\n", index[0], index[1],
-                                    value);
+  const auto& x_r = x;
+  std::ranges::for_each(x, [](auto&& entry) {
+                             auto&& [index, value] = entry;
+                             // entry = "1234";
+                             value = 12;
+                             // entry.value() = 12;
+                             auto&& [i, j] = index;
+                             fmt::print("{}, {}: {}\n", index[0], index[1],
+                                        value);
   });
 
   auto iter = x.find({52, 33});

@@ -110,7 +110,7 @@ public:
 	using index_type = I;
   using map_type = T;
 
-  using value_type = grb::matrix_entry<std::remove_const_t<T>, I>;
+  using value_type = grb::matrix_entry<T, I>;
   // using type = grb::matrix_entry<std::remove_const_t<T>, I>;
 
 	matrix_ref(grb::index<I> index, map_type& value) : index_(index), value_(value) {}
@@ -139,13 +139,7 @@ public:
   	return index_;
   }
 
-  map_type& value() noexcept
-  requires(!std::is_const_v<map_type>)
-  {
-  	return value_;
-  }
-
-  const map_type& value() const noexcept {
+  map_type& value() const noexcept {
   	return value_;
   }
 
