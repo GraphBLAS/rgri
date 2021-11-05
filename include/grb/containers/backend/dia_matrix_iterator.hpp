@@ -80,6 +80,9 @@ public:
   		j = std::abs(v);
   	}
 
+  	i += idx_;
+  	j += idx_;
+
   	return reference({i, j}, diagonal_->second.first[idx_]);
   }
 

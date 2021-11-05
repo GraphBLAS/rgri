@@ -121,8 +121,20 @@ public:
   		              diagonals_.end());
   }
 
+  const_iterator begin() const noexcept {
+  	return const_iterator(0, m_, n_,
+  		              diagonals_.begin(),
+  		              diagonals_.end());
+  }
+
   iterator end() noexcept {
   	return iterator(0, m_, n_,
+  		              diagonals_.end(),
+  		              diagonals_.end());
+  }
+
+  const_iterator end() const noexcept {
+  	return const_iterator(0, m_, n_,
   		              diagonals_.end(),
   		              diagonals_.end());
   }
