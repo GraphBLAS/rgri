@@ -5,6 +5,7 @@
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/util/matrix_io.hpp>
 #include <grb/containers/backend/csr_matrix_iterator.hpp>
+#include <vector>
 #include <limits>
 #include <climits>
 

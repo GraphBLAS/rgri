@@ -77,7 +77,7 @@ coo_matrix<T, I> mmread(std::string fname, bool one_indexed = true) {
     }
   }
 
-  size_type m, n, nnz;
+  I m, n, nnz;
   // std::istringstream ss(buf);
   ss.clear();
   ss.str(buf);
@@ -98,7 +98,7 @@ coo_matrix<T, I> mmread(std::string fname, bool one_indexed = true) {
 
   size_type c = 0;
   while (std::getline(f, buf)) {
-    size_type i, j;
+    I i, j;
     T v;
     std::istringstream ss(buf);
     if (!pattern) {

@@ -62,6 +62,16 @@ public:
     return matrix_entry<std::add_const_t<T>, U>(index_, value_);
   }
 
+  bool operator<(const matrix_entry& other) const noexcept {
+    if (index()[0] < other.index()[0]) {
+      return true;
+    } else if (index()[0] == other.index()[0] &&
+               index()[1] < other.index()[1]) {
+      return true;
+    }
+    return false;
+  }
+
   matrix_entry() = default;
   ~matrix_entry() = default;
 
@@ -156,6 +166,16 @@ public:
            std::numeric_limits<U>::max() >= std::numeric_limits<I>::max())
   operator matrix_ref<std::add_const_t<T>, U>() const noexcept {
     return matrix_ref<std::add_const_t<T>, U>(index_, value_);
+  }
+
+  bool operator<(matrix_entry<T, I> other) const noexcept {
+    if (index()[0] < other.index()[0]) {
+      return true;
+    } else if (index()[0] == other.index()[0] &&
+               index()[1] < other.index()[1]) {
+      return true;
+    }
+    return false;
   }
 
 	matrix_ref() = delete;
