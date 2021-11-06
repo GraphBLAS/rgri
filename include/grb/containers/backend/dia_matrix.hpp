@@ -8,7 +8,6 @@
 #include <map>
 #include <limits>
 #include <climits>
-#include <fmt/core.h>
 
 namespace grb {
 
@@ -62,11 +61,6 @@ public:
   	index_type idx = std::min(i, j);
     index_type count = std::min(m_, n_) - std::min(i, j);
 
-    fmt::print("Inserting ({}, {}): {}. Going in diagonal {}, [{}] (size {})\n",
-    	         i, j, v,
-    	         diagonal, idx,
-    	         count);
-
     auto iter = diagonals_.find(diagonal);
     if (iter == diagonals_.end()) {
     	index_type count = std::min(m_, n_) - std::min(i, j);
@@ -91,13 +85,6 @@ public:
   	index_type diagonal = (difference_type(j) - i) + shape()[0] - 1;
   	index_type idx = std::min(i, j);
     index_type count = std::min(m_, n_) - std::min(i, j);
-
-/*
-    fmt::print("Inserting ({}, {}): {}. Going in diagonal {}, [{}] (size {})\n",
-    	         i, j, v,
-    	         diagonal, idx,
-    	         count);
-    	         */
 
     auto iter = diagonals_.find(diagonal);
     if (iter == diagonals_.end()) {
