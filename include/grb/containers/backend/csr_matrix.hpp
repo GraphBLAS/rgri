@@ -190,12 +190,12 @@ void csr_matrix<T, I, Allocator>::insert(InputIt first, InputIt last) {
   using tuple_type = std::pair<std::pair<I, I>, T>;
   std::vector<tuple_type> my_sorted_indices(begin(), end());
 
-  using input_tuple_type = std::iter_value_t<InputIt>;
-  std::vector<input_tuple_type> sorted_indices_toadd(first, last);
+  // using input_tuple_type = std::iter_value_t<InputIt>;
+  std::vector<tuple_type> sorted_indices_toadd(first, last);
   std::ranges::sort(my_sorted_indices, sort_fn);
   std::ranges::sort(sorted_indices_toadd, sort_fn);
 
-  std::vector<grb::matrix_entry<T, I>> output_indices(my_sorted_indices.size() + sorted_indices_toadd.size());
+  std::vector<tuple_type> output_indices(my_sorted_indices.size() + sorted_indices_toadd.size());
 
   auto new_last = std::set_union(
                       my_sorted_indices.begin(), my_sorted_indices.end(),
