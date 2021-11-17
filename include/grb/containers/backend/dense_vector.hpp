@@ -94,7 +94,7 @@ public:
   	} else {
   		nnz_++;
   		flags_[k] = true;
-  		data_[k] = {k, std::forward<M>(obj)};
+  		data_[k] = std::forward<M>(obj);
   		return {iterator(*this, k), true};
   	}
   }
