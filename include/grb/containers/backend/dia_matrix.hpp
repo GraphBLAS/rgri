@@ -47,6 +47,10 @@ public:
   	return {m_, n_};
   }
 
+  size_type size() const noexcept {
+    return nnz_;
+  }
+
   dia_matrix() = default;
   ~dia_matrix() = default;
   dia_matrix(const dia_matrix&) = default;
@@ -54,7 +58,7 @@ public:
   dia_matrix& operator=(const dia_matrix&) = default;
   dia_matrix& operator=(dia_matrix&&) = default;
 
-  void insert(value_type&& value) {
+  std::pair<iterator, bool> insert(value_type&& value) {
   	auto&& [index, v] = value;
   	auto&& [i, j] = index;
   	index_type diagonal = (difference_type(j) - i) + shape()[0] - 1;
@@ -76,12 +80,16 @@ public:
     if (!bvec[idx]) {
     	vec[idx] = v;
     	bvec[idx] = true;
+      nnz_++;
+      return {true, iterator(idx, m_, n_, iter, diagonals_.end())};
+    } else {
+      return {false, iterator(idx, m_, n_, iter, diagonals_.end())};
     }
   }
 
-  void insert_or_assign(value_type&& value) {
-  	auto&& [index, v] = value;
-  	auto&& [i, j] = index;
+  template <typename M>
+  std::pair<bool, iterator> insert_or_assign(key_type k, M&& obj) {
+  	auto&& [i, j] = k;
   	index_type diagonal = (difference_type(j) - i) + shape()[0] - 1;
   	index_type idx = std::min(i, j);
     index_type count = std::min(m_, n_) - std::min(i, j);
@@ -97,9 +105,15 @@ public:
     }
 
     auto&& [vec, bvec] = iter->second;
+    vec[idx] = std::forward<M>(obj);
 
-    vec[idx] = v;
-    bvec[idx] = true;
+    if (!bvec[idx]) {
+      bvec[idx] = true;
+      nnz_++;
+      return {true, iterator(idx, m_, n_, iter, diagonals_.end())};
+    } else {
+      return {false, iterator(idx, m_, n_, iter, diagonals_.end())};
+    }
   }
 
   iterator begin() noexcept {

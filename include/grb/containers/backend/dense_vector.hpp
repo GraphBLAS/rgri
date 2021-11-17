@@ -53,6 +53,7 @@ public:
 		if (!flags_[index]) {
 			data_[index] = T();
 			flags_[index] = true;
+			nnz_++;
 		}
 		return data_[index];
 	}
@@ -61,9 +62,58 @@ public:
 		return iterator(*this, 0);
 	}
 
+	const_iterator begin() const noexcept {
+		return const_iterator(*this, 0);
+	}
+
 	iterator end() noexcept {
 		return iterator(*this, shape());
 	}
+
+	const_iterator end() const noexcept {
+		return const_iterator(*this, shape());
+	}
+
+	std::pair<iterator, bool> insert(value_type&& value) {
+		auto&& [idx, v] = value;
+		if (flags_[idx]) {
+			return {iterator(*this, idx), false};
+		} else {
+			nnz_++;
+			flags_[idx] = true;
+			data_[idx] = v;
+			return {iterator(*this, idx), true};
+		}
+	}
+
+  template <class M>
+  std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
+  	if (flags_[k]) {
+  		data_[k] = std::forward<M>(obj);
+			return {iterator(*this, k), false};
+  	} else {
+  		nnz_++;
+  		flags_[k] = true;
+  		data_[k] = {k, std::forward<M>(obj)};
+  		return {iterator(*this, k), true};
+  	}
+  }
+
+  iterator find(key_type key) noexcept {
+  	if (flags_[key]) {
+  		return iterator(*this, key);
+  	} else {
+  		return end();
+  	}
+  }
+
+  const_iterator find(key_type key) const noexcept {
+  	if (flags_[key]) {
+  		return const_iterator(*this, key);
+  	} else {
+  		return end();
+  	}
+  }
 
 private:
   using bool_allocator_type = typename std::allocator_traits<allocator_type>::rebind_alloc<bool>;

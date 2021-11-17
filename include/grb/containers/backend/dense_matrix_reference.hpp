@@ -1,6 +1,6 @@
 #pragma once
 
-#include <grb/util/index_t.hpp>
+#include <grb/util/index.hpp>
 
 namespace grb {
 
