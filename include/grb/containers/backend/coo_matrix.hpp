@@ -17,7 +17,7 @@ public:
 	using key_type = grb::index<I>;
 	using map_type = T;
 
-  using backend_allocator_type = typename std::allocator_traits<allocator_type>::rebind_alloc<value_type>;
+  using backend_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<value_type>;
   using backend_type = std::vector<value_type, backend_allocator_type>;
 
   using iterator = typename backend_type::iterator;

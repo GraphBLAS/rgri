@@ -13,12 +13,39 @@ template <typename T,
           typename I,
           typename Allocator>
 class dense_vector_iterator {
+private:
+
+  template <typename U>
+  struct const_if_impl_ {
+    template <typename V>
+    struct constify {
+      using type = std::add_const_t<V>;
+    };
+  };
+
+  template <typename U>
+  requires(!std::is_const_v<U>)
+  struct const_if_impl_<U> {
+    template <typename V>
+    struct constify {
+      using type = V;
+    };
+  };
+
+  template <typename U, typename V>
+  using const_if_t = typename const_if_impl_<U>:: template constify<V>::type;
+
 public:
+  using backend_type = dense_vector<std::remove_const_t<T>, I, Allocator>;
+  using backend_type_constified = const_if_t<T, backend_type>;
+
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
-  // using element_type = T;
+  using scalar_type = T;
   using index_type = I;
+
+  using key_type = grb::index<I>;
   using map_type = T;
 
   using value_type = grb::vector_entry<T, index_type>;
@@ -34,7 +61,7 @@ public:
 
   using iterator_category = std::forward_iterator_tag;
 
-  dense_vector_iterator(dense_vector<T, I, Allocator>& vector, index_type index)
+  dense_vector_iterator(backend_type_constified& vector, index_type index)
     : vector_(&vector), index_(index) {
     	fast_forward();
   }
@@ -104,7 +131,8 @@ public:
 
 private:
 
-  dense_vector<T, I, Allocator>* vector_;
+
+  backend_type_constified* vector_;
   index_type index_;
 };
 

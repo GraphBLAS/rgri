@@ -26,7 +26,7 @@ public:
   using difference_type = std::ptrdiff_t;
 
   using allocator_type = Allocator;
-  using index_allocator_type = typename std::allocator_traits<allocator_type>::rebind_alloc<index_type>;
+  using index_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<index_type>;
 
   using iterator = dia_matrix_iterator<T,
                                        index_type>;

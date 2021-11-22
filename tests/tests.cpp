@@ -2,6 +2,7 @@
 #include <grb_testing/catch.hpp>
 
 #include "matrix_iterator_1.hpp"
+#include "vector_iterator_1.hpp"
 
 #include "matrix_methods_1.hpp"
 #include "matrix_methods_2.hpp"

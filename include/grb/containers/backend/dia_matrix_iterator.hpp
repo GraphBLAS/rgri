@@ -30,11 +30,11 @@ public:
   dia_matrix_iterator(index_type idx,
   	                  index_type m,
   	                  index_type n,
-											std::map<index_type,
+											typename std::map<index_type,
 											         std::pair<std::vector<T>,
 											                   std::vector<bool>>
 											                  >::iterator diagonal,
-											std::map<index_type,
+											typename std::map<index_type,
 											         std::pair<std::vector<T>,
 											                   std::vector<bool>>
 											                  >::iterator end
@@ -99,11 +99,11 @@ public:
 private:
 	index_type idx_;
 	index_type m_, n_;
-	std::map<index_type,
+	typename std::map<index_type,
 	         std::pair<std::vector<T>,
 	                   std::vector<bool>>
 	                  >::iterator diagonal_;
-	std::map<index_type,
+	typename std::map<index_type,
 	         std::pair<std::vector<T>,
 	                   std::vector<bool>>
 	                  >::iterator end_;

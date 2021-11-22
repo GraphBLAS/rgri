@@ -27,7 +27,7 @@ public:
   using difference_type = std::ptrdiff_t;
 
   using allocator_type = Allocator;
-  using index_allocator_type = typename std::allocator_traits<allocator_type>::rebind_alloc<index_type>;
+  using index_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<index_type>;
 
   using iterator = csr_matrix_iterator<T,
                                        index_type>;
@@ -129,7 +129,7 @@ private:
 };
 
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 csr_matrix<T, I, Allocator>::csr_matrix(index<I> shape)
  : m_(shape[0]), n_(shape[1]), nnz_(0) {
@@ -149,7 +149,7 @@ csr_matrix<T, I, Allocator>::csr_matrix(index<I> shape)
 // tuples stored in `tuples`.  Tuples must be within the bounds of the current
 // dimensions of the matrix.
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 template <typename InputIt>
 void
@@ -195,7 +195,7 @@ csr_matrix<T, I, Allocator>::assign_tuples(InputIt first, InputIt last)
 
 // Currently assumes NO DUPLICATES in range first -> last
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 template <typename InputIt>
 void csr_matrix<T, I, Allocator>::insert(InputIt first, InputIt last) {
@@ -241,7 +241,7 @@ void csr_matrix<T, I, Allocator>::insert(InputIt first, InputIt last) {
 
 // NOTE: if sorted, you could exit this for loop early
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 
 typename csr_matrix<T, I, Allocator>::iterator
@@ -257,7 +257,7 @@ csr_matrix<T, I, Allocator>::find(key_type key) noexcept
 }
 
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 typename csr_matrix<T, I, Allocator>::const_iterator
 csr_matrix<T, I, Allocator>::find(key_type key) const noexcept
@@ -272,7 +272,7 @@ csr_matrix<T, I, Allocator>::find(key_type key) const noexcept
 }
 
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 std::pair<typename csr_matrix<T, I, Allocator>::iterator, bool>
 csr_matrix<T, I, Allocator>::insert(typename csr_matrix<T, I, Allocator>::value_type&& value) {
@@ -288,7 +288,7 @@ csr_matrix<T, I, Allocator>::insert(typename csr_matrix<T, I, Allocator>::value_
 }
 
 template <typename T,
-          typename I,
+          std::integral I,
           typename Allocator>
 template <class M>
 std::pair<typename csr_matrix<T, I, Allocator>::iterator, bool>

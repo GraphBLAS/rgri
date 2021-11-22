@@ -3,6 +3,7 @@
 #include <vector>
 #include <grb/containers/vector_entry.hpp>
 #include <grb/containers/backend/dense_vector_iterator.hpp>
+#include <numeric>
 
 namespace grb {
 
@@ -32,11 +33,9 @@ public:
   using pointer = iterator;
   using const_pointer = const_iterator;
 
-	using v_reference = typename std::vector<T, allocator_type>::reference;
+	using scalar_reference = typename std::vector<T, allocator_type>::reference;
 
-	dense_vector() = default;
-
-	dense_vector(size_type shape) {
+	dense_vector(I shape) {
 		data_.resize(shape);
 		flags_.resize(shape, false);
 	}
@@ -49,7 +48,7 @@ public:
 		return nnz_;
 	}
 
-	v_reference operator[](I index) noexcept {
+	scalar_reference operator[](I index) noexcept {
 		if (!flags_[index]) {
 			data_[index] = T();
 			flags_[index] = true;
@@ -86,7 +85,7 @@ public:
 		}
 	}
 
-  template <class M>
+  template <typename M>
   std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
   	if (flags_[k]) {
   		data_[k] = std::forward<M>(obj);
@@ -115,8 +114,24 @@ public:
   	}
   }
 
+  void reshape(I shape) {
+  	bool smaller = shape < this->shape();
+  	data_.resize(shape);
+  	flags_.resize(shape, false);
+  	if (smaller) {
+  		nnz_ = std::reduce(flags_.begin(), flags_.end(), size_t(0));
+  	}
+  }
+
+	dense_vector() = default;
+	~dense_vector() = default;
+	dense_vector(const dense_vector&) = default;
+	dense_vector& operator=(const dense_vector&) = default;
+	dense_vector(dense_vector&&) = default;
+	dense_vector& operator=(dense_vector&&) = default;
+
 private:
-  using bool_allocator_type = typename std::allocator_traits<allocator_type>::rebind_alloc<bool>;
+  using bool_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<bool>;
   friend iterator;
   friend const_iterator;
 
