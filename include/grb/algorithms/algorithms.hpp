@@ -3,5 +3,5 @@
 // #include "mxv.hpp"
 // #include "ewise_algs.hpp"
 
-namespace grb {
-} // end grb
+#include <grb/algorithms/multiply.hpp>
+
