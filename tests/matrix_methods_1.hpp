@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include <ranges>
 
 #include <grb/grb.hpp>
 #include <grb_testing/catch.hpp>
@@ -10,7 +11,7 @@
 template <typename MatrixType>
 void check_size(const MatrixType& matrix, size_t m, size_t n, size_t nnz) {
     SECTION( "check shape of matrix" ) {
-      grb::index_t shape = matrix.shape();
+      auto shape = matrix.shape();
       REQUIRE( shape[0] == m );
       REQUIRE( shape[1] == n );
       using hint_type = typename MatrixType::hint_type;

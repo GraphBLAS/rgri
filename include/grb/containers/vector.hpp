@@ -2,7 +2,8 @@
 #pragma once
 
 #include <grb/grb.hpp>
-#include <vector>
+#include <grb/containers/backend/dense_vector.hpp>
+#include <numeric>
 
 namespace grb {
 
@@ -12,15 +13,20 @@ template <typename T,
           typename Allocator = std::allocator<T>>
 class vector {
 public:
-	using value_type = T;
+	using scalar_type = T;
 	using index_type = I;
-	using allocator_type = Allocator;
+	using value_type = grb::vector_entry<T, I>;
+
+	using key_type = I;
+	using map_type = T;
+
 	using size_type = std::size_t;
-	using difference_type = std::ptrdiff_t;
+	using difference_Type = std::ptrdiff_t;
 
-	using hint_type = Hint;
+	using allocator_type = Allocator;
 
-	using backend_type = grb::matrix<value_type, index_type, hint_type, allocator_type>;
+  // TODO: implement sparse, allow selecting sparse.
+	using backend_type = grb::dense_vector<T, I, Allocator>;
 
 	using iterator = typename backend_type::iterator;
 	using const_iterator = typename backend_type::const_iterator;
@@ -28,54 +34,71 @@ public:
 	using reference = typename backend_type::reference;
 	using const_reference = typename backend_type::const_reference;
 
-	vector() = default;
-	vector(const vector&) = default;
-	vector& operator=(const vector&) = default;
+	using pointer = iterator;
+	using const_pointer = const_iterator;
 
-	vector(size_type dimension) : backend_matrix_({1, dimension}) {}
+	using scalar_reference = typename backend_type::scalar_reference;
 
-	size_type shape() const noexcept {
-		return backend_matrix_.shape()[1];
+	vector(I shape) : backend_(shape) {}
+
+	I shape() const noexcept {
+		return backend_.shape();
 	}
 
 	size_type size() const noexcept {
-		return backend_matrix_.size();
+		return backend_.size();
 	}
 
-	iterator begin() {
-		return backend_matrix_.begin();
+	iterator begin() noexcept {
+		return backend_.begin();
 	}
 
-	iterator end() {
-		return backend_matrix_.end();
+	iterator end() noexcept {
+		return backend_.end();
 	}
 
-	const_iterator begin() const {
-		return backend_matrix_.begin();
+	const_iterator begin() const noexcept {
+		return backend_.begin();
 	}
 
-	const_iterator end() const {
-		return backend_matrix_.end();
+	const_iterator end() const noexcept {
+		return backend_.end();
 	}
 
-	iterator find(size_type index) {
-		return backend_matrix_.find({1, index});
+	iterator find(key_type index) noexcept {
+		return backend_.find(index);
 	}
 
-	const_iterator find(size_type index) const {
-		return backend_matrix_.find({1, index});
+	const_iterator find(key_type index) const noexcept {
+		return backend_.find(index);
 	}
 
-	reference operator[](size_type index) {
-		return backend_matrix_[{1, index}];
+	scalar_reference operator[](map_type index) {
+		return backend_[index];
 	}
 
-	reference at(size_type index) {
-		return backend_matrix_.at({1, index});
+	std::pair<iterator, bool> insert(value_type&& value) {
+		return backend_.insert(std::move(value));
 	}
+
+	template <typename M>
+	std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
+		return backend_.insert_or_assign(k, std::forward<M>(obj));
+	}
+
+	void reshape(I shape) {
+		backend_.reshape(shape);
+	}
+
+	vector() = default;
+	~vector() = default;
+	vector(const vector&) = default;
+	vector& operator=(const vector&) = default;
+	vector(vector&&) = default;
+	vector& operator=(vector&&) = default;
 
 private:
-	backend_type backend_matrix_;
+	backend_type backend_;
 };
 
 } // end grb

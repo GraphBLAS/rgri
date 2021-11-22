@@ -1,7 +1,9 @@
 #pragma once
 
+#include <grb/containers/matrix_entry.hpp>
 #include <grb/containers/backend/csr_matrix.hpp>
-#include <grb/containers/backend/dense_matrix.hpp>
+#include <grb/containers/backend/coo_matrix.hpp>
+#include <grb/containers/backend/dia_matrix.hpp>
 #include <grb/detail/pack_includes.hpp>
 
 namespace grb {
@@ -25,13 +27,14 @@ struct pick_backend_type;
 template <>
 struct pick_backend_type<sparse> {
 	template <typename... Args>
-	using type = grb::csr_matrix_impl_<Args...>;
+	using type = grb::csr_matrix<Args...>;
 };
 
 template <>
 struct pick_backend_type<dense> {
 	template <typename... Args>
-	using type = grb::dense_matrix_impl_<Args...>;
+	// TODO: should be dense
+	using type = grb::coo_matrix<Args...>;
 };
 
 template <typename... Hints>
@@ -40,7 +43,7 @@ struct pick_backend_type<compose<Hints...>,
                          >
 {
   template <typename... Args>
-  using type = grb::csr_matrix_impl_<Args...>;
+  using type = grb::csr_matrix<Args...>;
 };
 
 template <typename... Hints>
@@ -52,7 +55,7 @@ struct pick_backend_type<compose<Hints...>,
                          >
 {
   template <typename... Args>
-  using type = grb::csr_matrix_impl_<Args...>;
+  using type = grb::csr_matrix<Args...>;
 };
 
 // Current logic: if one of the matrices is dense,
