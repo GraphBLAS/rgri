@@ -6,7 +6,7 @@ TARGETS := $(patsubst %.cpp, %, $(SOURCES))
 
 GRB_DIR=../include
 
-CXXFLAGS = -std=gnu++17 -O3 -I$(GRB_DIR)
+CXXFLAGS = -std=c++20 -O3 -I$(GRB_DIR)
 
 all: $(TARGETS)
 
