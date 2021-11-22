@@ -66,7 +66,6 @@ public:
     	fast_forward();
   }
 
-  // reference operator*() const noexcept
   reference operator*() const noexcept
   requires(!std::is_const_v<T>)
   {
