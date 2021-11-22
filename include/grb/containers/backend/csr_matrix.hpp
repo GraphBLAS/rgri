@@ -5,6 +5,7 @@
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/util/matrix_io.hpp>
 #include <grb/containers/backend/csr_matrix_iterator.hpp>
+#include <grb/containers/backend/coo_matrix.hpp>
 #include <vector>
 #include <limits>
 #include <climits>
@@ -12,9 +13,8 @@
 namespace grb {
 
 template <typename T,
-          typename I = std::size_t,
+          std::integral I = std::size_t,
           typename Allocator = std::allocator<T>>
-requires(std::is_integral_v<I>)
 class csr_matrix {
 public:
   using index_type = I;
@@ -76,6 +76,35 @@ public:
   iterator find(key_type key) noexcept;
   const_iterator find(key_type key) const noexcept;
 
+  void reshape(grb::index<I> shape) {
+    bool all_inside = true;
+    for (auto&& [index, v] : *this) {
+      auto&& [i, j] = index;
+      if (!(i < shape[0] && j < shape[1])) {
+        all_inside = false;
+        break;
+      }
+    }
+
+    if (all_inside) {
+      rowptr_.resize(shape[0]+1, rowptr_[this->shape()[0]]);
+      m_ = shape[0];
+      n_ = shape[1];
+      return;
+    } else {
+      grb::coo_matrix<T, I> new_tuples(shape);
+      for (auto&& [index, v] : *this) {
+        auto&& [i, j] = index;
+        if (i < shape[0] && j < shape[1]) {
+          new_tuples.insert({index, v});
+        }
+      }
+      m_ = shape[0];
+      n_ = shape[1];
+      assign_tuples(new_tuples.begin(), new_tuples.end());
+    }
+  }
+
   csr_matrix(grb::index<I> shape);
 
   csr_matrix() = default;
@@ -94,7 +123,7 @@ private:
   index_type n_ = 0;
   size_type nnz_ = 0;
 
-  std::vector<index_type, index_allocator_type> rowptr_;
+  std::vector<index_type, index_allocator_type> rowptr_ = {0};
   std::vector<index_type, index_allocator_type> colind_;
   std::vector<T, allocator_type> values_;
 };

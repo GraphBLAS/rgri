@@ -3,7 +3,8 @@
 namespace grb {
 
 template <typename T,
-          typename I>
+          typename I,
+          typename Allocator = std::allocator<T>>
 class coo_matrix {
 public:
   using value_type = grb::matrix_entry<T, I>;
@@ -11,10 +12,13 @@ public:
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
+  using allocator_type = Allocator;
+
 	using key_type = grb::index<I>;
 	using map_type = T;
 
-  using backend_type = std::vector<value_type>;
+  using backend_allocator_type = typename std::allocator_traits<allocator_type>::rebind_alloc<value_type>;
+  using backend_type = std::vector<value_type, backend_allocator_type>;
 
   using iterator = typename backend_type::iterator;
   using const_iterator = typename backend_type::const_iterator;
@@ -52,6 +56,18 @@ public:
     return tuples_.end();
   }
 
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last) {
+    for (auto iter = first; iter != last; ++iter) {
+      insert(*iter);
+    }
+  }
+
+  template <typename InputIt>
+  void assign_tuples(InputIt first, InputIt last) {
+    tuples_.assign(first, last);
+  }
+
   std::pair<iterator, bool>
   insert(value_type&& value) {
   	auto&& [insert_index, insert_value] = value;
@@ -63,6 +79,19 @@ public:
   	}
   	tuples_.push_back(value);
   	return {--tuples_.end(), true};
+  }
+
+  std::pair<iterator, bool>
+  insert(const value_type& value) {
+    auto&& [insert_index, insert_value] = value;
+    for (auto iter = begin(); iter != end(); ++iter) {
+      auto&& [index, v] = *iter;
+      if (index == insert_index) {
+        return {iter, false};
+      }
+    }
+    tuples_.push_back(value);
+    return {--tuples_.end(), true};
   }
 
   template <class M>
@@ -91,6 +120,32 @@ public:
   		                                    auto&& [i, v_] = v;
   		                                    return i == key;
   		                                  });
+  }
+
+  void reshape(grb::index<I> shape) {
+    bool all_inside = true;
+    for (auto&& [index, v] : *this) {
+      auto&& [i, j] = index;
+      if (!(i < shape[0] && j < shape[1])) {
+        all_inside = false;
+        break;
+      }
+    }
+
+    if (all_inside) {
+      shape_ = shape;
+      return;
+    } else {
+      grb::coo_matrix<T, I> new_tuples(shape);
+      for (auto&& [index, v] : *this) {
+        auto&& [i, j] = index;
+        if (i < shape[0] && j < shape[1]) {
+          new_tuples.insert({index, v});
+        }
+      }
+      shape_ = shape;
+      assign_tuples(new_tuples.begin(), new_tuples.end());
+    }
   }
 
   coo_matrix() = default;

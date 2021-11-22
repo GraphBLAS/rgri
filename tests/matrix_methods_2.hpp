@@ -7,7 +7,7 @@
 template <typename MatrixType>
 void check_matrix(MatrixType& matrix, size_t m, size_t n, size_t nnz, size_t expected_value) {
     SECTION( "check that sum of matrix elements matches expected value" ) {
-      grb::index_t shape = matrix.shape();
+      auto shape = matrix.shape();
       REQUIRE( shape[0] == m );
       REQUIRE( shape[1] == n );
       using hint_type = typename MatrixType::hint_type;
@@ -15,13 +15,12 @@ void check_matrix(MatrixType& matrix, size_t m, size_t n, size_t nnz, size_t exp
 
       size_t sum = 0;
       size_t counted_nnz = 0;
-      for (auto val_ref : matrix) {
-        float& value = val_ref.value();
-        grb::index_t idx = val_ref;
-        REQUIRE( idx[0] < m );
-        REQUIRE( idx[1] < n );
-        REQUIRE( value == expected_value );
-        sum += value;
+      for (auto&& [index, v]: matrix) {
+        auto&& [i, j] = index;
+        REQUIRE( i < m );
+        REQUIRE( j < n );
+        REQUIRE( v == expected_value );
+        sum += v;
         counted_nnz++;
       }
       REQUIRE( matrix.size() == counted_nnz );
@@ -44,8 +43,11 @@ TEMPLATE_PRODUCT_TEST_CASE( "can iterate through matrix, modify values", "[matri
 
 	    check_matrix(matrix, std::get<0>(detail), std::get<1>(detail), std::get<2>(detail), 1);
 
-      std::for_each(matrix.begin(), matrix.end(), [](auto val_ref) {
-                                                    float& value = val_ref.value();
+      using T = typename decltype(matrix)::scalar_type;
+      using I = typename decltype(matrix)::index_type;
+
+      std::for_each(matrix.begin(), matrix.end(), [](grb::matrix_entry<T, I> val_ref) {
+                                                    auto&& [index, value] = val_ref;
                                                     value += 2;
                                                   });
 

@@ -1,7 +1,9 @@
 #define CATCH_CONFIG_MAIN
 #include <grb_testing/catch.hpp>
 
+#include "matrix_iterator_1.hpp"
+
 #include "matrix_methods_1.hpp"
 #include "matrix_methods_2.hpp"
 #include "matrix_methods_3.hpp"
-#include "algorithms_1.hpp"
+// #include "algorithms_1.hpp"

@@ -12,9 +12,8 @@
 namespace grb {
 
 template <typename T,
-          typename I = std::size_t,
+          std::integral I = std::size_t,
           typename Allocator = std::allocator<T>>
-requires(std::is_integral_v<I>)
 class dia_matrix {
 public:
   using index_type = I;

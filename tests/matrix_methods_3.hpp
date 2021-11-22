@@ -19,7 +19,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can create insert into matrix", "[matrix][template]
 	  GIVEN( "Matrix read from \"" + fname + "\"") {
 	    TestType matrix(fname);
 
-      TestType insert_matrix(grb::index_t{matrix.shape()[0], matrix.shape()[1]});
+      TestType insert_matrix({matrix.shape()[0], matrix.shape()[1]});
 
       check_matrix(insert_matrix, std::get<0>(detail), std::get<1>(detail), 0, 3);
 
@@ -27,8 +27,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can create insert into matrix", "[matrix][template]
 
       for (auto val_ref : matrix) {
         count++;
-        grb::index_t idx = val_ref;
-        value_type value = val_ref;
+        auto&& [idx, value] = val_ref;
         insert_matrix[idx] = 3;
         check_matrix(insert_matrix, std::get<0>(detail), std::get<1>(detail), count, 3);
       }

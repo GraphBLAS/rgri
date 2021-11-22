@@ -76,8 +76,8 @@ public:
   ~matrix_entry() = default;
 
   matrix_entry(const matrix_entry&) = default;
-  matrix_entry& operator=(const matrix_entry&) = default;
   matrix_entry(matrix_entry&&) = default;
+  matrix_entry& operator=(const matrix_entry&) = default;
   matrix_entry& operator=(matrix_entry&&) = default;
 
 private:
