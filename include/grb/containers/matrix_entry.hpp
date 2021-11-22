@@ -114,16 +114,21 @@ struct tuple_size<grb::matrix_entry<T, I>>
 namespace grb {
 
 template <typename T,
-          typename I = std::size_t>
+          typename I = std::size_t,
+          typename TRef = T&>
 class matrix_ref {
 public:
+  using scalar_type = T;
 	using index_type = I;
+  
+  using key_type = grb::index<I>;
   using map_type = T;
 
-  using value_type = grb::matrix_entry<T, I>;
-  // using type = grb::matrix_entry<std::remove_const_t<T>, I>;
+  using scalar_reference = TRef;
 
-	matrix_ref(grb::index<I> index, map_type& value) : index_(index), value_(value) {}
+  using value_type = grb::matrix_entry<T, I>;
+
+	matrix_ref(grb::index<I> index, scalar_reference value) : index_(index), value_(value) {}
 
   operator value_type() const noexcept {
     return value_type(index_, value_);
@@ -149,7 +154,7 @@ public:
   	return index_;
   }
 
-  map_type& value() const noexcept {
+  scalar_reference value() const noexcept {
   	return value_;
   }
 
@@ -188,7 +193,7 @@ public:
 
 private:
   grb::index<I> index_;
-	map_type& value_;
+	scalar_reference value_;
 };
 
 	
