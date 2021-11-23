@@ -139,13 +139,9 @@ public:
   }
 
   template <std::size_t Index>
-  decltype(auto) get() noexcept {
-    if constexpr(Index == 0) { return index(); }
-    if constexpr(Index == 1) { return value(); }
-  }
-
-  template <std::size_t Index>
-  decltype(auto) get() const noexcept {
+  decltype(auto) get() const noexcept
+  requires(Index <= 1)
+  {
     if constexpr(Index == 0) { return index(); }
     if constexpr(Index == 1) { return value(); }
   }
@@ -211,12 +207,18 @@ void swap(grb::matrix_ref<T, I> a, grb::matrix_ref<T, I> b) {
 
 template <std::size_t Index, typename T, typename I>
 struct tuple_element<Index, grb::matrix_ref<T, I>>
-  : tuple_element<Index, std::tuple<grb::index<I>, T>>
-{
-};
+  : tuple_element<Index, std::tuple<grb::index<I>, T>> {};
 
 template <typename T, typename I>
 struct tuple_size<grb::matrix_ref<T, I>>
-    : integral_constant<size_t, 2> {};
+    : integral_constant<std::size_t, 2> {};
+
+template <std::size_t Index, typename T, typename I>
+inline decltype(auto) get(grb::matrix_ref<T, I> ref)
+requires(Index <= 1)
+{
+  if constexpr(Index == 0) { return ref.index(); }
+  if constexpr(Index == 1) { return ref.value(); }
+}
 
 } // end std

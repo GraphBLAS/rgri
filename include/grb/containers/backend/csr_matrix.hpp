@@ -38,7 +38,7 @@ public:
   using reference = grb::matrix_ref<T, index_type>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, index_type>;
 
-  using scalar_reference = std::vector<T, allocator_type>::reference;
+  using scalar_reference = typename std::vector<T, allocator_type>::reference;
 
   using pointer = iterator;
   using const_pointer = const_iterator;
