@@ -8,13 +8,16 @@
 namespace grb {
 
 template <typename T,
-          typename I = std::size_t,
+          std::integral I = std::size_t,
           typename Hint = grb::dense,
           typename Allocator = std::allocator<T>>
 class vector {
 public:
+	/// Type of scalar values stored in the matrix
 	using scalar_type = T;
+	/// Type used to store indices
 	using index_type = I;
+
 	using value_type = grb::vector_entry<T, I>;
 
 	using key_type = I;
@@ -23,6 +26,7 @@ public:
 	using size_type = std::size_t;
 	using difference_Type = std::ptrdiff_t;
 
+  /// Allocator type
 	using allocator_type = Allocator;
 
   // TODO: implement sparse, allow selecting sparse.
@@ -41,26 +45,32 @@ public:
 
 	vector(I shape) : backend_(shape) {}
 
+  /// Shape of the vector
 	I shape() const noexcept {
 		return backend_.shape();
 	}
 
+  /// Number of values stored in the vector
 	size_type size() const noexcept {
 		return backend_.size();
 	}
 
+  /// Iterator to the beginning
 	iterator begin() noexcept {
 		return backend_.begin();
 	}
 
+  /// Iterator to the end
 	iterator end() noexcept {
 		return backend_.end();
 	}
 
+  /// Const iterator to the beginning
 	const_iterator begin() const noexcept {
 		return backend_.begin();
 	}
 
+  /// Const iterator to the end
 	const_iterator end() const noexcept {
 		return backend_.end();
 	}

@@ -1,52 +1,63 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace grb {
 
-// Check whether binary operator `Fn` has
-// an identity for the type `T`.
+template <typename Fn, typename T, typename U = T, typename V = T>
+inline constexpr bool is_binary_op_v = requires(Fn fn, T t, U u) {
+                                         {fn(t, u)} -> std::convertible_to<V>;
+                                       };
+
 template <typename Fn, typename T>
-struct has_identity {
-  template <typename U>
-	static constexpr
-	decltype(U:: template identity<T>(), bool())
-	test_identity(int) {
-	  return true;
-	}
+inline constexpr bool has_identity_template_v = requires { {Fn:: template identity<T>()} -> std::same_as<T>; };
 
-	template <typename U>
-	static constexpr bool test_identity(...) {
-	  return false;
-	}
+template <typename Fn, typename T>
+inline constexpr bool has_identity_method_v = requires { {Fn::identity()} -> std::same_as<T>; };
 
-	static constexpr bool value = test_identity<Fn>(int());
+
+
+template <typename Fn, typename T>
+requires(
+         is_binary_op_v<Fn, T, T, T> &&
+         (has_identity_method_v<Fn, T> || has_identity_template_v<Fn, T>)
+         )
+class monoid_traits
+{
+public:
+  static constexpr T identity() noexcept {
+    if constexpr(has_identity_method_v<Fn, T>) {
+      return Fn::identity();
+    } else if constexpr(has_identity_template_v<Fn, T>) {
+      return Fn:: template identity<T>();
+    }
+  }
 };
-
-// Check whether binary operator `Fn` has
-// an identity for the type `T`.
-template <typename Fn, typename T>
-inline constexpr bool has_identity_v = has_identity<Fn, T>::value;
-
-template <typename Fn, typename T, typename Enable = void>
-class monoid_traits;
 
 template <typename T>
 class monoid_traits<std::plus<T>, T>
 {
 public:
+  static constexpr T identity() noexcept {
+    return T(0);
+  }
+};
 
-	static constexpr T identity() noexcept {
-		return T(0);
-	}
+template <typename T>
+class monoid_traits<std::plus<void>, T>
+{
+public:
+  static constexpr T identity() noexcept {
+    return T(0);
+  }
 };
 
 template <typename Fn, typename T>
-class monoid_traits<Fn, T, std::enable_if_t<grb::has_identity_v<Fn, T>>>
-{
-public:
-	static T identity() {
-		return Fn:: template identity<T>();
-	}
-};
+inline constexpr bool has_identity_v = requires { {grb::monoid_traits<Fn, T>::identity()} -> std::same_as<T>; };
+
+template <typename Fn, typename T>
+inline constexpr bool is_monoid_v = is_binary_op_v<Fn, T, T, T> &&
+                                    has_identity_v<Fn, T>;
 
 } // end grb

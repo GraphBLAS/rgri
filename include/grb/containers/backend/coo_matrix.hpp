@@ -26,6 +26,8 @@ public:
   using reference = grb::matrix_ref<T, I>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, I>;
 
+  using scalar_reference = T&;
+
   coo_matrix(grb::index<I> shape) : shape_(shape) {}
 
   grb::index<I> shape() const noexcept {

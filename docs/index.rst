@@ -17,6 +17,9 @@ GraphBLAS Objects
 .. doxygenclass:: grb::matrix
    :members:
 
+.. doxygenclass:: grb::vector
+   :members:
+
 Example
 ~~~~~~~
 
@@ -63,7 +66,7 @@ Binary Operators
 
 Algorithms
 ----------
-.. doxygenfunction:: grb::multiply
+.. doxygenfunction:: grb::multiply(AMatrixType&&, BMatrixType&&, ReduceFn&&, CombineFn&&, MaskType&&)
 
 .. doxygenfunction:: grb::sum
 
@@ -73,4 +76,4 @@ Algorithms
 
 Utility Functions
 -----------------
-.. doxygenfunction:: grb::print
+.. doxygenfunction:: grb::print(const grb::matrix<Args...>&, std::string)

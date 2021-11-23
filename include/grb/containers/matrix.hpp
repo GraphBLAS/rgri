@@ -15,6 +15,7 @@ namespace grb {
 /// 2. `I` is an integer type used to record the indices of stored elements.
 /// 3. `Hint` is a hint as to what backend data structure should be used to
 ///    store the matrix elements, and can be either `grb::sparse` or `grb::dense`.
+/// 4. `Allocator` is the C++ allocator used to allocate memory.
 template <typename T,
           std::integral I = std::size_t,
           typename Hint = grb::sparse,
@@ -31,6 +32,7 @@ public:
   using key_type = grb::index<I>;
   using map_type = T;
 
+  /// Allocator type
   using allocator_type = Allocator;
 
   using size_type = std::size_t;
@@ -45,6 +47,8 @@ public:
 
   using reference = typename backend_type::reference;
   using const_reference = typename backend_type::const_reference;
+
+  using scalar_reference = typename backend_type::scalar_reference;
 
   /// Construct an empty matrix of dimension `shape[0]` x `shape[1]`
   matrix(grb::index<I> shape) : backend_(shape) {}
@@ -89,6 +93,7 @@ public:
     return backend_.end();
   }
 
+  /// Insert elements in the range [first, last).
   template <typename InputIt>
   void insert(InputIt first, InputIt last) {
     backend_.insert(first, last);
@@ -118,17 +123,13 @@ public:
     return backend_.find(key);
   }
 
+  /// Reshape the matrix dimensions to be `shape[0]` x `shape[1]`.
+  /// Any elements outside the new shape will be deleted.
   void reshape(grb::index<I> shape) {
     return backend_.reshape(shape);
   }
 
-  T& operator[](grb::index<I> index) {
-    auto [iterator, inserted] = insert({index, T()});
-    auto&& [i_, value] = *iterator;
-    return value;
-  }
-
-  T& operator[](grb::index<I> index) const {
+  scalar_reference operator[](grb::index<I> index) {
     auto [iterator, inserted] = insert({index, T()});
     auto&& [i_, value] = *iterator;
     return value;

@@ -7,6 +7,7 @@
 
 namespace grb {
 
+/// Multiply two matrices
 template <typename AMatrixType,
           typename BMatrixType,
           typename ReduceFn = std::plus<>,
