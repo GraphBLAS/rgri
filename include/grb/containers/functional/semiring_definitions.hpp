@@ -24,6 +24,7 @@ struct standard_semiring {
   Combine combine_;
 };
 
+/*
 using plus_multiplies = standard_semiring<grb::plus, grb::multiplies>;
 using plus_times = plus_multiplies;
 
@@ -49,5 +50,6 @@ using lor_land = standard_semiring<grb::logical_or, grb::logical_and>;
 using land_lor = standard_semiring<grb::logical_and, grb::logical_or>;
 using lxor_land = standard_semiring<grb::logical_xor, grb::logical_and>;
 using lxnor_lor = standard_semiring<grb::logical_xnor, grb::logical_or>;
+*/
 
 } // end grb

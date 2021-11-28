@@ -50,19 +50,33 @@ Example
 
 Binary Operators
 ----------------
-.. doxygenstruct:: grb::plus
+Binary operators are function objects that implement binary operators, that is
+operators that accept two inputs and produce a single output.  A collection of
+binary operators are pre-defined by GraphBLAS.
 
-.. doxygenstruct:: grb::minus
+.. doxygentypedef:: grb::plus
 
-.. doxygenstruct:: grb::multiplies
+.. doxygentypedef:: grb::minus
+
+.. doxygentypedef:: grb::multiplies
 
 .. doxygentypedef:: grb::times
 
-.. doxygenstruct:: grb::max
+.. doxygentypedef:: grb::max
 
-.. doxygenstruct:: grb::min
+.. doxygentypedef:: grb::min
 
-.. doxygenstruct:: grb::modulus
+.. doxygentypedef:: grb::modulus
+
+Monoid Traits
+----------------
+
+.. cpp:class:: template <typename Fn, typename T> grb::monoid_traits
+.. cpp:function:: static constexpr T identity()
+
+.. cpp:type:: template <typename Fn, typename T> grb::monoid_traits_v = typename grb::monoid_traits::value
+
+Identity of the 
 
 Algorithms
 ----------

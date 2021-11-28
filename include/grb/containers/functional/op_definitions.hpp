@@ -158,6 +158,8 @@ struct modulus_impl_ {
   }
 };
 
+/// The binary operator `grb::plus`, which forms a monoid
+/// on integral types.
 template <typename T = void, typename U = T, typename V = void>
 using plus = binary_op_impl_<plus_impl_, T, U, V>;
 

@@ -24,9 +24,14 @@ class matrix {
 public:
   /// Type of scalar elements stored in the matrix.
   using scalar_type = T;
-  /// Type used to store the indices of elements stored in the matrix.
+
+  /// Type used to reference the indices of elements stored in the matrix.
   using index_type = I;
 
+  /// A tuple-like type containing:
+  /// 1. A tuple-like type with two `index_type` elements storing the row and column
+  ///    index of the element.
+  /// 2. An element of type `scalar_type`.
   using value_type = matrix_entry<T, I>;
 
   using key_type = grb::index<I>;
@@ -35,7 +40,10 @@ public:
   /// Allocator type
   using allocator_type = Allocator;
 
+  /// A large unsigned integral type
   using size_type = std::size_t;
+
+  /// A large signed integral type
   using difference_type = std::ptrdiff_t;
 
   using hint_type = Hint;
