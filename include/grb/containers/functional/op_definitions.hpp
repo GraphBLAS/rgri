@@ -118,7 +118,11 @@ struct divides_impl_ {
 /// or the first element if they are equal.  Uses the `<` operator.
 struct max_impl_ {
   template <typename T, typename U>
-  constexpr auto operator()(const T& a, const U& b) const {
+  constexpr auto operator()(const T& a, const U& b) const
+    -> decltype(std::numeric_limits<T>::max() < std::numeric_limits<U>::max()
+                ? std::declval<U>()
+                : std::declval<T>())
+  {
     if (a < b) {
       return b;
     } else {
@@ -136,7 +140,11 @@ struct max_impl_ {
 /// or the first element if they are equal.  Uses the `<` operator.
 struct min_impl_ {
   template <typename T, typename U>
-  constexpr auto operator()(const T& a, const U& b) const {
+  constexpr auto operator()(const T& a, const U& b) const
+    -> decltype(std::numeric_limits<U>::min() < std::numeric_limits<T>::min()
+                ? std::declval<U>()
+                : std::declval<T>());
+  {
     if (b < a) {
       return b;
     } else {
