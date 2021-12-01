@@ -20,9 +20,7 @@ int main(int argc, char** argv) {
 
   grb::matrix<float, int> b(a.shape()[0], a.shape()[1]);
 
-  for (auto ref : a) {
-  	float value = ref;
-  	grb::index_t idx = ref;
+  for (auto&& [index, value] : a) {
   	b[idx] = value*12;
   }
 
