@@ -156,7 +156,9 @@ struct max_impl_ {
   }
 
   template <typename T>
-  static constexpr T identity() {
+  static constexpr T identity()
+  requires(std::numeric_limits<T>::is_specialized())
+  {
     return std::min(std::numeric_limits<T>::lowest(), -std::numeric_limits<T>::infinity());
   }
 };
@@ -196,7 +198,9 @@ struct min_impl_ {
   }
 
   template <typename T>
-  static constexpr T identity() {
+  static constexpr T identity()
+  requires(std::numeric_limits<T>::is_specialized())
+  {
     return std::max(std::numeric_limits<T>::max(), std::numeric_limits<T>::infinity());
   }
 };
