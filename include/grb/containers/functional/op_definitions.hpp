@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <limits>
 #include <type_traits>
 
@@ -116,12 +117,36 @@ struct divides_impl_ {
 
 /// Binary Operator to perform max, returning the greater of the two values,
 /// or the first element if they are equal.  Uses the `<` operator.
+
+template <typename T, typename U>
+using larger_max_integral_t =
+  std::conditional_t<std::cmp_less(std::numeric_limits<T>::max(),
+                                   std::numeric_limits<U>::max()),
+                     U, T>;
+
 struct max_impl_ {
+  template <std::integral T, std::integral U>
+  constexpr auto operator()(const T& a, const U& b) const
+    -> std::conditional_t<
+        std::cmp_less(std::numeric_limits<T>::max(),
+                      std::numeric_limits<U>::max()),
+        U, T
+       >
+  {
+    if (std::cmp_less(a, b)) {
+      return b;
+    } else {
+      return a;
+    }
+  }
+
   template <typename T, typename U>
   constexpr auto operator()(const T& a, const U& b) const
-    -> decltype(std::numeric_limits<T>::max() < std::numeric_limits<U>::max()
-                ? std::declval<U>()
-                : std::declval<T>())
+    -> std::conditional_t<
+        std::numeric_limits<T>::max() < std::numeric_limits<U>::max(),
+        U, T
+       >
+  requires(!(std::is_integral_v<T> && std::is_integral_v<U>))
   {
     if (a < b) {
       return b;
@@ -136,14 +161,32 @@ struct max_impl_ {
   }
 };
 
+
 /// Binary Operator to perform min, returning the lesser of the two values,
 /// or the first element if they are equal.  Uses the `<` operator.
 struct min_impl_ {
+  template <std::integral T, std::integral U>
+  constexpr auto operator()(const T& a, const U& b) const
+    -> std::conditional_t<
+         std::cmp_less(std::numeric_limits<U>::lowest(),
+                       std::numeric_limits<T>::lowest()),
+         U, T
+       >
+  {
+    if (std::cmp_less(b, a)) {
+      return b;
+    } else {
+      return a;
+    }
+  }
+
   template <typename T, typename U>
   constexpr auto operator()(const T& a, const U& b) const
-    -> decltype(std::numeric_limits<U>::min() < std::numeric_limits<T>::min()
-                ? std::declval<U>()
-                : std::declval<T>());
+    -> std::conditional_t<
+         std::numeric_limits<U>::lowest() < std::numeric_limits<T>::lowest(),
+         U, T
+       >
+  requires(!(std::is_integral_v<T> && std::is_integral_v<U>))
   {
     if (b < a) {
       return b;
