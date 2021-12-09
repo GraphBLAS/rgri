@@ -157,16 +157,16 @@ public:
   template <std::integral U>
   requires(!std::is_same_v<I, U> &&
            std::numeric_limits<U>::max() >= std::numeric_limits<I>::max())
-  operator matrix_ref<T, U>() const noexcept {
-    return matrix_ref<T, U>(index_, value_);
+  operator matrix_ref<T, U, TRef>() const noexcept {
+    return matrix_ref<T, U, TRef>(index_, value_);
   }
 
   template <std::integral U>
   requires(!std::is_const_v<T>   &&
            !std::is_same_v<I, U> &&
            std::numeric_limits<U>::max() >= std::numeric_limits<I>::max())
-  operator matrix_ref<std::add_const_t<T>, U>() const noexcept {
-    return matrix_ref<std::add_const_t<T>, U>(index_, value_);
+  operator matrix_ref<std::add_const_t<T>, U, TRef>() const noexcept {
+    return matrix_ref<std::add_const_t<T>, U, TRef>(index_, value_);
   }
 
   bool operator<(matrix_entry<T, I> other) const noexcept {
@@ -197,24 +197,24 @@ private:
 
 namespace std {
 
-template <typename T, typename I>
+template <typename T, typename I, typename TRef>
 requires(!std::is_const_v<T>)
-void swap(grb::matrix_ref<T, I> a, grb::matrix_ref<T, I> b) {
+void swap(grb::matrix_ref<T, I, TRef> a, grb::matrix_ref<T, I, TRef> b) {
 	grb::matrix_ref<T, I> other = a;
 	a = b;
 	b = other;
 }
 
-template <std::size_t Index, typename T, typename I>
-struct tuple_element<Index, grb::matrix_ref<T, I>>
+template <std::size_t Index, typename T, typename I, typename TRef>
+struct tuple_element<Index, grb::matrix_ref<T, I, TRef>>
   : tuple_element<Index, std::tuple<grb::index<I>, T>> {};
 
-template <typename T, typename I>
-struct tuple_size<grb::matrix_ref<T, I>>
+template <typename T, typename I, typename TRef>
+struct tuple_size<grb::matrix_ref<T, I, TRef>>
     : integral_constant<std::size_t, 2> {};
 
-template <std::size_t Index, typename T, typename I>
-inline decltype(auto) get(grb::matrix_ref<T, I> ref)
+template <std::size_t Index, typename T, typename I, typename TRef>
+inline decltype(auto) get(grb::matrix_ref<T, I, TRef> ref)
 requires(Index <= 1)
 {
   if constexpr(Index == 0) { return ref.index(); }
