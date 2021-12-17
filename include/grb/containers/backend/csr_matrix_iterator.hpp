@@ -63,6 +63,10 @@ public:
     fast_forward_row();
   }
 
+  operator const_iterator() const noexcept {
+    return const_iterator(row_, index_, values_, rowptr_, colind_);
+  }
+
   // reference operator*() const noexcept
   reference operator*() const noexcept
   requires(!std::is_const_v<T>)

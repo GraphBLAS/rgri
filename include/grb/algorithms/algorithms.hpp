@@ -4,4 +4,4 @@
 // #include "ewise_algs.hpp"
 
 #include <grb/algorithms/multiply.hpp>
-
+#include <grb/algorithms/ewise.hpp>

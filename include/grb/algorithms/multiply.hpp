@@ -37,7 +37,7 @@ auto multiply(AMatrixType&& a,
 	for (auto&& [a_index, a_v] : a) {
 		auto&& [i, k] = a_index;
 
-		for (c_scalar_type j = 0; j < b.shape()[1]; j++) {
+		for (c_index_type j = 0; j < b.shape()[1]; j++) {
 			auto iter = b.find({k, j});
 
 			if (iter != b.end()) {
