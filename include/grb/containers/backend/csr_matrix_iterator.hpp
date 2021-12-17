@@ -2,6 +2,7 @@
 
 #include <span>
 #include <type_traits>
+#include <grb/containers/matrix_entry.hpp>
 
 namespace grb {
 
@@ -39,6 +40,8 @@ public:
   using iterator = csr_matrix_iterator;
   using const_iterator = csr_matrix_iterator<std::add_const_t<T>,
                                              index_type>;
+
+  using nonconst_iterator = csr_matrix_iterator<std::remove_const_t<T>, index_type>;
 
   using reference = grb::matrix_ref<T, I>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, I>;
@@ -105,29 +108,29 @@ public:
     fast_backward_row();
   }
 
-  csr_matrix_iterator& operator++() noexcept {
+  iterator& operator++() noexcept {
     increment();
     return *this;
   }
 
-  csr_matrix_iterator operator++(int) noexcept {
-    csr_matrix_iterator other = *this;
+  iterator operator++(int) noexcept {
+    iterator other = *this;
     increment();
     return other;
   }
 
-  csr_matrix_iterator& operator--() noexcept {
+  iterator& operator--() noexcept {
     decrement();
     return *this;
   }
 
-  csr_matrix_iterator operator--(int) noexcept {
-    csr_matrix_iterator other = *this;
+  iterator operator--(int) noexcept {
+    iterator other = *this;
     decrement();
     return other;
   }
 
-  csr_matrix_iterator& operator+=(difference_type n) noexcept {
+  iterator& operator+=(difference_type n) noexcept {
     index_ += n;
     if (n < 0) {
       fast_backward_row();
@@ -137,7 +140,7 @@ public:
     return *this;
   }
 
-  csr_matrix_iterator& operator-=(difference_type n) noexcept {
+  iterator& operator-=(difference_type n) noexcept {
     index_ -= n;
     if (n > 0) {
       fast_backward_row();
@@ -147,14 +150,14 @@ public:
     return *this;
   }
 
-  csr_matrix_iterator operator+(difference_type n) const noexcept {
-    csr_matrix_iterator other = *this;
+  iterator operator+(difference_type n) const noexcept {
+    iterator other = *this;
     other += n;
     return other;
   }
 
-  csr_matrix_iterator operator-(difference_type n) const noexcept {
-    csr_matrix_iterator other = *this;
+  iterator operator-(difference_type n) const noexcept {
+    iterator other = *this;
     other -= n;
     return other;
   }
@@ -163,28 +166,53 @@ public:
     return *(*this + n);
   }
 
-  difference_type operator-(csr_matrix_iterator other) const noexcept {
+  difference_type operator-(const_iterator other) const noexcept {
     return index_ - other.index_;
   }
 
-  bool operator<(csr_matrix_iterator other) const noexcept {
+  bool operator<(iterator other) const noexcept {
     return index_ < other.index_;
   }
 
-  bool operator<=(csr_matrix_iterator other) const noexcept {
+  bool operator<(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
+    return index_ < other.index_;
+  }
+
+
+  bool operator<=(iterator other) const noexcept {
     return index_ <= other.index_;
   }
 
-  bool operator>(csr_matrix_iterator other) const noexcept {
+  bool operator<=(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
+    return index_ <= other.index_;
+  }
+
+  bool operator>(iterator other) const noexcept {
     return index_ > other.index_;
   }
 
-  bool operator>=(csr_matrix_iterator other) const noexcept {
+  bool operator>(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
+    return index_ > other.index_;
+  }
+
+  bool operator>=(iterator other) const noexcept {
+    return index_ >= other.index_;
+  }
+
+  bool operator>=(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
     return index_ >= other.index_;
   }
 
 
-  bool operator==(csr_matrix_iterator other) const noexcept {
+  bool operator==(iterator other) const noexcept {
     return values_.data() == other.values_.data() &&
            rowptr_.data() == other.rowptr_.data() &&
            colind_.data() == other.colind_.data() &&
@@ -192,7 +220,23 @@ public:
                            index_ == other.index_;
   }
 
-  bool operator!=(csr_matrix_iterator other) const noexcept {
+  bool operator==(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
+    return values_.data() == other.values_.data() &&
+           rowptr_.data() == other.rowptr_.data() &&
+           colind_.data() == other.colind_.data() &&
+                               row_ == other.row_ &&
+                           index_ == other.index_;
+  }
+
+  bool operator!=(iterator other) const noexcept {
+    return !(*this == other);
+  }
+
+  bool operator!=(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
     return !(*this == other);
   }
 
@@ -203,9 +247,12 @@ public:
   csr_matrix_iterator& operator=(const csr_matrix_iterator&) = default;
   csr_matrix_iterator& operator=(csr_matrix_iterator&&) = default;
 
-  friend csr_matrix_iterator operator+(difference_type n, csr_matrix_iterator iter) {
+  friend csr_matrix_iterator operator+(difference_type n, iterator iter) {
     return iter + n;
   }
+
+  friend const_iterator;
+  friend nonconst_iterator;
 
 private:
 

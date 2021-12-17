@@ -215,29 +215,34 @@ struct modulus_impl_ {
 
 /// The binary operator `grb::plus`, which forms a monoid
 /// on integral types.
+/*
 template <typename T = void, typename U = T, typename V = void>
 using plus = binary_op_impl_<plus_impl_, T, U, V>;
+*/
 
 template <typename T = void, typename U = T, typename V = void>
-using minus = binary_op_impl_<minus_impl_, T, U, V>;
+struct plus : public binary_op_impl_<plus_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using multiplies = binary_op_impl_<multiplies_impl_, T, U, V>;
+struct minus : public binary_op_impl_<minus_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using times = multiplies<T, U, V>;
+struct multiplies : public binary_op_impl_<multiplies_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using divides = binary_op_impl_<divides_impl_, T, U, V>;
+struct times : public multiplies<T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using max = binary_op_impl_<max_impl_, T, U, V>;
+struct divides : public binary_op_impl_<divides_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using min = binary_op_impl_<min_impl_, T, U, V>;
+struct max : public binary_op_impl_<max_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using modulus = binary_op_impl_<modulus_impl_, T, U, V>;
+struct min : public binary_op_impl_<min_impl_, T, U, V> {};
+
+template <typename T = void, typename U = T, typename V = void>
+struct modulus : public binary_op_impl_<modulus_impl_, T, U, V> {};
 
 // Unary operators
 
@@ -256,10 +261,10 @@ struct logical_not_impl_ {
 };
 
 template <typename T = void>
-using negate = unary_op_impl_<negate_impl_, T>;
+struct negate : public unary_op_impl_<negate_impl_, T> {};
 
 template <typename T = void>
-using logical_not = unary_op_impl_<logical_not_impl_, T>;
+struct logical_not : public unary_op_impl_<logical_not_impl_, T> {};
 
 // Logical operators
 
@@ -307,15 +312,15 @@ struct logical_xnor_impl_ {
 };
 
 template <typename T = void, typename U = T, typename V = void>
-using logical_and = binary_op_impl_<logical_and_impl_, T, U, V>;
+struct logical_and : binary_op_impl_<logical_and_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using logical_or = binary_op_impl_<logical_or_impl_, T, U, V>;
+struct logical_or : binary_op_impl_<logical_or_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using logical_xor = binary_op_impl_<logical_xor_impl_, T, U, V>;
+struct logical_xor : binary_op_impl_<logical_xor_impl_, T, U, V> {};
 
 template <typename T = void, typename U = T, typename V = void>
-using logical_xnor = binary_op_impl_<logical_xnor_impl_, T, U, V>;
+struct logical_xnor : binary_op_impl_<logical_xnor_impl_, T, U, V> {};
 
 } // end grb

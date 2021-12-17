@@ -19,6 +19,13 @@ TEMPLATE_PRODUCT_TEST_CASE( "basic matrix iterator tests 1", "[matrix][template]
   static_assert(std::random_access_iterator<iterator>);
   static_assert(std::random_access_iterator<const_iterator>);
 
+  static_assert(std::sentinel_for<iterator, iterator>);
+  static_assert(std::sentinel_for<iterator, const_iterator>);
+  static_assert(std::sentinel_for<const_iterator, iterator>);
+  static_assert(std::sentinel_for<const_iterator, const_iterator>);
+
+  if (const_iterator() == iterator()) {}
+
 	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
 	for (size_t i = 0; i < fnames.size(); i++) {
   }
