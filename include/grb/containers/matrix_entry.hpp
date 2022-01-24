@@ -221,4 +221,12 @@ requires(Index <= 1)
   if constexpr(Index == 1) { return ref.value(); }
 }
 
+template <std::size_t Index, typename T, typename I>
+inline decltype(auto) get(grb::matrix_entry<T, I> entry)
+requires(Index <= 1)
+{
+  if constexpr(Index == 0) { return entry.index(); }
+  if constexpr(Index == 1) { return entry.value(); }
+}
+
 } // end std
