@@ -4,6 +4,7 @@
 #include <functional>
 #include <utility>
 #include <grb/detail/detail.hpp>
+#include <grb/containers/views/views.hpp>
 
 namespace grb {
 
@@ -12,7 +13,7 @@ template <typename AMatrixType,
           typename BMatrixType,
           typename ReduceFn = std::plus<>,
           typename CombineFn = std::multiplies<>,
-          typename MaskType = grb::full_mask
+          typename MaskType = grb::full_mask<>
           >
 auto multiply(AMatrixType&& a,
 	            BMatrixType&& b,

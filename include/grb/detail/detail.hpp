@@ -5,8 +5,6 @@
 
 namespace grb {
 
-struct full_mask {};
-
 template <std::integral I, std::integral U>
 struct bigger_integral_impl_ {
 	using type = I;
