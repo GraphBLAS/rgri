@@ -7,8 +7,10 @@ namespace grb {
 
 template <typename AMatrixType,
           typename BMatrixType,
-          typename Fn>
-auto ewise_mult(AMatrixType&& a, BMatrixType&& b, Fn&& fn) {
+          typename Fn,
+          typename MaskType = grb::full_mask<>>
+auto ewise_mult(AMatrixType&& a, BMatrixType&& b, Fn&& fn,
+	              MaskType&& mask = grb::full_mask()) {
 	assert(a.shape() == b.shape());
 
 	using a_value_type = matrix_scalar_type_t<AMatrixType>;
@@ -22,13 +24,21 @@ auto ewise_mult(AMatrixType&& a, BMatrixType&& b, Fn&& fn) {
   grb::matrix<c_value_type, index_type> c(a.shape());
 
   for (auto&& [index, a_value] : a) {
+
+    if constexpr(!std::is_same_v<std::decay_t<MaskType>, grb::full_mask<>>) {
+    	auto mask_iter = mask.find(index);
+    	if (mask_iter == mask.end() || !bool(std::get<1>(*mask_iter))) {
+    		continue;
+    	}
+    }
+
   	auto iter = b.find(index);
 
   	if (iter != b.end()) {
   		auto&& [_, b_value] = *iter;
 
   		c.insert({index, std::forward<Fn>(fn)(a_value, b_value)});
-  	}
+	  }
   }
 
   return c;
@@ -37,8 +47,10 @@ auto ewise_mult(AMatrixType&& a, BMatrixType&& b, Fn&& fn) {
 template <typename AMatrixType,
           typename BMatrixType,
           typename Fn,
-          typename T>
-auto ewise_add(AMatrixType&& a, BMatrixType&& b, Fn&& fn, T&& default_value) {
+          typename T,
+          typename MaskType = grb::full_mask<>>
+auto ewise_add(AMatrixType&& a, BMatrixType&& b, Fn&& fn, T&& default_value,
+	             MaskType&& mask = grb::full_mask<>()) {
 	assert(a.shape() == b.shape());
 
 	using a_value_type = matrix_scalar_type_t<AMatrixType>;
@@ -56,6 +68,14 @@ auto ewise_add(AMatrixType&& a, BMatrixType&& b, Fn&& fn, T&& default_value) {
   size_t num_matched = 0;
 
 	for (auto&& [index, a_value] : a) {
+
+    if constexpr(!std::is_same_v<std::decay_t<MaskType>, grb::full_mask<>>) {
+    	auto mask_iter = mask.find(index);
+    	if (mask_iter == mask.end() || !bool(std::get<1>(*mask_iter))) {
+    		continue;
+    	}
+    }
+
   	auto iter = b.find(index);
 
   	if (iter != b.end()) {

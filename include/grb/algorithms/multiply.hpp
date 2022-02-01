@@ -44,12 +44,12 @@ auto multiply(AMatrixType&& a,
 			if (iter != b.end()) {
 				auto&& [b_index, b_v] = *iter;
 
-        if constexpr(std::is_same_v<std::decay_t<MaskType>, grb::full_mask>) {
+        if constexpr(std::is_same_v<std::decay_t<MaskType>, grb::full_mask<>>) {
 				  c[{i, j}] = reduce(c[{i, j}], combine(a_v, b_v));
 			  } else {
 			  	auto iter = mask.find({i, j});
 			  	if (iter != mask.end()) {
-			  		auto&& [index, value] = *iter;
+			  		auto&& [_, value] = *iter;
 			  		if (bool(value)) {
 				      c[{i, j}] = reduce(c[{i, j}], combine(a_v, b_v));
 				    }
