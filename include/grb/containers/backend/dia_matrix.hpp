@@ -16,6 +16,7 @@ template <typename T,
           typename Allocator = std::allocator<T>>
 class dia_matrix {
 public:
+  using scalar_type = T;
   using index_type = I;
   using value_type = grb::matrix_entry<T, I>;
 
