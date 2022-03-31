@@ -10,7 +10,6 @@ public:
   using value_type = grb::matrix_entry<T, I>;
   using scalar_type = T;
   using index_type = I;
-  using scalar_type = T;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
