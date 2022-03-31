@@ -92,6 +92,7 @@ public:
   }
 
   iterator& operator+=(difference_type offset) noexcept
+  requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
   {
     accessor_ += offset;
     return *this;

@@ -33,6 +33,7 @@ public:
   using difference_type = std::ptrdiff_t;
 
   // using element_type = T;
+  using scalar_type = T;
   using index_type = I;
   using map_type = T;
 
