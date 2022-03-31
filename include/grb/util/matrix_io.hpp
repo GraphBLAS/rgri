@@ -210,15 +210,15 @@ private:
 template <typename T, typename I = std::size_t>
 inline
 coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
-	using index_type = I;
-	using size_type = std::size_t;
+  using index_type = I;
+  using size_type = std::size_t;
 
   std::ifstream f;
 
   f.open(file_path.c_str());
 
   if (!f.is_open()) {
-  	// TODO better choice of exception.
+    // TODO better choice of exception.
     throw std::runtime_error("mmread: cannot open " + file_path);
   }
 
@@ -266,7 +266,7 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
     std::getline(f, buf);
 
     if (buf[0] != '%') {
-    	outOfComments = true;
+      outOfComments = true;
     }
   }
 
@@ -306,7 +306,7 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
     }
 
     if (i >= m || j >= n) {
-    	throw std::runtime_error("read_MatrixMarket: file has nonzero out of bounds.");
+      throw std::runtime_error("read_MatrixMarket: file has nonzero out of bounds.");
     }
 
     matrix.insert({{i, j}, v});
@@ -317,7 +317,7 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
 
     c++;
     if (c > nnz) {
-    	throw std::runtime_error("read_MatrixMarket: error reading Matrix Market file, file has more nonzeros than reported.");
+      throw std::runtime_error("read_MatrixMarket: error reading Matrix Market file, file has more nonzeros than reported.");
     }
   }
 

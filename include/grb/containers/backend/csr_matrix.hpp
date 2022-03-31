@@ -17,6 +17,7 @@ template <typename T,
           typename Allocator = std::allocator<T>>
 class csr_matrix {
 public:
+  using scalar_type = T;
   using index_type = I;
   using value_type = grb::matrix_entry<T, I>;
 
@@ -115,6 +116,18 @@ public:
   csr_matrix(csr_matrix&&) = default;
   csr_matrix& operator=(const csr_matrix&) = default;
   csr_matrix& operator=(csr_matrix&&) = default;
+
+  std::size_t nbytes() const noexcept {
+    std::size_t size_bytes = 0;
+    size_bytes += rowptr_.size()*sizeof(index_type);
+    size_bytes += colind_.size()*sizeof(index_type);
+    if constexpr(!std::is_same_v<scalar_type, bool>) {
+      size_bytes += values_.size()*sizeof(scalar_type);
+    } else {
+      size_bytes += (values_.size() + CHAR_BIT - 1) / CHAR_BIT;
+    }
+    return size_bytes;
+  }
 
 private:
 

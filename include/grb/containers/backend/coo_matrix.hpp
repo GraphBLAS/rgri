@@ -9,6 +9,7 @@ class coo_matrix {
 public:
   using value_type = grb::matrix_entry<T, I>;
   using index_type = I;
+  using scalar_type = T;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
@@ -157,7 +158,12 @@ public:
   coo_matrix& operator=(const coo_matrix&) = default;
   coo_matrix& operator=(coo_matrix&&) = default;
 
+  std::size_t nbytes() const noexcept {
+    return tuples_.size() * sizeof(value_type);
+  }
+
 private:
+
   grb::index<I> shape_;
   backend_type tuples_;
 };

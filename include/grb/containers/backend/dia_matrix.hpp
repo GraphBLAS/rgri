@@ -16,6 +16,7 @@ template <typename T,
           typename Allocator = std::allocator<T>>
 class dia_matrix {
 public:
+  using scalar_type = T;
   using index_type = I;
   using value_type = grb::matrix_entry<T, I>;
 
@@ -43,7 +44,7 @@ public:
   dia_matrix(grb::index<I> shape) : m_(shape[0]), n_(shape[1]) {}
 
   grb::index<I> shape() const noexcept {
-  	return {m_, n_};
+    return {m_, n_};
   }
 
   size_type size() const noexcept {
@@ -57,50 +58,57 @@ public:
   dia_matrix& operator=(const dia_matrix&) = default;
   dia_matrix& operator=(dia_matrix&&) = default;
 
-  std::pair<iterator, bool> insert(value_type&& value) {
-  	auto&& [index, v] = value;
-  	auto&& [i, j] = index;
-  	index_type diagonal = (difference_type(j) - i) + shape()[0] - 1;
-  	index_type idx = std::min(i, j);
-    index_type count = std::min(m_, n_) - std::min(i, j);
+  template <typename InputIt>
+  void insert(InputIt first, InputIt last) {
+    for (auto iter = first; iter != last; ++iter) {
+      insert(*iter);
+    }
+  }
+
+  std::pair<iterator, bool> insert(const value_type& value) {
+    auto&& [index, v] = value;
+    auto&& [i, j] = index;
+    index_type diagonal = (difference_type(j) - difference_type(i)) + shape()[0] - 1;
+    index_type idx = std::min(i, j);
+    // index_type count = std::min(m_, n_) - std::abs(difference_type(i) - difference_type(j));
+    index_type count = std::min(m_ - i, n_ - j) + idx;
 
     auto iter = diagonals_.find(diagonal);
     if (iter == diagonals_.end()) {
-    	index_type count = std::min(m_, n_) - std::min(i, j);
-    	auto [it, b] = diagonals_.insert({diagonal,
-	    	 {std::vector<T>(count, false),
-	    		std::vector<bool>(count, false)}
-	    	});
-    	iter = it;
+      auto [it, _] = diagonals_.insert({diagonal,
+         {std::vector<T>(count),
+          std::vector<bool>(count, false)}
+        });
+      iter = it;
     }
 
     auto&& [vec, bvec] = iter->second;
 
     if (!bvec[idx]) {
-    	vec[idx] = v;
-    	bvec[idx] = true;
+      vec[idx] = v;
+      bvec[idx] = true;
       nnz_++;
-      return {true, iterator(idx, m_, n_, iter, diagonals_.end())};
+      return {iterator(idx, m_, n_, iter, diagonals_.end()), true};
     } else {
-      return {false, iterator(idx, m_, n_, iter, diagonals_.end())};
+      return {iterator(idx, m_, n_, iter, diagonals_.end()), false};
     }
   }
 
   template <typename M>
-  std::pair<bool, iterator> insert_or_assign(key_type k, M&& obj) {
-  	auto&& [i, j] = k;
-  	index_type diagonal = (difference_type(j) - i) + shape()[0] - 1;
-  	index_type idx = std::min(i, j);
-    index_type count = std::min(m_, n_) - std::min(i, j);
+  std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
+    auto&& [i, j] = k;
+    index_type diagonal = (difference_type(j) - difference_type(i)) + shape()[0] - 1;
+    index_type idx = std::min(i, j);
+    // index_type count = std::min(m_, n_) - std::abs(difference_type(i) - difference_type(j));
+    index_type count = std::min(m_ - i, n_ - j) + idx;
 
     auto iter = diagonals_.find(diagonal);
     if (iter == diagonals_.end()) {
-    	index_type count = std::min(m_, n_) - std::min(i, j);
-    	auto [it, b] = diagonals_.insert({diagonal,
-	    	 {std::vector<T>(count, false),
-	    		std::vector<bool>(count, false)}
-	    	});
-    	iter = it;
+      auto [it, b] = diagonals_.insert({diagonal,
+         {std::vector<T>(count, false),
+          std::vector<bool>(count, false)}
+        });
+      iter = it;
     }
 
     auto&& [vec, bvec] = iter->second;
@@ -109,45 +117,61 @@ public:
     if (!bvec[idx]) {
       bvec[idx] = true;
       nnz_++;
-      return {true, iterator(idx, m_, n_, iter, diagonals_.end())};
+      return {iterator(idx, m_, n_, iter, diagonals_.end()), true};
     } else {
-      return {false, iterator(idx, m_, n_, iter, diagonals_.end())};
+      return {iterator(idx, m_, n_, iter, diagonals_.end()), false};
     }
   }
 
   iterator begin() noexcept {
-  	return iterator(0, m_, n_,
-  		              diagonals_.begin(),
-  		              diagonals_.end());
+    return iterator(0, m_, n_,
+                    diagonals_.begin(),
+                    diagonals_.end());
   }
 
   const_iterator begin() const noexcept {
-  	return const_iterator(0, m_, n_,
-  		              diagonals_.begin(),
-  		              diagonals_.end());
+    return const_iterator(0, m_, n_,
+                    diagonals_.begin(),
+                    diagonals_.end());
   }
 
   iterator end() noexcept {
-  	return iterator(0, m_, n_,
-  		              diagonals_.end(),
-  		              diagonals_.end());
+    return iterator(0, m_, n_,
+                    diagonals_.end(),
+                    diagonals_.end());
   }
 
   const_iterator end() const noexcept {
-  	return const_iterator(0, m_, n_,
-  		              diagonals_.end(),
-  		              diagonals_.end());
+    return const_iterator(0, m_, n_,
+                    diagonals_.end(),
+                    diagonals_.end());
+  }
+
+  std::size_t nbytes() const noexcept {
+    size_t size_bytes = 0;
+    for (auto&& diagonal : diagonals_) {
+      auto&& [_, arrays] = diagonal;
+      auto&& [values, bvec] = arrays;
+      if constexpr(!std::is_same_v<scalar_type, bool>) {
+        size_bytes += values.size()*sizeof(scalar_type);
+      } else {
+        size_bytes += (values.size() + CHAR_BIT - 1) / CHAR_BIT;
+      }
+      size_bytes += (bvec.size() + CHAR_BIT - 1) / CHAR_BIT;
+    }
+    return size_bytes;
   }
 
 private:
-	index_type m_ = 0;
-	index_type n_ = 0;
-	size_type nnz_ = 0;
 
-	std::map<index_type,
-	         std::pair<std::vector<T>,
-	         std::vector<bool>>
-	        > diagonals_;
+  index_type m_ = 0;
+  index_type n_ = 0;
+  size_type nnz_ = 0;
+
+  std::map<index_type,
+           std::pair<std::vector<T>,
+                     std::vector<bool>>
+          > diagonals_;
 };
 
 } // end grb
