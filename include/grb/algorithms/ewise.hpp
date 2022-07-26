@@ -113,4 +113,58 @@ requires(std::is_same_v<matrix_scalar_type_t<AMatrixType>,
 						       grb::monoid_traits<Fn, matrix_scalar_type_t<AMatrixType>>::identity());
 }
 
+template <typename AVectorType,
+          typename BVectorType,
+          typename Fn,
+          typename T,
+          typename MaskType = grb::full_mask<>>
+auto ewise_add_v(AVectorType&& a, BVectorType&& b, Fn&& fn, T&& default_value,
+	             MaskType&& mask = grb::full_mask<>()) {
+	assert(a.shape() == b.shape());
+
+	using a_value_type = matrix_scalar_type_t<AVectorType>;
+	using b_value_type = matrix_scalar_type_t<BVectorType>;
+
+	using index_type = grb::bigger_integral_t<matrix_index_type_t<AVectorType>,
+	                                          matrix_index_type_t<BVectorType>>;
+
+	using c_value_type = decltype(std::forward<Fn>(fn)(std::declval<a_value_type>(), std::declval<b_value_type>()));
+
+	std::vector<bool> index_map(a.shape(), false);
+
+  grb::vector<c_value_type, index_type> c(a.shape());
+
+  size_t num_matched = 0;
+
+	for (auto&& [index, a_value] : a) {
+
+    if constexpr(!std::is_same_v<std::decay_t<MaskType>, grb::full_mask<>>) {
+    	auto mask_iter = mask.find(index);
+    	if (mask_iter == mask.end() || !bool(std::get<1>(*mask_iter))) {
+    		continue;
+    	}
+    }
+
+  	auto iter = b.find(index);
+
+  	if (iter != b.end()) {
+  		auto&& [_, b_value] = *iter;
+
+  		c.insert({index, std::forward<Fn>(fn)(a_value, b_value)});
+  		index_map[index] = true;
+  		num_matched++;
+  	} else {
+  		c.insert({index, std::forward<Fn>(fn)(a_value, default_value)});
+  	}
+	}
+
+	if (num_matched < b.size()) {
+		for (auto&& [index, b_value] : b) {
+			c.insert({index, std::forward<Fn>(fn)(default_value, b_value)});
+		}
+	}
+
+	return c;
+}
+
 } // end grb
