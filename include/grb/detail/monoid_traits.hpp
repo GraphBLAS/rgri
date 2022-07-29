@@ -2,8 +2,11 @@
 #pragma once
 
 #include <type_traits>
+#include <any>
 
 namespace grb {
+
+using any = std::any;
 
 template <typename Fn, typename T, typename U = T, typename V = T>
 inline constexpr bool is_binary_op_v = requires(Fn fn, T t, U u) {
@@ -59,5 +62,14 @@ inline constexpr bool has_identity_v = requires { {grb::monoid_traits<Fn, T>::id
 template <typename Fn, typename T>
 inline constexpr bool is_monoid_v = is_binary_op_v<Fn, T, T, T> &&
                                     has_identity_v<Fn, T>;
+
+template <typename Fn, typename T, typename U = T, typename V = grb::any>
+concept BinaryOperator = requires(Fn fn, T t, U u) {
+                           {fn(t, u)} -> std::convertible_to<V>;
+                         };
+
+template <typename Fn, typename T>
+concept Monoid = BinaryOperator<Fn, T, T, T> &&
+                 requires { {grb::monoid_traits<Fn, T>::identity()} -> std::same_as<T>; };
 
 } // end grb
