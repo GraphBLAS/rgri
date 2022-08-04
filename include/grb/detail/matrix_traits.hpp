@@ -61,6 +61,29 @@ concept Tuplelike = requires(Tuple tuple) {
   {get_as_tuple<std::remove_cvref_t<Tuple>>(std::make_index_sequence<sizeof...(Args)>())} -> std::same_as<std::tuple<Args...>>;
 };
 
+template <typename T, std::size_t I, typename U = grb::any>
+concept is_tuple_element =
+  (requires(T t) { {t. template get<I>()} -> std::convertible_to<std::tuple_element_t<I, T>>; } &&
+   requires(T t) { {t. template get<I>()} -> std::convertible_to<U>; }) ||
+  (requires(T t) { {std::get<I>(t)} -> std::convertible_to<std::tuple_element_t<I, T>>; } &&
+   requires(T t) { {std::get<I>(t)} -> std::convertible_to<U>; });
+
+template <typename T>
+concept tuple_like = requires {
+                       typename std::tuple_size<T>::type;
+                       requires std::same_as<std::remove_cvref_t<decltype(std::tuple_size_v<T>)>, std::size_t>;
+                     } && []<std::size_t... I>(std::index_sequence<I...>) {
+                      return (is_tuple_element<T, I> && ...); }(std::make_index_sequence<std::tuple_size_v<T>>());
+
+template <typename T, typename... Args>
+concept TupleLike = requires {
+                       typename std::tuple_size<T>::type;
+                       requires std::same_as<std::remove_cvref_t<decltype(std::tuple_size_v<T>)>, std::size_t>;
+                     } &&
+                     sizeof...(Args) == std::tuple_size_v<T> &&
+                     []<std::size_t... I>(std::index_sequence<I...>) {
+                      return (is_tuple_element<T, I, Args> && ...); }(std::make_index_sequence<std::tuple_size_v<T>>());
+
 template <typename ValueType, typename T, typename I>
 concept MatrixValueType = TuplelikeSize<ValueType, 2> &&
                           requires(ValueType value) {
@@ -68,6 +91,17 @@ concept MatrixValueType = TuplelikeSize<ValueType, 2> &&
                             {grb::get<1>(value)} -> std::same_as<T>;
                             {I{}} -> std::integral;
                           };
+
+template <typename Entry, typename T, typename I>
+concept MatrixEntry = is_tuple_element<Entry, 1, T> &&
+                      (requires(T t) { {t. template get<0>()} -> TupleLike<I, I>; } ||
+                       requires(T t) { {std::get<0>(t)} -> TupleLike<I, I>; });
+
+template <typename Entry, typename T, typename I>
+concept MutableMatrixEntry = is_tuple_element<Entry, 1, T&> &&
+                             (requires(T t) { {t. template get<0>()} -> TupleLike<I, I>; } ||
+                              requires(T t) { {std::get<0>(t)} -> TupleLike<I, I>; });
+
 
 template <typename Matrix>
 concept MatrixRange = std::ranges::sized_range<Matrix> &&
