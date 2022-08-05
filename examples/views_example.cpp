@@ -29,7 +29,13 @@ int main(int argc, char** argv) {
 
   auto lel = grb::get<1>(*matrix_str.begin());
 
-  lel = std::string("Jklsejrkl");
+  auto filter = grb::filter(matrix_tr, [](auto&& entry) {
+                                      auto&& [index, value] = entry;
+                                      auto&& [i, j] = index;
+                                      return i < 5;
+                                    });
+
+  grb::print(filter);
 
   return 0;
 }

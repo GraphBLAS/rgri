@@ -3,6 +3,8 @@
 namespace grb {
 namespace detail {
 
+// TODO: treat contiguous as same as random_access
+
 template <typename Accessor>
 class iterator_adaptor {
 public:
@@ -127,8 +129,17 @@ public:
     return accessor_ - other.accessor_;
   }
 
-  iterator& operator++() noexcept {
+  iterator& operator++() noexcept
+  requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
+  {
     *this += 1;
+    return *this;
+  }
+
+  iterator& operator++() noexcept
+  requires(!std::is_same_v<iterator_category, std::random_access_iterator_tag>)
+  {
+    ++accessor_;
     return *this;
   }
 

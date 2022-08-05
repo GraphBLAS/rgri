@@ -32,6 +32,7 @@ public:
 
   transpose_matrix_accessor& operator++() noexcept {
     iter_++;
+    return *this;
   }
 
   transpose_matrix_accessor& operator+=(difference_type offset) noexcept
@@ -91,6 +92,10 @@ public:
 
   iterator end() const noexcept {
     return iterator(matrix_.end());
+  }
+
+  iterator find(key_type key) const noexcept {
+    return iterator(matrix_.find({key[1], key[0]}));
   }
 
 private:
