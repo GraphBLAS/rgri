@@ -5,7 +5,7 @@
 #include <string>
 #include <grb/containers/matrix.hpp>
 #include <grb/containers/vector.hpp>
-#include <grb/containers/views/transpose_matrix.hpp>
+#include <grb/containers/views/views.hpp>
 
 namespace grb {
 
