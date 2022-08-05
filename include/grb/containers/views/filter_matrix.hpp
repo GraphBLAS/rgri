@@ -105,6 +105,15 @@ public:
     return iterator(matrix_.end(), matrix_.end(), fn_);
   }
 
+  iterator find(key_type key) const noexcept {
+    auto iter = matrix_.find(key);
+    if (fn_(*iter)) {
+      return iterator(iter, matrix_.end(), fn_);
+    } else {
+      return end();
+    }
+  }
+
 private:
   const MatrixType& matrix_;
   Fn fn_;
