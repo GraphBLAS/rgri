@@ -6,9 +6,28 @@
 #include <grb/containers/matrix.hpp>
 #include <grb/containers/vector.hpp>
 #include <grb/containers/views/views.hpp>
+#include <grb/detail/matrix_traits.hpp>
 
 namespace grb {
 
+template <grb::MatrixRange M>
+void print(M&& matrix, std::string label = "") {
+  std::cout << matrix.shape()[0] << " x " << matrix.shape()[1] <<
+               " matrix with " << matrix.size() << " stored values";
+  if (label != "") {
+    std::cout << " \"" << label << "\"";
+  }
+  std::cout << std::endl;
+
+  for (auto&& tuple : matrix) {
+    auto&& [index, value] = tuple;
+    auto&& [i, j] = index;
+
+    std::cout << "(" << i << ", " << j << "): " << value << std::endl;
+  }
+}
+
+/*
 /// Print the GraphBLAS matrix object `matrix` to standard output,
 /// optionally adding the string `label` to label the output.
 template <typename... Args>
@@ -61,6 +80,7 @@ void print(const grb::transform_matrix_view<Args...>& matrix, std::string label 
     std::cout << "(" << i << ", " << j << "): " << value << std::endl;
   }
 }
+*/
 
 /// Print the GraphBLAS matrix object `matrix` to standard output,
 /// optionally adding the string `label` to label the output.

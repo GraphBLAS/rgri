@@ -4,8 +4,11 @@
 #include <concepts>
 #include <utility>
 #include <ranges>
+#include <any>
 
 namespace grb {
+
+using any = std::any;
 
 template <typename T, std::size_t I>
 concept method_gettable = requires(T tuple) {
