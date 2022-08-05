@@ -3,18 +3,19 @@
 #include <grb/util/index.hpp>
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
+#include <grb/detail/matrix_traits.hpp>
 
 namespace grb {
 
 template <typename Iterator>
 class transpose_matrix_accessor {
 public:
-  using scalar_type = typename Iterator::scalar_type;
-  using index_type = typename Iterator::index_type;
+  using scalar_type = std::remove_cvref_t<decltype(grb::get<1>(*std::declval<Iterator>()))>;
+  using index_type = std::remove_cvref_t<decltype(grb::get<0>(grb::get<0>(*std::declval<Iterator>())))>;
   using difference_type = typename Iterator::difference_type;
 
   using value_type = grb::matrix_entry<scalar_type, index_type>;
-  using reference = grb::matrix_ref<scalar_type, index_type>;
+  using reference = value_type;
 
   using iterator_accessor = transpose_matrix_accessor;
   using const_iterator_accessor = transpose_matrix_accessor;
@@ -67,9 +68,14 @@ public:
   using size_type = typename matrix_type::size_type;
   using difference_type = typename matrix_type::difference_type;
 
-  using iterator = transpose_matrix_iterator<typename matrix_type::iterator>;
+  using iterator = transpose_matrix_iterator<typename matrix_type::const_iterator>;
+  using const_iterator = iterator;
 
-  transpose_matrix_view(MatrixType& matrix) : matrix_(matrix) {}
+  using value_type = std::remove_cvref_t<decltype(*std::declval<iterator>())>;
+
+  using key_type = typename matrix_type::key_type;
+
+  transpose_matrix_view(const MatrixType& matrix) : matrix_(matrix) {}
 
   grb::index<index_type> shape() const noexcept {
     return {matrix_.shape()[1], matrix_.shape()[0]};
@@ -87,16 +93,12 @@ public:
     return iterator(matrix_.end());
   }
 
-  decltype(auto) operator[](grb::index<index_type> index) const noexcept {
-    return matrix_[{index[1], index[0]}];
-  }
-
 private:
-  MatrixType& matrix_;
+  const MatrixType& matrix_;
 };
 
 template <typename MatrixType>
-auto transpose(MatrixType& matrix) {
+auto transpose(const MatrixType& matrix) {
   return transpose_matrix_view<MatrixType>(matrix);
 }
 

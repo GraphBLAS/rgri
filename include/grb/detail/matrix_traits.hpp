@@ -91,7 +91,7 @@ template <typename ValueType, typename T, typename I>
 concept MatrixValueType = TuplelikeSize<ValueType, 2> &&
                           requires(ValueType value) {
                             {grb::get<0>(value)} -> Tuplelike<I, I>;
-                            {grb::get<1>(value)} -> std::same_as<T>;
+                            {grb::get<1>(value)} -> std::convertible_to<T>;
                             {I{}} -> std::integral;
                           };
 

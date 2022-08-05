@@ -15,13 +15,21 @@ int main(int argc, char** argv) {
 
   grb::print(matrix_t, "matrix transposed");
 
-  auto matrix_tr = grb::transform(matrix, [](auto&& entry) {
+  auto matrix_tr = grb::transform(matrix_t, [](auto&& entry) {
                                             auto&& [idx, value] = entry;
                                             auto&& [i, j] = idx;
                                             return i + j / 10.0f;
                                           });
 
   grb::print(matrix_tr, "matrix transformed");
+
+  auto matrix_str = grb::structure(matrix_tr);
+
+  grb::print(matrix_str, "matrix structure");
+
+  auto lel = grb::get<1>(*matrix_str.begin());
+
+  lel = std::string("Jklsejrkl");
 
   return 0;
 }
