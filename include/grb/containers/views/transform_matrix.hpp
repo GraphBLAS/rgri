@@ -3,7 +3,7 @@
 #include <grb/util/index.hpp>
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
-#include <grb/detail/matrix_traits.hpp>
+#include <grb/detail/concepts.hpp>
 #include <utility>
 
 namespace grb {
