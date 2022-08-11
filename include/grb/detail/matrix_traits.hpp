@@ -23,11 +23,19 @@ struct container_traits {
   using reference = std::ranges::range_reference_t<Container>;
 };
 
+// TODO: depricate *_scalar_type_t in favor of *scalar_t
+
 template <typename Matrix>
 using matrix_scalar_type_t = typename std::remove_cvref_t<Matrix>::scalar_type;
 
 template <typename Matrix>
 using matrix_index_type_t = typename std::remove_cvref_t<Matrix>::index_type;
+
+template <typename Matrix>
+using matrix_scalar_t = typename std::remove_cvref_t<Matrix>::scalar_type;
+
+template <typename Matrix>
+using matrix_index_t = typename std::remove_cvref_t<Matrix>::index_type;
 
 namespace {
 

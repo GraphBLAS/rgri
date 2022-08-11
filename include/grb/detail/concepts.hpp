@@ -42,5 +42,9 @@ concept MatrixRange = std::ranges::sized_range<M> &&
                                   grb::matrix_index_type_t<M>>;
     {grb::find(matrix, {grb::matrix_index_type_t<M>{}, grb::matrix_index_type_t<M>{}})} -> std::convertible_to<std::ranges::iterator_t<M>>;
   };
+  
+template <typename M>
+concept MaskMatrixRange = MatrixRange<M> &&
+                          std::is_convertible_v<grb::matrix_scalar_type_t<M>, bool>;
 
 } // end grb
