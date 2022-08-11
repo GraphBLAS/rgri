@@ -11,6 +11,9 @@ int main(int argc, char** argv) {
 
   grb::matrix<float> y = x;
 
+  x[{2, 2}] = 12;
+  x[{4, 4}] = 12;
+
   grb::print(x, "x");
   grb::print(y, "y");
 
@@ -22,10 +25,16 @@ int main(int argc, char** argv) {
     }
   }
 
-  auto z = grb::ewise_intersection(x, y, [](auto a, auto b) { return a + b; }, mask);
+  mask[{2, 2}] = true;
 
+  grb::print(mask, "mask");
 
-  grb::print(z, "z");
+  auto z_union = grb::ewise_union(x, y, [](auto a, auto b) { return a + b; }, mask);
+  auto z_intersection = grb::ewise_intersection(x, y, [](auto a, auto b) { return a + b; }, mask);
+
+  grb::print(z_union, "union");
+
+  grb::print(z_intersection, "intersection");
 
   return 0;
 }
