@@ -29,7 +29,6 @@ template <typename Entry, typename T, typename I, typename U>
 concept MutableMatrixEntry = MatrixEntry<Entry, T, I> &&
                              std::indirectly_writable<decltype(std::get<1>(std::declval<Entry>())), U>;
 
-
 template <typename M>
 concept MatrixRange = std::ranges::sized_range<M> &&
   requires(M matrix) {
@@ -46,5 +45,26 @@ concept MatrixRange = std::ranges::sized_range<M> &&
 template <typename M>
 concept MaskMatrixRange = MatrixRange<M> &&
                           std::is_convertible_v<grb::matrix_scalar_type_t<M>, bool>;
+
+template <typename Entry, typename T, typename I>
+concept VectorEntry = TupleLike<Entry, grb::any, grb::any> &&
+                      requires(Entry entry) { {grb::get<0>(entry)} -> std::integral; } &&
+                      requires(Entry entry) { {grb::get<1>(entry)} -> std::convertible_to<T>; };
+
+template <typename V>
+concept VectorRange = std::ranges::sized_range<V> &&
+  requires(V vector) {
+    typename grb::vector_scalar_type_t<V>;
+    typename grb::vector_index_type_t<V>;
+    {std::declval<std::ranges::range_value_t<std::remove_cvref_t<V>>>()}
+      -> VectorEntry<grb::vector_scalar_type_t<V>,
+                     grb::vector_index_type_t<V>>;
+    {grb::shape(vector)} -> std::same_as<grb::vector_index_type_t<V>>;
+    {grb::find(vector, grb::vector_index_type_t<V>{})} -> std::convertible_to<std::ranges::iterator_t<V>>;
+};
+
+template <typename M>
+concept MaskVectorRange = VectorRange<M> &&
+                          std::is_convertible_v<grb::vector_scalar_type_t<M>, bool>;
 
 } // end grb
