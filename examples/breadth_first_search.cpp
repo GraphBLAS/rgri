@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     std::cout << "Output:" << std::endl;
     grb::print(b);
 
-    auto new_mask = grb::ewise_add_v(b, mask, grb::plus{}, 0);
+    auto new_mask = grb::ewise_union(b, mask, grb::plus{});
 
     std::swap(new_mask, mask);
     std::swap(x, b);

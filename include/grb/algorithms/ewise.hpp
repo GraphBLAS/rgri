@@ -9,7 +9,7 @@ template <MatrixRange A,
           MatrixRange B,
           BinaryOperator<grb::matrix_scalar_type_t<A>,
                          grb::matrix_scalar_type_t<B>> Combine,
-          MaskMatrixRange M = grb::full_mask<>
+          MaskMatrixRange M = grb::full_matrix_mask<>
           >
 auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 {
@@ -30,7 +30,7 @@ auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
   grb::matrix<c_scalar_type, index_type> c(a.shape());
 
   for (auto&& [index, a_value] : a) {
-    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_mask<>>) {
+    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_matrix_mask<>>) {
       auto mask_iter = mask.find(index);
       if (mask_iter == mask.end() || !bool(grb::get<1>(*mask_iter))) {
         continue;
@@ -52,7 +52,7 @@ template <MatrixRange A,
           MatrixRange B,
           BinaryOperator<grb::matrix_scalar_type_t<A>,
                          grb::matrix_scalar_type_t<B>> Combine,
-          MaskMatrixRange M = grb::full_mask<>
+          MaskMatrixRange M = grb::full_matrix_mask<>
           >
 auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 {
@@ -75,7 +75,7 @@ auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
   size_t num_matched = 0;
 
   for (auto&& [index, a_value] : a) {
-    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_mask<>>) {
+    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_matrix_mask<>>) {
       auto mask_iter = mask.find(index);
       if (mask_iter == mask.end() || !bool(grb::get<1>(*mask_iter))) {
         continue;
@@ -111,7 +111,7 @@ template <VectorRange A,
           VectorRange B,
           BinaryOperator<grb::vector_scalar_type_t<A>,
                          grb::vector_scalar_type_t<B>> Combine,
-          MaskVectorRange M = grb::full_mask<>
+          MaskVectorRange M = grb::full_vector_mask<>
           >
 auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 {
@@ -132,7 +132,7 @@ auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
   grb::vector<c_scalar_type, index_type> c(a.shape());
 
   for (auto&& [index, a_value] : a) {
-    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_mask<>>) {
+    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_vector_mask<>>) {
       auto mask_iter = mask.find(index);
       if (mask_iter == mask.end() || !bool(grb::get<1>(*mask_iter))) {
         continue;
@@ -154,7 +154,7 @@ template <VectorRange A,
           VectorRange B,
           BinaryOperator<grb::vector_scalar_type_t<A>,
                          grb::vector_scalar_type_t<B>> Combine,
-          MaskVectorRange M = grb::full_mask<>
+          MaskVectorRange M = grb::full_vector_mask<>
           >
 auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 {
@@ -177,7 +177,7 @@ auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
   size_t num_matched = 0;
 
   for (auto&& [index, a_value] : a) {
-    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_mask<>>) {
+    if constexpr(!std::is_same_v<std::remove_cvref_t<M>, grb::full_vector_mask<>>) {
       auto mask_iter = mask.find(index);
       if (mask_iter == mask.end() || !bool(grb::get<1>(*mask_iter))) {
         continue;

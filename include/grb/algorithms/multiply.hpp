@@ -14,13 +14,13 @@ template <typename AMatrixType,
           typename BVectorType,
           typename ReduceFn = grb::plus<>,
           typename CombineFn = grb::multiplies<>,
-          typename MaskType = grb::full_mask<>
+          typename MaskType = grb::full_vector_mask<>
           >
 auto multiply_mv(AMatrixType&& a,
                  BVectorType&& b,
                  ReduceFn&& reduce = ReduceFn(),
                  CombineFn&& combine = CombineFn(),
-                 MaskType&& mask = grb::full_mask()) {
+                 MaskType&& mask = MaskType{}) {
   using a_matrix = std::decay_t<AMatrixType>;
   using b_vector = std::decay_t<BVectorType>;
 
@@ -44,7 +44,7 @@ auto multiply_mv(AMatrixType&& a,
     if (iter != b.end()) {
       auto&& [b_index, b_v] = *iter;
 
-      if constexpr(std::is_same_v<std::decay_t<MaskType>, grb::full_mask<>>) {
+      if constexpr(std::is_same_v<std::decay_t<MaskType>, grb::full_vector_mask<>>) {
         c[i] = reduce(c[i], combine(a_v, b_v));
       } else {
         auto iter = mask.find(i);
@@ -68,13 +68,13 @@ template <typename AMatrixType,
           typename BMatrixType,
           typename ReduceFn = std::plus<>,
           typename CombineFn = std::multiplies<>,
-          typename MaskType = grb::full_mask<>
+          typename MaskType = grb::full_matrix_mask<>
           >
 auto multiply(AMatrixType&& a,
               BMatrixType&& b,
               ReduceFn&& reduce = ReduceFn(),
               CombineFn&& combine = CombineFn(),
-              MaskType&& mask = grb::full_mask()) {
+              MaskType&& mask = grb::full_matrix_mask()) {
     using a_matrix = std::decay_t<AMatrixType>;
     using b_matrix = std::decay_t<BMatrixType>;
 
@@ -99,7 +99,7 @@ auto multiply(AMatrixType&& a,
         if (iter != b.end()) {
           auto&& [b_index, b_v] = *iter;
 
-          if constexpr(std::is_same_v<std::decay_t<MaskType>, grb::full_mask<>>) {
+          if constexpr(std::is_same_v<std::decay_t<MaskType>, grb::full_matrix_mask<>>) {
             c[{i, j}] = reduce(c[{i, j}], combine(a_v, b_v));
           } else {
             auto iter = mask.find({i, j});

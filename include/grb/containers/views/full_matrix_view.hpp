@@ -132,22 +132,22 @@ private:
 };
 
 template <typename I = std::size_t>
-class full_mask : public full_matrix<bool, I>
+class full_matrix_mask : public full_matrix<bool, I>
 {
 public:
 
-	full_mask(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()})
+	full_matrix_mask(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()})
 	  : full_matrix<bool, I>(shape, true)
 	{}
 };
 
 
 template <typename I = std::size_t>
-class empty_mask : public full_matrix<bool, I>
+class empty_matrix_mask : public full_matrix<bool, I>
 {
 public:
 
-	empty_mask(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()})
+	empty_matrix_mask(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()})
 	  : full_matrix<bool, I>(shape, false)
 	{}
 };
