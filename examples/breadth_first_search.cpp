@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
   while (x.size() > 0) {
     std::cout << "Iteration 1:" << std::endl;;
     grb::print(x);
-    auto b = grb::multiply_mv(a, x, grb::plus{}, grb::multiplies{}, mask);
+    auto b = grb::multiply(a, x, grb::plus{}, grb::multiplies{}, mask);
 
     std::cout << "Output:" << std::endl;
     grb::print(b);
