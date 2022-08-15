@@ -87,6 +87,13 @@ public:
 		return backend_[index];
 	}
 
+	template <typename InputIt>
+	void insert(InputIt first, InputIt last) {
+		for (auto iter = first; iter != last; ++iter) {
+			insert(*iter);
+		}
+	}
+
 	std::pair<iterator, bool> insert(value_type&& value) {
 		return backend_.insert(std::move(value));
 	}
