@@ -9,9 +9,7 @@
 
 namespace grb {
 
-// TODO (new): bring in concepts to allow overloading.
-
-
+/// Multiply a matrix times a vector
 template <MatrixRange A,
           VectorRange B,
           BinaryOperator<grb::matrix_scalar_t<A>, grb::vector_scalar_t<B>> Combine = grb::multiplies<>,
@@ -20,10 +18,10 @@ template <MatrixRange A,
                          grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>,
           MaskVectorRange M = grb::full_vector_mask<>>
 auto multiply(A&& a,
-                 B&& b,
-                 Reduce&& reduce = Reduce{},
-                 Combine&& combine = Combine(),
-                 M&& mask = M{}) {
+              B&& b,
+              Reduce&& reduce = Reduce{},
+              Combine&& combine = Combine(),
+              M&& mask = M{}) {
   using a_scalar_type = grb::matrix_scalar_t<A>;
   using b_scalar_type = grb::vector_scalar_t<B>;
 
