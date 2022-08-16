@@ -39,10 +39,10 @@ struct container_traits {
   using difference_type = std::ranges::range_difference_t<Container>;
   using iterator = std::ranges::iterator_t<Container>;
   using value_type = std::ranges::range_value_t<Container>;
-  using key_type = typename std::tuple_element<0, value_type>::type;
-  using map_type = typename std::tuple_element<1, value_type>::type;
-  using scalar_type = typename std::tuple_element<1, value_type>::type;
-  using index_type = typename get_index_type<Container>::type;
+  using key_type = std::remove_cvref_t<typename std::tuple_element<0, value_type>::type>;
+  using map_type = std::remove_cvref_t<typename std::tuple_element<1, value_type>::type>;
+  using scalar_type = std::remove_cvref_t<typename std::tuple_element<1, value_type>::type>;
+  using index_type = std::remove_cvref_t<typename get_index_type<Container>::type>;
   using reference = std::ranges::range_reference_t<Container>;
 };
 
@@ -52,10 +52,10 @@ struct matrix_traits {
   using difference_type = std::ranges::range_difference_t<Container>;
   using iterator = std::ranges::iterator_t<Container>;
   using value_type = std::ranges::range_value_t<Container>;
-  using key_type = typename std::tuple_element<0, value_type>::type;
-  using map_type = typename std::tuple_element<1, value_type>::type;
-  using scalar_type = typename std::tuple_element<1, value_type>::type;
-  using index_type = typename std::tuple_element<0, key_type>::type;
+  using key_type = std::remove_cvref_t<typename std::tuple_element<0, value_type>::type>;
+  using map_type = std::remove_cvref_t<typename std::tuple_element<1, value_type>::type>;
+  using scalar_type = std::remove_cvref_t<typename std::tuple_element<1, value_type>::type>;
+  using index_type = std::remove_cvref_t<typename std::tuple_element<0, key_type>::type>;
   using reference = std::ranges::range_reference_t<Container>;
 };
 
@@ -65,9 +65,9 @@ struct vector_traits {
   using difference_type = std::ranges::range_difference_t<Container>;
   using iterator = std::ranges::iterator_t<Container>;
   using value_type = std::ranges::range_value_t<Container>;
-  using key_type = typename std::tuple_element<0, value_type>::type;
-  using map_type = typename std::tuple_element<1, value_type>::type;
-  using scalar_type = typename std::tuple_element<1, value_type>::type;
+  using key_type = std::remove_cvref_t<typename std::tuple_element<0, value_type>::type>;
+  using map_type = std::remove_cvref_t<typename std::tuple_element<1, value_type>::type>;
+  using scalar_type = std::remove_cvref_t<typename std::tuple_element<1, value_type>::type>;
   using index_type = key_type;
   using reference = std::ranges::range_reference_t<Container>;
 };
