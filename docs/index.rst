@@ -80,14 +80,19 @@ Identity of the
 
 Algorithms
 ----------
-.. doxygenfunction:: grb::multiply(AMatrixType&&, BMatrixType&&, ReduceFn&&, CombineFn&&, MaskType&&)
+
+.. doxygenfunction:: grb::multiply(A&&, B&&, Reduce&&, Combine&&, M&&)
+
+.. doxygenfunction:: grb::dot(A&&, B&&, Reduce&&, Combine&&, M&&)
 
 .. doxygenfunction:: grb::sum
 
-.. doxygenfunction:: grb::ewise(const AMatrixType&, const BMatrixType&, const BinaryOp&)
+.. doxygenfunction:: grb::ewise_union
 
-.. doxygenfunction:: grb::ewise(const AMatrixType&, const BMatrixType&, CMatrixType&, const BinaryOp&, const Accumulator&)
+.. doxygenfunction:: grb::ewise_intersection
 
 Utility Functions
 -----------------
-.. doxygenfunction:: grb::print(const grb::matrix<Args...>&, std::string)
+.. doxygenfunction:: grb::print(M&&, std::string)
+
+.. doxygenfunction:: grb::print(V&&, std::string)
