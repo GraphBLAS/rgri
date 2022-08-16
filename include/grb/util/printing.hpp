@@ -86,7 +86,7 @@ void print(const grb::transform_matrix_view<Args...>& matrix, std::string label 
 
 /// Print the GraphBLAS vector object `vector` to standard output,
 /// optionally adding the string `label`.
-template <grb::VectorRangeV>
+template <grb::VectorRange V>
 void print(V&& vector, std::string label = "") {
   std::cout << vector.shape()
             << " dimension vector with " << vector.size() << " stored values";
