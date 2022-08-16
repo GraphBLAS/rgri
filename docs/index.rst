@@ -54,19 +54,19 @@ Binary operators are function objects that implement binary operators, that is
 operators that accept two inputs and produce a single output.  A collection of
 binary operators are pre-defined by GraphBLAS.
 
-.. doxygentypedef:: grb::plus
+.. doxygenstruct:: grb::plus
 
-.. doxygentypedef:: grb::minus
+.. doxygenstruct:: grb::minus
 
-.. doxygentypedef:: grb::multiplies
+.. doxygenstruct:: grb::multiplies
 
-.. doxygentypedef:: grb::times
+.. doxygenstruct:: grb::times
 
-.. doxygentypedef:: grb::max
+.. doxygenstruct:: grb::max
 
-.. doxygentypedef:: grb::min
+.. doxygenstruct:: grb::min
 
-.. doxygentypedef:: grb::modulus
+.. doxygenstruct:: grb::modulus
 
 Monoid Traits
 ----------------
