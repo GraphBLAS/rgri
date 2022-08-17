@@ -130,6 +130,8 @@ constexpr auto shape(T&& t) {
   return std::forward<T>(t).shape();
 }
 
+inline constexpr auto size = std::ranges::size;
+
 template <has_find_method T>
 constexpr auto find(T&& t, typename grb::container_traits<T>::key_type key) {
   return std::forward<T>(t).find(key);

@@ -25,7 +25,7 @@ using uniform_distribution_t = typename uniform_distribution<T>::type;
 }
 
 template <typename T = float, std::integral I = std::size_t, typename Hint = grb::sparse>
-grb::matrix<T, I, Hint> generate_random(grb::index<I> shape, double density = 0.01) {
+grb::matrix<T, I, Hint> generate_random(grb::index<I> shape, double density = 0.01, unsigned int seed = 0) {
 
   if (density > 1.0 || density < 0) {
     throw grb::invalid_argument("generate_random: invalid density argument.");
@@ -35,8 +35,7 @@ grb::matrix<T, I, Hint> generate_random(grb::index<I> shape, double density = 0.
 
   size_t nnz = density*shape[0]*shape[1];
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  std::mt19937 gen(seed);
   std::uniform_int_distribution<I> row(0, shape[0]-1);
   std::uniform_int_distribution<I> column(0, shape[1]-1);
 

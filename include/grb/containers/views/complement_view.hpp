@@ -7,150 +7,121 @@ namespace grb {
    TODO: there are a ton of optimizations that could be applied here.
 */
 
-template <typename MatrixType>
-class complement_matrix_view_reference {
+template <grb::VectorRange V>
+class complement_vector_view_accessor {
 public:
-  using value_type = bool;
-  using index_type = typename MatrixType::index_type;
-  using size_type = typename MatrixType::size_type;
-  using difference_type = typename MatrixType::difference_type;
+  using scalar_type = bool;
+  using index_type = grb::vector_index_t<V>;
+  using difference_type = typename container_traits<V>::difference_type;
 
-  complement_matrix_view_reference(const MatrixType& matrix, size_t idx,
-                                   const std::vector<bool>& complement)
-    : matrix_(matrix), idx_(idx), complement_(complement) {}
+  using value_type = grb::vector_entry<scalar_type, index_type>;
+  using reference = value_type;
 
-  operator std::tuple<index_type, index_type, bool>() const noexcept {
-    return {idx_ / matrix_.shape()[1], idx_ % matrix_.shape()[1], complement_[idx_]};
+  using iterator_accessor = complement_vector_view_accessor;
+  using const_iterator_accessor = complement_vector_view_accessor;
+  using nonconst_iterator_accessor = complement_vector_view_accessor;
+
+  using iterator_category = std::forward_iterator_tag;
+
+  complement_vector_view_accessor() noexcept = default;
+  ~complement_vector_view_accessor() noexcept = default;
+  complement_vector_view_accessor(const complement_vector_view_accessor&) noexcept = default;
+  complement_vector_view_accessor& operator=(const complement_vector_view_accessor&) noexcept = default;
+
+  complement_vector_view_accessor(const V& vector, index_type index) : vector_(&vector), index_(index) {
+    fast_forward();
   }
 
-  grb::index_t index() const noexcept {
-    return {idx_ / matrix_.shape()[1], idx_ % matrix_.shape()[1]};
-  }
 
-  bool value() const noexcept {
-    return complement_[idx_];
-  }
-
-private:
-  const MatrixType& matrix_;
-  size_t idx_;
-  const std::vector<bool>& complement_;
-};
-
-template <typename MatrixType>
-class complement_matrix_view_iterator {
-public:
-	using value_type = bool;
-	using index_type = typename MatrixType::index_type;
-	using size_type = typename MatrixType::size_type;
-	using difference_type = typename MatrixType::difference_type;
-
-  using reference = complement_matrix_view_reference<MatrixType>;
-
-  complement_matrix_view_iterator(const MatrixType& matrix, size_type idx)
-    : matrix_(matrix), idx_(idx) {
-    get_compl_();
-  }
-
-  complement_matrix_view_iterator& operator++() {
-    do {
-      idx_++;
-    } while (idx_ < matrix_.shape()[0]*matrix_.shape()[1]
-             && static_cast<bool>(complement_[idx_]) == false);
-  	return *this;
-  }
-
-  complement_matrix_view_iterator& operator--() {
-    do {
-      idx_--;
-    } while (idx_ >= 0
-             && static_cast<bool>(complement_[idx_]) == false);
-    return *this;
-  }
-
-  bool operator==(const complement_matrix_view_iterator& other) const {
-    if (&matrix_ == &other.matrix_ && idx_ == other.idx_) {
+  // Return whether the current index is present in the complement view.
+  bool index_present() const {
+    auto iter = vector_->find(index_);
+    if (iter == vector_->end()) {
+      return true;
+    } else if (!static_cast<bool>(grb::get<1>(*iter))) {
       return true;
     } else {
       return false;
     }
   }
 
-  bool operator!=(const complement_matrix_view_iterator& other) const {
-    return !(*this == other);
-  }
-
-  reference operator*() const noexcept {
-    return complement_matrix_view_reference<MatrixType>(matrix_, idx_, complement_);
-  }
-
-  void get_compl_() {
-  	if (complement_.size() > 0) {
-      for (size_t i = 0; i < complement_.size(); i++) {
-        complement_[i] = true;
-      }
-  	}
-  	complement_.resize(matrix_.shape()[0]*matrix_.shape()[1], true);
-
-  	for (auto&& [i, j, value] : matrix_) {
-  		if (static_cast<bool>(value) == true) {
-  			complement_[i*matrix_.shape()[1] + j] = false;
-  		}
-  	}
-  }
-
- private:
-
-  const MatrixType& matrix_;
-  size_type idx_;
-  std::vector<bool> complement_;
-
-  friend reference;
-};
-
-template <typename MatrixType>
-class complement_matrix_view {
-public:
-  using value_type = typename MatrixType::value_type;
-  using index_type = typename MatrixType::index_type;
-  using allocator_type = typename MatrixType::allocator_type;
-  using size_type = typename MatrixType::size_type;
-  using difference_type = typename MatrixType::difference_type;
-
-  using iterator = complement_matrix_view_iterator<MatrixType>;
-  using reference = complement_matrix_view_reference<MatrixType>;
-
-  complement_matrix_view(const MatrixType& matrix) : matrix_(matrix) {}
-
-  iterator begin() const {
-    return iterator(matrix_, 0);
-  }
-
-  iterator end() const {
-    return iterator(matrix_, matrix_.shape()[0]*matrix_.shape()[1]);
-  }
-
-  index_t shape() const noexcept {
-  	return matrix_.shape();
-  }
-
-  // TODO: should we try to "skip over" stored values equal to true?
-  size_type size() {
-    size_t num_elem = matrix_.shape()[0]*matrix_.shape()[1] - matrix_.size();
-    for (auto&& [i, j, v] : matrix_) {
-      if (static_cast<bool>(v) == false) {
-        num_elem++;
-      }
+  void fast_forward() {
+    while (index_ < vector_->shape() && !index_present()) {
+      ++index_;
     }
-  	return num_elem;
+  }
+
+  complement_vector_view_accessor& operator++() noexcept {
+    ++index_;
+    fast_forward();
+    return *this;
+  }
+
+  bool operator==(const complement_vector_view_accessor& other) const noexcept {
+    return vector_ == other.vector_ && index_ == other.index_;
+  }
+
+  value_type operator*() const noexcept {
+    return value_type(index_, true);
   }
 
 private:
+  const V* vector_;
+  index_type index_;
+};
 
-	const MatrixType& matrix_;
+template <grb::VectorRange V>
+using complement_view_iterator = grb::detail::iterator_adaptor<complement_vector_view_accessor<V>>;
 
-  friend iterator;
-  friend reference;
+template <grb::VectorRange V>
+class complement_view {
+public:
+  using scalar_type = bool;
+  using index_type = grb::vector_index_t<V>;
+  using value_type = grb::vector_entry<scalar_type, index_type>;
+  using size_type = typename container_traits<V>::size_type;
+  using difference_type = typename container_traits<V>::difference_type;
+  using key_type = typename container_traits<V>::key_type;
+
+  using iterator = complement_view_iterator<V>;
+  using reference = value_type;
+
+  complement_view(const V& vector) : vector_(vector) {}
+
+  std::size_t size() const {
+    std::size_t vec_size = shape() - vector_.size();
+    for (auto&& [_, value] : vector_) {
+      if (!static_cast<bool>(value)) {
+        vec_size++;
+      }
+    }
+    return vec_size;
+  }
+
+  iterator begin() const {
+    return iterator(vector_, 0);
+  }
+
+  iterator end() const {
+    return iterator(vector_, shape());
+  }
+
+  auto shape() const {
+    return vector_.shape();
+  }
+
+  iterator find(key_type key) const {
+    auto iter = vector_.find(key);
+
+    if (iter == vector_.end() && !static_cast<bool>(grb::get<1>(*iter))) {
+      return iterator(vector_, key);
+    }  else {
+      return end();
+    }
+  }
+
+private:
+  const V& vector_;
 };
 
 } // end grb
