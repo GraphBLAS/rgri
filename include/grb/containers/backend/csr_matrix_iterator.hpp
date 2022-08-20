@@ -3,6 +3,7 @@
 #include <span>
 #include <type_traits>
 #include <grb/containers/matrix_entry.hpp>
+#include <grb/detail/spanner.hpp>
 
 namespace grb {
 
@@ -26,7 +27,10 @@ namespace grb {
 //    the row_ptr array.
 
 template <typename T,
-          typename I>
+          typename I,
+          typename TIter,
+          typename TConstIter,
+          typename IIter>
 class csr_matrix_iterator {
 public:
   using size_type = std::size_t;
@@ -37,15 +41,24 @@ public:
   using index_type = I;
   using map_type = T;
 
+  using backend_iterator = std::conditional_t<!std::is_const_v<T>, TIter, TConstIter>;
+
   using value_type = grb::matrix_entry<T, index_type>;
   using iterator = csr_matrix_iterator;
   using const_iterator = csr_matrix_iterator<std::add_const_t<T>,
-                                             index_type>;
+                                             index_type,
+                                             TIter,
+                                             TConstIter,
+                                             IIter>;
 
-  using nonconst_iterator = csr_matrix_iterator<std::remove_const_t<T>, index_type>;
+  using nonconst_iterator = csr_matrix_iterator<std::remove_const_t<T>, index_type,
+                                                TIter, TConstIter, IIter>;
 
-  using reference = grb::matrix_ref<T, I>;
-  using const_reference = grb::matrix_ref<std::add_const_t<T>, I>;
+  using scalar_reference = decltype(*std::declval<TIter>());
+  using const_scalar_reference = decltype(*std::declval<TConstIter>());
+
+  using reference = grb::matrix_ref<T, I, scalar_reference>;
+  using const_reference = grb::matrix_ref<std::add_const_t<T>, I, const_scalar_reference>;
 
   using pointer = iterator;
   using const_pointer = const_iterator;
@@ -218,9 +231,9 @@ public:
 
 
   bool operator==(iterator other) const noexcept {
-    return values_.data() == other.values_.data() &&
-           rowptr_.data() == other.rowptr_.data() &&
-           colind_.data() == other.colind_.data() &&
+    return values_.begin() == other.values_.begin() &&
+           rowptr_.begin() == other.rowptr_.begin() &&
+           colind_.begin() == other.colind_.begin() &&
                                row_ == other.row_ &&
                            index_ == other.index_;
   }
@@ -228,9 +241,9 @@ public:
   bool operator==(const_iterator other) const noexcept
   requires(!std::is_same_v<iterator, const_iterator>)
   {
-    return values_.data() == other.values_.data() &&
-           rowptr_.data() == other.rowptr_.data() &&
-           colind_.data() == other.colind_.data() &&
+    return values_.begin() == other.values_.begin() &&
+           rowptr_.begin() == other.rowptr_.begin() &&
+           colind_.begin() == other.colind_.begin() &&
                                row_ == other.row_ &&
                            index_ == other.index_;
   }
@@ -263,9 +276,9 @@ private:
 
   using const_index_type = std::add_const_t<index_type>;
 
-  std::span<T> values_;
-  std::span<const_index_type> rowptr_;
-  std::span<const_index_type> colind_;
+  grb::detail::spanner<backend_iterator> values_;
+  grb::detail::spanner<IIter> rowptr_;
+  grb::detail::spanner<IIter> colind_;
 
   index_type row_;
   index_type index_;

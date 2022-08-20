@@ -174,22 +174,22 @@ private:
 
 namespace std {
 
-template <typename T, typename I>
+template <typename T, typename I, typename TRef>
 requires(!std::is_const_v<T>)
-void swap(grb::vector_ref<T, I> a, grb::vector_ref<T, I> b) {
-	grb::vector_ref<T, I> other = a;
+void swap(grb::vector_ref<T, I, TRef> a, grb::vector_ref<T, I, TRef> b) {
+  grb::vector_entry<T, I> other = a;
 	a = b;
 	b = other;
 }
 
-template <std::size_t Index, typename T, typename I>
-struct tuple_element<Index, grb::vector_ref<T, I>>
-  : tuple_element<Index, std::tuple<I, T>>
+template <std::size_t Index, typename T, typename I, typename TRef>
+struct tuple_element<Index, grb::vector_ref<T, I, TRef>>
+  : tuple_element<Index, std::tuple<I, TRef>>
 {
 };
 
-template <typename T, typename I>
-struct tuple_size<grb::vector_ref<T, I>>
+template <typename T, typename I, typename TRef>
+struct tuple_size<grb::vector_ref<T, I, TRef>>
     : integral_constant<size_t, 2> {};
 
 } // end std

@@ -61,11 +61,22 @@ public:
   /// Construct an empty matrix of dimension `shape[0]` x `shape[1]`
   matrix(grb::index<I> shape) : backend_(shape) {}
 
+  matrix(grb::index<I> shape, const Allocator& allocator) : backend_(shape, allocator) {}
+
   matrix(std::initializer_list<I> shape)
     : backend_({*shape.begin(), *(shape.begin()+1)}) {}
 
+  matrix(std::initializer_list<I> shape, const Allocator& allocator)
+    : backend_({*shape.begin(), *(shape.begin()+1)}, allocator) {}
+
   /// Construct a matrix from the Matrix Market file stored at location `file_path`.
   matrix(std::string file_path) {
+    auto tuples = grb::mmread<T, I>(file_path);
+    reshape(tuples.shape());
+    insert(tuples.begin(), tuples.end());
+  }
+
+  matrix(std::string file_path, const Allocator& allocator) : backend_(allocator) {
     auto tuples = grb::mmread<T, I>(file_path);
     reshape(tuples.shape());
     insert(tuples.begin(), tuples.end());
@@ -144,6 +155,8 @@ public:
   }
 
   matrix() = default;
+  matrix(const Allocator& allocator) : backend_(allocator) {}
+
   matrix(const matrix&) = default;
   matrix(matrix&&) = default;
   matrix& operator=(const matrix&) = default;

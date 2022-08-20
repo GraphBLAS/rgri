@@ -200,14 +200,14 @@ namespace std {
 template <typename T, typename I, typename TRef>
 requires(!std::is_const_v<T>)
 void swap(grb::matrix_ref<T, I, TRef> a, grb::matrix_ref<T, I, TRef> b) {
-	grb::matrix_ref<T, I> other = a;
+	grb::matrix_entry<T, I> other = a;
 	a = b;
 	b = other;
 }
 
 template <std::size_t Index, typename T, typename I, typename TRef>
 struct tuple_element<Index, grb::matrix_ref<T, I, TRef>>
-  : tuple_element<Index, std::tuple<grb::index<I>, T>> {};
+  : tuple_element<Index, std::tuple<grb::index<I>, TRef>> {};
 
 template <typename T, typename I, typename TRef>
 struct tuple_size<grb::matrix_ref<T, I, TRef>>
@@ -221,7 +221,7 @@ requires(Index <= 1)
   if constexpr(Index == 1) { return ref.value(); }
 }
 
-template <std::size_t Index, typename T, typename I>
+template <std::size_t Index, typename T, typename I, typename TRef>
 inline decltype(auto) get(grb::matrix_entry<T, I> entry)
 requires(Index <= 1)
 {

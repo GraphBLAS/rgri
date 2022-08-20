@@ -31,10 +31,16 @@ public:
   using index_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<index_type>;
 
   using iterator = csr_matrix_iterator<T,
-                                       index_type>;
+                                       index_type,
+                                       typename std::vector<T, Allocator>::iterator,
+                                       typename std::vector<T, Allocator>::const_iterator,
+                                       typename std::vector<I, index_allocator_type>::const_iterator>;
 
   using const_iterator = csr_matrix_iterator<std::add_const_t<T>,
-                                             index_type>;
+                                             index_type,
+                                             typename std::vector<T, Allocator>::iterator,
+                                             typename std::vector<T, Allocator>::const_iterator,
+                                             typename std::vector<I, index_allocator_type>::const_iterator>;
 
   using reference = grb::matrix_ref<T, index_type>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, index_type>;
@@ -109,6 +115,9 @@ public:
   }
 
   csr_matrix(grb::index<I> shape);
+  csr_matrix(grb::index<I> shape, const Allocator& allocator);
+
+  csr_matrix(const Allocator& allocator) : allocator_(allocator) {}
 
   csr_matrix() = default;
   ~csr_matrix() = default;
@@ -138,10 +147,29 @@ private:
   index_type n_ = 0;
   size_type nnz_ = 0;
 
-  std::vector<index_type, index_allocator_type> rowptr_ = {0};
-  std::vector<index_type, index_allocator_type> colind_;
-  std::vector<T, allocator_type> values_;
+  Allocator allocator_;
+
+  std::vector<index_type, index_allocator_type> rowptr_ = std::vector<index_type, index_allocator_type>({0}, allocator_);
+  std::vector<index_type, index_allocator_type> colind_ = std::vector<index_type, index_allocator_type>(allocator_);
+  std::vector<T, allocator_type> values_ = std::vector<T, allocator_type>(allocator_);
 };
+
+template <typename T,
+          std::integral I,
+          typename Allocator>
+csr_matrix<T, I, Allocator>::csr_matrix(index<I> shape, const Allocator& allocator)
+ : m_(shape[0]), n_(shape[1]), nnz_(0), allocator_(allocator) {
+  if (shape[0]+1 > std::numeric_limits<I>::max() ||
+      shape[1]+1 > std::numeric_limits<I>::max()) {
+    throw std::runtime_error("grb::matrix({"                    +
+                             std::to_string(shape[0])           +
+                             std::to_string(shape[1])           +
+                             "}: dimensions too big for "       +
+                             std::to_string(sizeof(I)*CHAR_BIT) +
+                             "-bit integer");
+  }
+  rowptr_.resize(shape[0]+1, 0);
+}
 
 template <typename T,
           std::integral I,
