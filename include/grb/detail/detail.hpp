@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <limits>
+#include "spanner.hpp"
 
 namespace grb {
 
