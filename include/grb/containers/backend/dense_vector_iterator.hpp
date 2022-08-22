@@ -1,44 +1,18 @@
 #pragma once
 
-#include <grb/containers/backend/dense_vector.hpp>
+#include <grb/containers/backend/dense_vector_iterator.hpp>
+#include <grb/detail/spanner.hpp>
+#include <ranges>
 
 namespace grb {
 
 template <typename T,
-          typename I = std::size_t,
-          typename Allocator = std::allocator<T>>
-class dense_vector;
-
-template <typename T,
           typename I,
-          typename Allocator>
+          typename TIter,
+          typename TConstIter,
+          typename BIter>
 class dense_vector_iterator {
-private:
-
-  template <typename U>
-  struct const_if_impl_ {
-    template <typename V>
-    struct constify {
-      using type = std::add_const_t<V>;
-    };
-  };
-
-  template <typename U>
-  requires(!std::is_const_v<U>)
-  struct const_if_impl_<U> {
-    template <typename V>
-    struct constify {
-      using type = V;
-    };
-  };
-
-  template <typename U, typename V>
-  using const_if_t = typename const_if_impl_<U>:: template constify<V>::type;
-
 public:
-  using backend_type = dense_vector<std::remove_const_t<T>, I, Allocator>;
-  using backend_type_constified = const_if_t<T, backend_type>;
-
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
@@ -48,39 +22,49 @@ public:
   using key_type = grb::index<I>;
   using map_type = T;
 
+  using backend_iterator = std::conditional_t<!std::is_const_v<T>, TIter, TConstIter>;
+
   using value_type = grb::vector_entry<T, index_type>;
   using iterator = dense_vector_iterator;
   using const_iterator = dense_vector_iterator<std::add_const_t<T>,
-                                               index_type, Allocator>;
+                                               index_type,
+                                               TIter, TConstIter, BIter>;
 
-  using reference = grb::vector_ref<T, I>;
-  using const_reference = grb::vector_ref<std::add_const_t<T>, I>;
+  using nonconst_iterator = dense_vector_iterator<std::remove_const_t<T>, index_type,
+                                                TIter, TConstIter, BIter>;
+
+  using scalar_reference = decltype(*std::declval<TIter>());
+  using const_scalar_reference = decltype(*std::declval<TConstIter>());
+
+  using reference = grb::vector_ref<T, I, scalar_reference>;
+  using const_reference = grb::vector_ref<std::add_const_t<T>, I, const_scalar_reference>;
 
   using pointer = iterator;
   using const_pointer = const_iterator;
 
   using iterator_category = std::forward_iterator_tag;
 
-  dense_vector_iterator(backend_type_constified& vector, index_type index)
-    : vector_(&vector), index_(index) {
-    	fast_forward();
+  template <std::ranges::random_access_range R1,
+            std::ranges::random_access_range R2>
+  dense_vector_iterator(R1&& data, R2&& flags, index_type index)
+    : data_(data), flags_(flags), index_(index) {
+      fast_forward();
   }
 
   reference operator*() const noexcept
   requires(!std::is_const_v<T>)
   {
-    return reference(index_, vector_->data_[index_]);
+    return reference(index_, data_[index_]);
   }
 
-  // const_reference operator*() const noexcept
   const_reference operator*() const noexcept
   requires(std::is_const_v<T>)
   {
-    return const_reference(index_, vector_->data_[index_]);
+    return const_reference(index_, data_[index_]);
   }
 
   void fast_forward() noexcept {
-    while (!vector_->flags_[index_] && index_ < vector_->flags_.size()) {
+    while (!flags_[index_] && index_ < flags_.size()) {
     	index_++;
     }
   }
@@ -117,9 +101,25 @@ public:
     return index_ >= other.index_;
   }
 
+  bool operator==(iterator other) const noexcept {
+    return index_ == other.index_;
+  }
 
-  bool operator==(const dense_vector_iterator& other) const noexcept = default;
-  bool operator!=(const dense_vector_iterator& other) const noexcept  = default;
+  bool operator==(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
+    return index_ == other.index_;
+  }
+
+  bool operator!=(iterator other) const noexcept {
+    return !(*this == other);
+  }
+
+  bool operator!=(const_iterator other) const noexcept
+  requires(!std::is_same_v<iterator, const_iterator>)
+  {
+    return !(*this == other);
+  }
 
   dense_vector_iterator() = default;
   ~dense_vector_iterator() = default;
@@ -129,9 +129,9 @@ public:
   dense_vector_iterator& operator=(dense_vector_iterator&&) = default;
 
 private:
+  grb::detail::spanner<backend_iterator> data_;
+  grb::detail::spanner<BIter> flags_;
 
-
-  backend_type_constified* vector_;
   index_type index_;
 };
 

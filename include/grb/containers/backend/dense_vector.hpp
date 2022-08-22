@@ -23,9 +23,17 @@ public:
 
 	using allocator_type = Allocator;
 
-  using iterator = dense_vector_iterator<T, index_type, allocator_type>;
+  using bool_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<bool>;
 
-  using const_iterator = dense_vector_iterator<std::add_const_t<T>, index_type, allocator_type>;
+  using iterator = dense_vector_iterator<T, index_type,
+                                         typename std::vector<T, allocator_type>::iterator,
+                                         typename std::vector<T, allocator_type>::const_iterator,
+                                         typename std::vector<bool, bool_allocator_type>::const_iterator>;
+
+  using const_iterator = dense_vector_iterator<std::add_const_t<T>, index_type,
+                                         typename std::vector<T, allocator_type>::iterator,
+                                         typename std::vector<T, allocator_type>::const_iterator,
+                                         typename std::vector<bool, bool_allocator_type>::const_iterator>;
 
   using reference = grb::vector_ref<T, index_type>;
   using const_reference = grb::vector_ref<std::add_const_t<T>, index_type>;
@@ -36,6 +44,11 @@ public:
 	using scalar_reference = typename std::vector<T, allocator_type>::reference;
 
 	dense_vector(I shape) {
+		data_.resize(shape);
+		flags_.resize(shape, false);
+	}
+
+	dense_vector(I shape, const Allocator& allocator) : data_(allocator), flags_(allocator) {
 		data_.resize(shape);
 		flags_.resize(shape, false);
 	}
@@ -58,30 +71,30 @@ public:
 	}
 
 	iterator begin() noexcept {
-		return iterator(*this, 0);
+		return iterator(data_, flags_, 0);
 	}
 
 	const_iterator begin() const noexcept {
-		return const_iterator(*this, 0);
+		return const_iterator(data_, flags_, 0);
 	}
 
 	iterator end() noexcept {
-		return iterator(*this, shape());
+		return iterator(data_, flags_, shape());
 	}
 
 	const_iterator end() const noexcept {
-		return const_iterator(*this, shape());
+		return const_iterator(data_, flags_, shape());
 	}
 
 	std::pair<iterator, bool> insert(value_type&& value) {
 		auto&& [idx, v] = value;
 		if (flags_[idx]) {
-			return {iterator(*this, idx), false};
+			return {iterator(data_, flags_, idx), false};
 		} else {
 			nnz_++;
 			flags_[idx] = true;
 			data_[idx] = v;
-			return {iterator(*this, idx), true};
+			return {iterator(data_, flags_, idx), true};
 		}
 	}
 
@@ -89,18 +102,18 @@ public:
   std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
   	if (flags_[k]) {
   		data_[k] = std::forward<M>(obj);
-			return {iterator(*this, k), false};
+			return {iterator(data_, flags_, k), false};
   	} else {
   		nnz_++;
   		flags_[k] = true;
   		data_[k] = std::forward<M>(obj);
-  		return {iterator(*this, k), true};
+  		return {iterator(data_, flags_, k), true};
   	}
   }
 
   iterator find(key_type key) noexcept {
   	if (flags_[key]) {
-  		return iterator(*this, key);
+  		return iterator(data_, flags_, key);
   	} else {
   		return end();
   	}
@@ -108,7 +121,7 @@ public:
 
   const_iterator find(key_type key) const noexcept {
   	if (flags_[key]) {
-  		return const_iterator(*this, key);
+  		return const_iterator(data_, flags_, key);
   	} else {
   		return end();
   	}
@@ -124,6 +137,9 @@ public:
   }
 
 	dense_vector() = default;
+
+	dense_vector(const Allocator& allocator) : data_(allocator), flags_(allocator) {}
+
 	~dense_vector() = default;
 	dense_vector(const dense_vector&) = default;
 	dense_vector& operator=(const dense_vector&) = default;
@@ -131,7 +147,6 @@ public:
 	dense_vector& operator=(dense_vector&&) = default;
 
 private:
-  using bool_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<bool>;
   friend iterator;
   friend const_iterator;
 

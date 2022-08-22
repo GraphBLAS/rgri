@@ -44,6 +44,7 @@ public:
 	using scalar_reference = typename backend_type::scalar_reference;
 
 	vector(I shape) : backend_(shape) {}
+	vector(I shape, const Allocator& allocator) : backend_(shape, allocator) {}
 
   /// Shape of the vector
 	I shape() const noexcept {
@@ -108,6 +109,8 @@ public:
 	}
 
 	vector() = default;
+	vector(const Allocator& allocator) : backend_(allocator) {}
+	
 	~vector() = default;
 	vector(const vector&) = default;
 	vector& operator=(const vector&) = default;
