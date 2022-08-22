@@ -18,7 +18,8 @@ HIPSYCL_FLAGS = --hipsycl-targets='cuda:sm_75'
 all: $(TARGETS)
 
 run: all
-	$(foreach target,$(TARGETS),./$(target))
+	@for target in $(foreach target,$(TARGETS),./$(target)) ; do echo "Running \"$$target\"" ; $$target ; done
+
 
 dpcpp: $(DPCXX_TARGETS)
 
