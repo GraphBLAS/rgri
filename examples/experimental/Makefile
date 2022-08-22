@@ -17,6 +17,9 @@ HIPSYCL_FLAGS = --hipsycl-targets='cuda:sm_75'
 
 all: $(TARGETS)
 
+run:
+	$(foreach target,$(TARGETS),./$(target))
+
 dpcpp: $(DPCXX_TARGETS)
 
 hipsycl: $(HSCXX_TARGETS)
