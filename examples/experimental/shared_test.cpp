@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
 
   std::span view(v);
 
-  q.parallel_for(v.size(),
-                 [=](auto&& i) {
+  q.parallel_for(cl::sycl::range<1>(v.size()),
+                 [=](cl::sycl::id<1> i) {
                    view[i] += 1;
                  }).wait();
 

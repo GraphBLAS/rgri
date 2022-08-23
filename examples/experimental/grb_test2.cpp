@@ -7,6 +7,7 @@
 
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
+  using grb::detail::spanner;
 
   sycl::queue q(select_device(sycl::gpu_selector()));
 
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
   spanner x_view(x);
   spanner b_view(b);
 
-  grb::matrix_view a_view(a);
+  auto a_tt = grb::matrix_view(a);
 
   print_range(x_view, "a");
 
