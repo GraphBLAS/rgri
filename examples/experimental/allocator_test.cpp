@@ -22,9 +22,22 @@ int main(int argc, char** argv) {
 
   device_allocator<int> a(q);
 
-  std::vector<int, device_allocator<int>> v(a);
+  using vector_type = std::vector<int, device_allocator<int>>;
 
-  v.resize(100);
+  device_ptr<int> ptr = a.allocate(100);
+
+  for (size_t i = 0; i < 100; i++) {
+    ptr[i] = i;
+  }
+
+  q.parallel_for(sycl::range<1>(100), [=](sycl::id<1> id) {
+                                      ptr[id] = 2 + int(ptr[id]);
+                                    }).wait();
+
+  for (size_t i = 0; i < 100; i++) {
+    int v = ptr[i];
+    printf("%d\n", v);
+  }
 
   return 0;
 }

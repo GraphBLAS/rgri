@@ -3,12 +3,7 @@
 #include <span>
 #include <fmt/core.h>
 #include "sycl_help.hpp"
-
-template <std::ranges::random_access_range R>
-void test_random_access_range(R&&) {}
-
-template <std::forward_iterator I>
-void test_iterator(I&&) {}
+#include "grb_help.hpp"
 
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
@@ -16,7 +11,7 @@ int main(int argc, char** argv) {
   sycl::device d;
 
   try {
-    d = sycl::device(sycl::cpu_selector());
+    d = sycl::device(sycl::gpu_selector());
     std::cout << "Running on device \"" << d.get_info<sycl::info::device::name>() << "\"" << std::endl;
   } catch (sycl::exception const &e) {
     std::cout << "Cannot select an accelerator\n" << e.what() << "\n";
@@ -40,7 +35,8 @@ int main(int argc, char** argv) {
 
   using grb::detail::spanner;
 
-  spanner m_view(m);
+  // spanner m_view(m);
+  auto view = grb::matrix_view(m);
 
   grb::print(m, "Original values");
 
@@ -66,17 +62,6 @@ int main(int argc, char** argv) {
   shared_allocator<bool> allocator_int(q);
 
   shared_vector<bool> v(100, allocator_int);
-
-  test_iterator(v.begin());
-
-/*
-  for_each(spanner(v), [=](auto&& entry) {
-                         auto&& [index, value] = entry;
-                         if (index == 10) {
-                           value = 12;
-                         }
-                       });
-                       */
 
   return 0;
 }
