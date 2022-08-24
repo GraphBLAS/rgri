@@ -122,7 +122,7 @@ public:
     return *this;
   }
 
-  pointer& operator--(int) noexcept {
+  pointer operator--(int) noexcept {
     pointer other = *this;
     --(*this);
     return other;
@@ -146,13 +146,13 @@ public:
     return reference(*(*this + offset));
   }
 
+  T* get_raw_pointer() const noexcept {
+    return pointer_;
+  }
+
   friend pointer operator+(difference_type n, pointer iter) {
     return iter + n;
   }
-
-  template <typename U, std::size_t Alignment>
-  requires(std::is_trivially_copyable_v<U>)
-  friend class device_allocator;
 
 private:
   T* pointer_;
@@ -188,7 +188,7 @@ public:
   }
 
   void deallocate(pointer ptr, std::size_t n) {
-    cl::sycl::free(ptr.pointer_, context_);
+    cl::sycl::free(ptr.get_raw_pointer(), context_);
   }
 
   bool operator==(const device_allocator&) const = default;
@@ -203,3 +203,46 @@ private:
   cl::sycl::device device_;
   cl::sycl::context context_;
 };
+
+template <typename T>
+requires(!std::is_const_v<T>)
+cl::sycl::event copy_async(const T* first, const T* last, device_ptr<T> d_first) {
+  cl::sycl::queue q;
+  return q.memcpy(d_first.get_raw_pointer(), first, sizeof(T)*(last - first));
+}
+
+template <typename T>
+requires(!std::is_const_v<T>)
+device_ptr<T> copy(const T* first, const T* last, device_ptr<T> d_first) {
+  copy_async(first, last, d_first).wait();
+  return d_first + (last - first);
+}
+
+
+template <typename T>
+requires(!std::is_const_v<T>)
+cl::sycl::event copy_async(device_ptr<const T> first, device_ptr<const T> last, T* d_first) {
+  cl::sycl::queue q;
+  return q.memcpy(d_first, first.get_raw_pointer(), last.get_raw_pointer());
+}
+
+template <typename T>
+requires(!std::is_const_v<T>)
+T* copy(device_ptr<const T> first, device_ptr<const T> last, T* d_first) {
+  copy_async(first, last, d_first).wait();
+  return d_first + (last - first);
+}
+
+template <typename T>
+requires(!std::is_const_v<T>)
+cl::sycl::event fill_async(device_ptr<T> first, device_ptr<T> last, const T& value) {
+  cl::sycl::queue q;
+  return q.fill(first.get_raw_pointer(), value, last - first);
+}
+
+template <typename T>
+requires(!std::is_const_v<T>)
+void fill(device_ptr<T> first, device_ptr<T> last, const T& value) {
+  cl::sycl::queue q;
+  q.fill(first.get_raw_pointer(), value, last - first).wait();
+}

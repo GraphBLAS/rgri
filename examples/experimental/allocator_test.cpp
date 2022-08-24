@@ -3,24 +3,31 @@
 #include <span>
 #include <fmt/core.h>
 #include "sycl_help.hpp"
+#include "vector.hpp"
+
+template <std::ranges::forward_range R>
+void test_range(R&&) {}
+
+template <std::random_access_iterator Iter>
+void test_iter(Iter&&) {}
 
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
 
-  sycl::device d;
-
-  try {
-    d = sycl::device(sycl::accelerator_selector());
-    std::cout << "Running on accelerator device \"" << d.get_info<sycl::info::device::name>() << "\"" << std::endl;
-  } catch (sycl::exception const &e) {
-    std::cout << "Cannot select an accelerator.  Message: \"" << e.what() << "\"" << std::endl;
-    d = sycl::device(sycl::cpu_selector());
-    std::cout << "Using CPU device \"" << d.get_info<sycl::info::device::name>() << "\"" << std::endl;
-  }
-
-  sycl::queue q(d);
+  sycl::queue q(select_device(sycl::gpu_selector()));
 
   device_allocator<int> a(q);
+
+  vector<int, device_allocator<int>> vec(100, 2, a);
+
+  grb::detail::spanner vec_view(vec);
+
+  test_range(vec);
+
+  for_each(vec_view, [](auto&& entry) {
+                       entry = entry + 2;
+                     }, q);
+  print_range(vec, "vec");
 
   using vector_type = std::vector<int, device_allocator<int>>;
 
@@ -34,10 +41,9 @@ int main(int argc, char** argv) {
                                       ptr[id] = 2 + int(ptr[id]);
                                     }).wait();
 
-  for (size_t i = 0; i < 100; i++) {
-    int v = ptr[i];
-    printf("%d\n", v);
-  }
+  print_range(grb::detail::spanner(ptr, 100));
+  // grb::detail::spanner<device_ptr<int>> s;
+  test_iter(device_ptr<int>());
 
   return 0;
 }
