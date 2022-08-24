@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
   grb::vector<int> mask = x;
 
   while (x.size() > 0) {
-    std::cout << "Iteration 1:" << std::endl;;
+    std::cout << "Iteration 1:" << std::endl;
     grb::print(x);
     auto b = grb::multiply(grb::transpose(a), x, grb::plus{}, grb::times{}, grb::complement_view(mask));
  
