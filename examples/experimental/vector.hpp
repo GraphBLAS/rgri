@@ -165,7 +165,7 @@ public:
     ++size_;
   }
 
-  bool push_back_conditional(const T& value) {
+  bool try_push_back(const T& value) {
     if (size() + 1 <= capacity()) {
       data()[size()] = value;
       ++size_;
