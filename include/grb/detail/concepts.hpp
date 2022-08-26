@@ -51,8 +51,7 @@ concept MutableMatrixRange = grb::MatrixRange<M> &&
                                                   grb::matrix_index_t<M>,
                                                   T> &&
   requires(M matrix, T value) {
-    // {grb::insert(matrix, {{grb::matrix_index_t<M>{}, grb::matrix_index_t<M>{}}, value})}
-    {grb::insert(matrix, {{grb::matrix_index_t<M>{}, grb::matrix_index_t<M>{}}, grb::matrix_scalar_t<M>{}})}
+    {grb::insert(matrix, {{grb::matrix_index_t<M>{}, grb::matrix_index_t<M>{}}, value})}
       -> std::same_as<std::pair<std::ranges::iterator_t<M>, bool>>;
   } &&
   std::is_constructible_v<grb::matrix_scalar_t<M>, T>;

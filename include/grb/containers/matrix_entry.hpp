@@ -19,9 +19,14 @@ public:
   matrix_entry(grb::index<I> index, const map_type& value) : value_(value), index_(index) {}
   matrix_entry(grb::index<I> index, map_type&& value) : value_(std::move(value)), index_(index) {}
 
-  template <grb::MatrixEntry<T, I> Entry>
-  matrix_entry(Entry&& entry) : value_(grb::get<1>(std::forward<Entry>(entry))),
-                                index_(grb::get<0>(std::forward<Entry>(entry))) {}
+  template <typename U>
+  requires(std::is_constructible_v<T, U>)
+  matrix_entry(grb::index<I> index, U&& value) : value_(std::forward<U>(value)), index_(index) {}
+
+  template <typename Entry>
+  matrix_entry(Entry&& entry) : index_(grb::get<0>(entry)),
+                                value_(grb::get<1>(entry))
+                                {}
 
   template <std::size_t Index>
   auto get() const noexcept {

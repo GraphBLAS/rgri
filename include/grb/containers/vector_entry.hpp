@@ -13,6 +13,10 @@ public:
   vector_entry(index_type index, map_type&& value) : index_(index), value_(std::move(value)) {}
 
   template <typename U>
+  requires(std::is_constructible_v<T, U>)
+  vector_entry(grb::index<I> index, U&& value) : value_(std::forward<U>(value)), index_(index) {}
+
+  template <typename U>
   vector_entry(std::pair<U, T> tuple)
   requires(std::numeric_limits<I>::max() >= std::numeric_limits<U>::max())
     : value_(tuple.second), index_(tuple.first) {}
