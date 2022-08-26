@@ -5,6 +5,8 @@
 #include <concepts>
 #include <limits>
 
+#include <grb/detail/concepts.hpp>
+
 namespace grb {
 
 template <typename T,
@@ -17,17 +19,9 @@ public:
   matrix_entry(grb::index<I> index, const map_type& value) : value_(value), index_(index) {}
   matrix_entry(grb::index<I> index, map_type&& value) : value_(std::move(value)), index_(index) {}
 
-  template <typename U>
-  matrix_entry(std::pair<std::pair<U, U>, T> tuple)
-  requires(std::numeric_limits<I>::max() >= std::numeric_limits<U>::max())
-    : value_(tuple.second), index_({tuple.first.first, tuple.first.second}) {}
-
-  template <typename U>
-  matrix_entry(std::tuple<std::tuple<U, U>, T> tuple)
-  requires(std::numeric_limits<I>::max() >= std::numeric_limits<U>::max())
-    : value_(std::get<1>(tuple)),
-      index_({std::get<0>(std::get<0>(tuple)),
-              std::get<1>(std::get<0>(tuple))}) {}
+  template <grb::MatrixEntry<T, I> Entry>
+  matrix_entry(Entry&& entry) : value_(grb::get<1>(std::forward<Entry>(entry))),
+                                index_(grb::get<0>(std::forward<Entry>(entry))) {}
 
   template <std::size_t Index>
   auto get() const noexcept {

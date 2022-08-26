@@ -5,6 +5,8 @@
 #include <concepts>
 #include <limits>
 
+#include <grb/detail/concepts.hpp>
+
 namespace grb {
 
 template <std::integral T = std::size_t>
@@ -30,6 +32,9 @@ public:
   }
 
   constexpr index(index_type first, index_type second) : first(first), second(second) {}
+
+  template <grb::TupleLike<T, T> Tuple>
+  constexpr index(Tuple tuple) : first(grb::get<0>(tuple)), second(grb::get<1>(tuple)) {}
 
   constexpr bool operator==(const index&) const noexcept = default;
 

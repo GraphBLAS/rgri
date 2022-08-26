@@ -81,6 +81,12 @@ template <typename T>
 using container_index_t = typename container_traits<T>::index_type;
 
 template <typename T>
+using container_value_t = typename container_traits<T>::value_type;
+
+template <typename T>
+using container_key_t = typename container_traits<T>::key_type;
+
+template <typename T>
 using matrix_scalar_t = typename matrix_traits<T>::scalar_type;
 
 template <typename T>
@@ -118,6 +124,9 @@ concept has_vector_shape = requires(T t) { {t.shape()} -> std::same_as<std::rang
 template <typename T>
 concept has_find_method = requires(T t) { {t.find(std::declval<typename container_traits<T>::key_type>())} -> std::same_as<typename container_traits<T>::iterator>; };
 
+template <typename T>
+concept has_insert_method = requires(T t) { {t.insert({std::declval<typename container_traits<T>::key_type>(), std::declval<container_scalar_t<T>>()})}; };
+
 }  // end
 
 template <has_matrix_shape T>
@@ -135,6 +144,11 @@ inline constexpr auto size = std::ranges::size;
 template <has_find_method T>
 constexpr auto find(T&& t, typename grb::container_traits<T>::key_type key) {
   return std::forward<T>(t).find(key);
+}
+
+template <has_insert_method Container>
+constexpr auto insert(Container&& t, const container_value_t<Container>& entry) {
+  return std::forward<Container>(t).insert(entry);
 }
 
 } // end grb

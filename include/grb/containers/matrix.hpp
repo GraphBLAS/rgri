@@ -118,6 +118,11 @@ public:
     backend_.insert(first, last);
   }
 
+  void clear() {
+    matrix other;
+    *this = std::move(other);
+  }
+
   /// Insert the matrix_entry `value` into the matrix.
   /// If no element is already present at the index, insert
   /// the element and return a pair containing an iterator to
@@ -125,7 +130,7 @@ public:
   /// If an element already exists at the index, return a pair
   /// containing an iterator to the element that prevented
   /// inserting, along with the boolean value `false`.
-  std::pair<iterator, bool> insert(value_type&& value) {
+  std::pair<iterator, bool> insert(const value_type& value) {
     return backend_.insert(std::move(value));
   }
 

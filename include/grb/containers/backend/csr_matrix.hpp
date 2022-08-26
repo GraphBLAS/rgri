@@ -77,7 +77,7 @@ public:
   template <typename InputIt>
   void insert(InputIt first, InputIt last);
 
-  std::pair<iterator, bool> insert(value_type&& value);
+  std::pair<iterator, bool> insert(const value_type& value);
 
   template <class M>
   std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj);
@@ -259,10 +259,9 @@ void csr_matrix<T, I, Allocator>::insert(InputIt first, InputIt last) {
                    return false;
                  };
 
-  using tuple_type = std::pair<std::pair<I, I>, T>;
+  using tuple_type = value_type;
   std::vector<tuple_type> my_sorted_indices(begin(), end());
 
-  // using input_tuple_type = std::iter_value_t<InputIt>;
   std::vector<tuple_type> sorted_indices_toadd(first, last);
   std::ranges::sort(my_sorted_indices, sort_fn);
   std::ranges::sort(sorted_indices_toadd, sort_fn);
@@ -318,7 +317,7 @@ template <typename T,
           std::integral I,
           typename Allocator>
 std::pair<typename csr_matrix<T, I, Allocator>::iterator, bool>
-csr_matrix<T, I, Allocator>::insert(typename csr_matrix<T, I, Allocator>::value_type&& value) {
+csr_matrix<T, I, Allocator>::insert(const typename csr_matrix<T, I, Allocator>::value_type& value) {
   auto&& [idx, v] = value;
   auto iter = find(idx);
   if (iter != end()) {
