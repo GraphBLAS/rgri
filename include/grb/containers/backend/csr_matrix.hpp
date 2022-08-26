@@ -122,9 +122,7 @@ public:
   csr_matrix() = default;
   ~csr_matrix() = default;
   csr_matrix(const csr_matrix&) = default;
-  csr_matrix(csr_matrix&&) = default;
   csr_matrix& operator=(const csr_matrix&) = default;
-  csr_matrix& operator=(csr_matrix&&) = default;
 
   std::size_t nbytes() const noexcept {
     std::size_t size_bytes = 0;
@@ -136,6 +134,29 @@ public:
       size_bytes += (values_.size() + CHAR_BIT - 1) / CHAR_BIT;
     }
     return size_bytes;
+  }
+
+  csr_matrix(csr_matrix&& other)
+    : rowptr_(std::move(other.rowptr_)),
+      colind_(std::move(other.colind_)),
+      values_(std::move(other.values_)),
+      m_(other.m_),
+      n_(other.n_),
+      nnz_(other.nnz_) {
+    other.m_ = 0;
+    other.n_ = 0;
+    other.nnz_ = 0;
+    other.rowptr_ = std::vector<index_type, index_allocator_type>({0}, allocator_);
+  }
+
+  csr_matrix& operator=(csr_matrix&& other) {
+    rowptr_ = std::move(other.rowptr_);
+    colind_ = std::move(other.colind_);
+    values_ = std::move(other.values_);
+    m_ = other.m_;      other.m_ = 0;
+    n_ = other.n_;      other.n_ = 0;
+    nnz_ = other.nnz_;  other.nnz_ = 0;
+    return *this;
   }
 
 private:
