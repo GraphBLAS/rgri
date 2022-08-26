@@ -22,4 +22,15 @@ void assign(A&& a, const T& value) {
   assign(a, other);
 }
 
+template <grb::VectorRange B,
+          grb::MutableVectorRange<grb::vector_scalar_t<B>> A>
+void assign(A&& a, B&& b) {
+  if (grb::shape(a) != grb::shape(b)) {
+    throw grb::invalid_argument("assign: dimensions of a and b do not match.");
+  }
+
+  a.clear();
+  a.insert(std::ranges::begin(b), std::ranges::end(b));
+}
+
 } // end grb

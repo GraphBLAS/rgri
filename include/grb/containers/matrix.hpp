@@ -119,7 +119,7 @@ public:
   }
 
   void clear() {
-    matrix other;
+    matrix other(shape());
     *this = std::move(other);
   }
 

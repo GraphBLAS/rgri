@@ -84,7 +84,7 @@ concept VectorRange = std::ranges::sized_range<V> &&
 
 template <typename V, typename T>
 concept MutableVectorRange = VectorRange<V> &&
-                             MutableVectorEntry<std::ranges::range_value_t<V>,
+                             MutableVectorEntry<std::ranges::range_reference_t<V>,
                                                 grb::vector_scalar_t<V>,
                                                 grb::vector_index_t<V>,
                                                 T> &&
@@ -92,7 +92,7 @@ concept MutableVectorRange = VectorRange<V> &&
     {grb::insert(vector, {grb::vector_index_t<V>{}, grb::vector_scalar_t<V>{}})}
       -> std::same_as<std::pair<std::ranges::iterator_t<V>, bool>>;
   } &&
-  std::is_constructible_v<grb::matrix_scalar_t<V>, T>;
+  std::is_constructible_v<grb::vector_scalar_t<V>, T>;
 
 template <typename M>
 concept MaskVectorRange = VectorRange<M> &&

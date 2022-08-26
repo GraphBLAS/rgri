@@ -95,14 +95,19 @@ public:
 		}
 	}
 
-	std::pair<iterator, bool> insert(value_type&& value) {
-		return backend_.insert(std::move(value));
+	std::pair<iterator, bool> insert(const value_type& value) {
+		return backend_.insert(value);
 	}
 
 	template <typename M>
 	std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
 		return backend_.insert_or_assign(k, std::forward<M>(obj));
 	}
+
+  void clear() {
+    vector other(shape());
+    *this = std::move(other);
+  }
 
 	void reshape(I shape) {
 		backend_.reshape(shape);
