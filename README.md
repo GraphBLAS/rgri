@@ -18,15 +18,15 @@ int main(int argc, char** argv) {
   // Set element 12,9 (row 12, column 9) to 12.
   a[{12, 9}] = 12;
 
-  grb::matrix<float, int> b(a.shape()[0], a.shape()[1]);
+  grb::matrix<float, int> b({a.shape()[0], a.shape()[1]});
 
   for (auto&& [index, value] : a) {
-  	b[idx] = value*12;
+  	b[index] = value*12;
   }
 
   auto c = grb::multiply(a, b);
-
-  std::cout << grb::sum(c) << std::endl;
+  
+  grb::print(c);
 
   return 0;
 }
