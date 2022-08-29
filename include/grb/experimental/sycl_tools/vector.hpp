@@ -1,5 +1,8 @@
+#pragma once
 
-#include "sycl_ptr.hpp"
+#include <memory>
+
+namespace shp {
 
 template <typename T, typename Allocator>
 class vector {
@@ -203,3 +206,5 @@ private:
   size_type capacity_ = 0;
   allocator_type allocator_;
 };
+
+} // end shp

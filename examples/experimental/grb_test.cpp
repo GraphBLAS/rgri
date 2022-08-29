@@ -2,10 +2,10 @@
 #include <CL/sycl.hpp>
 #include <span>
 #include <fmt/core.h>
-#include "sycl_help.hpp"
 #include "grb_help.hpp"
 
 int main(int argc, char** argv) {
+  using namespace shp;
   namespace sycl = cl::sycl;
 
   sycl::device d;

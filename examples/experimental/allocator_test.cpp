@@ -2,8 +2,6 @@
 #include <CL/sycl.hpp>
 #include <span>
 #include <fmt/core.h>
-#include "sycl_help.hpp"
-#include "vector.hpp"
 
 template <std::ranges::forward_range R>
 void test_range(R&&) {}
@@ -11,8 +9,10 @@ void test_range(R&&) {}
 template <std::random_access_iterator Iter>
 void test_iter(Iter&&) {}
 
+
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
+  using namespace shp;
 
   sycl::queue q(select_device(sycl::gpu_selector()));
 
@@ -28,8 +28,6 @@ int main(int argc, char** argv) {
                        entry = entry + 2;
                      }, q);
   print_range(vec, "vec");
-
-  using vector_type = std::vector<int, device_allocator<int>>;
 
   device_ptr<int> ptr = a.allocate(100);
 

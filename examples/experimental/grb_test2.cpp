@@ -2,12 +2,13 @@
 #include <CL/sycl.hpp>
 #include <span>
 #include <fmt/core.h>
-#include "sycl_help.hpp"
 #include "grb_help.hpp"
 
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
   using grb::detail::spanner;
+
+  using namespace shp;
 
   sycl::queue q(select_device(sycl::gpu_selector()));
 
