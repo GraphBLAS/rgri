@@ -43,5 +43,7 @@ int main(int argc, char** argv) {
   // grb::detail::spanner<device_ptr<int>> s;
   test_iter(device_ptr<int>());
 
+  a.deallocate(ptr, 0);
+
   return 0;
 }
