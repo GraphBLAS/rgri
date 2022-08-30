@@ -19,13 +19,15 @@ auto get_distribution(T min, T max) {
 	}
 }
 
-template <bool is_monoid, typename T, typename Fn, typename StdFn>
-void test_op(std::size_t num_values, T init, Fn&& op, StdFn&& std_op) {
+template <bool is_monoid, typename T, typename Fn, typename ReferenceFn>
+void test_op(std::size_t num_values, T init,
+	           Fn&& op, ReferenceFn&& std_op,
+	           T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) {
   std::vector<T> vec(num_values);
   std::random_device rd;
   std::mt19937 gen(rd());
 
-  auto d = get_distribution(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+  auto d = get_distribution(min, max);
 
   std::for_each(vec.begin(), vec.end(), [&](auto&& v) {
   	                                      v = d(gen);
@@ -82,7 +84,7 @@ TEMPLATE_TEST_CASE( "basic operator test multiplies 1", "[template]",
 }
 
 TEMPLATE_TEST_CASE( "basic operator test divides 1", "[template]",
-          int, size_t, float, double, bool ) {
+          int, size_t, float, double ) {
 	using T = TestType;
 	std::size_t num_values = 1000;
 
@@ -93,7 +95,7 @@ TEMPLATE_TEST_CASE( "basic operator test divides 1", "[template]",
 }
 
 TEMPLATE_TEST_CASE( "basic operator test modulus 1", "[template]",
-          int, size_t, bool ) {
+          int, size_t ) {
 	using T = TestType;
 	std::size_t num_values = 1000;
 

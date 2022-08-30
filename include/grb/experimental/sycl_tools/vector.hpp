@@ -4,7 +4,10 @@
 
 namespace shp {
 
-template <typename T, typename Allocator>
+// TODO: deal properly with non-trivially destructible types
+//       - constructors, destructors, assign
+
+template <typename T, typename Allocator = std::allocator<T>>
 class vector {
 public:
   using value_type = T;
@@ -21,7 +24,7 @@ public:
   vector() noexcept {}
   explicit vector(const Allocator& allocator) noexcept : allocator_(allocator) {}
 
-  explicit vector(size_type count, const T& value = T(), const Allocator& alloc = Allocator())
+  explicit vector(size_type count, const T& value, const Allocator& alloc = Allocator())
     : allocator_(alloc) {
     change_capacity_impl_(count);
     using namespace std;
@@ -83,7 +86,26 @@ public:
     copy(init.begin(), init.end(), begin());
   }
 
+  vector& operator=(const vector& other) {
+    assign(other.begin(), other.end());
+    return *this;
+  }
+
+  template <std::forward_iterator Iter>
+  void assign(Iter first, Iter last) {
+    auto new_size = std::distance(first, last);
+    reserve(new_size);
+    using namespace std;
+    copy(first, last, begin());
+    size_ = new_size;
+  }
+
   ~vector() noexcept {
+    /*
+    for (auto iter = begin(); iter != end(); ++iter) {
+      std::allocator_traits<allocator_type>::destroy(allocator_, iter);
+    }
+    */
     if (data() != nullptr) {
       allocator_.deallocate(data(), capacity());
     }
@@ -141,8 +163,12 @@ public:
     if (new_cap > capacity()) {
       pointer new_data = get_allocator().allocate(new_cap);
       using namespace std;
-      copy(begin(), end(), new_data);
-      get_allocator().deallocate(data_, capacity());
+      if (begin() != end()) {
+        copy(begin(), end(), new_data);
+      }
+      if (data_ != nullptr) {
+        get_allocator().deallocate(data_, capacity());
+      }
       data_ = new_data;
       capacity_ = new_cap;
     }
@@ -177,8 +203,34 @@ public:
     return false;
   }
 
+  // TODO: properly construct/destruct
+  void resize(size_type count) {
+    if (count > capacity()) {
+      reserve(count);
+    }
+    if (count > size()) {
+      for (size_t i = 0; i < count - size(); i++) {
+        end()[i] = T();
+      }
+    }
+    size_ = count;
+  }
+
+  void resize(size_type count, const value_type& value) {
+    if (count > capacity()) {
+      reserve(count);
+    }
+    if (count > size()) {
+      for (size_t i = 0; i < count - size(); i++) {
+        end()[i] = value;
+      }
+    }
+    size_ = count;
+  }
+
 private:
 
+  // For use only inside constructors and assignment operators
   void change_capacity_impl_(size_type count) {
     if (data_ != nullptr && capacity_ != count) {
       allocator_.deallocate(data_, capacity());
