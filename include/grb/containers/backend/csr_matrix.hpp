@@ -6,6 +6,7 @@
 #include <grb/util/matrix_io.hpp>
 #include <grb/containers/backend/csr_matrix_iterator.hpp>
 #include <grb/containers/backend/coo_matrix.hpp>
+#include <grb/experimental/sycl_tools/vector.hpp>
 #include <vector>
 #include <limits>
 #include <climits>
@@ -16,6 +17,9 @@ template <typename T,
           std::integral I = std::size_t,
           typename Allocator = std::allocator<T>>
 class csr_matrix {
+private:
+  template <typename... Args>
+  using vector_type = shp::vector<Args...>;
 public:
   using scalar_type = T;
   using index_type = I;
@@ -32,20 +36,20 @@ public:
 
   using iterator = csr_matrix_iterator<T,
                                        index_type,
-                                       typename std::vector<T, Allocator>::iterator,
-                                       typename std::vector<T, Allocator>::const_iterator,
-                                       typename std::vector<I, index_allocator_type>::const_iterator>;
+                                       typename vector_type<T, Allocator>::iterator,
+                                       typename vector_type<T, Allocator>::const_iterator,
+                                       typename vector_type<I, index_allocator_type>::const_iterator>;
 
   using const_iterator = csr_matrix_iterator<std::add_const_t<T>,
                                              index_type,
-                                             typename std::vector<T, Allocator>::iterator,
-                                             typename std::vector<T, Allocator>::const_iterator,
-                                             typename std::vector<I, index_allocator_type>::const_iterator>;
+                                             typename vector_type<T, Allocator>::iterator,
+                                             typename vector_type<T, Allocator>::const_iterator,
+                                             typename vector_type<I, index_allocator_type>::const_iterator>;
 
   using reference = grb::matrix_ref<T, index_type>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, index_type>;
 
-  using scalar_reference = typename std::vector<T, allocator_type>::reference;
+  using scalar_reference = typename vector_type<T, allocator_type>::reference;
 
   using pointer = iterator;
   using const_pointer = const_iterator;
@@ -96,7 +100,8 @@ public:
     }
 
     if (all_inside) {
-      rowptr_.resize(shape[0]+1, rowptr_[this->shape()[0]]);
+      auto last_idx = rowptr_[this->shape()[0]];
+      rowptr_.resize(shape[0]+1, last_idx);
       m_ = shape[0];
       n_ = shape[1];
       return;
@@ -146,7 +151,7 @@ public:
     other.m_ = 0;
     other.n_ = 0;
     other.nnz_ = 0;
-    other.rowptr_ = std::vector<index_type, index_allocator_type>({0}, allocator_);
+    other.rowptr_ = vector_type<index_type, index_allocator_type>({0}, allocator_);
   }
 
   csr_matrix& operator=(csr_matrix&& other) {
@@ -170,9 +175,9 @@ private:
 
   Allocator allocator_;
 
-  std::vector<index_type, index_allocator_type> rowptr_ = std::vector<index_type, index_allocator_type>({0}, allocator_);
-  std::vector<index_type, index_allocator_type> colind_ = std::vector<index_type, index_allocator_type>(allocator_);
-  std::vector<T, allocator_type> values_ = std::vector<T, allocator_type>(allocator_);
+  vector_type<index_type, index_allocator_type> rowptr_ = vector_type<index_type, index_allocator_type>({0}, allocator_);
+  vector_type<index_type, index_allocator_type> colind_ = vector_type<index_type, index_allocator_type>(allocator_);
+  vector_type<T, allocator_type> values_ = vector_type<T, allocator_type>(allocator_);
 };
 
 template <typename T,
@@ -281,20 +286,20 @@ void csr_matrix<T, I, Allocator>::insert(InputIt first, InputIt last) {
                  };
 
   using tuple_type = value_type;
-  std::vector<tuple_type> my_sorted_indices(begin(), end());
+  vector_type<tuple_type> my_sorted_indices(begin(), end());
 
-  std::vector<tuple_type> sorted_indices_toadd(first, last);
+  vector_type<tuple_type> sorted_indices_toadd(first, last);
   std::ranges::sort(my_sorted_indices, sort_fn);
   std::ranges::sort(sorted_indices_toadd, sort_fn);
 
-  std::vector<tuple_type> output_indices(my_sorted_indices.size() + sorted_indices_toadd.size());
+  vector_type<tuple_type> output_indices(my_sorted_indices.size() + sorted_indices_toadd.size());
 
   auto new_last = std::set_union(
                       my_sorted_indices.begin(), my_sorted_indices.end(),
                       sorted_indices_toadd.begin(), sorted_indices_toadd.end(),
                       output_indices.begin(), sort_fn);
 /*
-  std::vector<std::tuple<index_type, index_type, value_type>> merged_tuples(nnz() + (last - first));
+  vector_type<std::tuple<index_type, index_type, value_type>> merged_tuples(nnz() + (last - first));
   std::set_union(begin(), end(), first, last, merged_tuples.begin(), sort_fn);
   */
 
