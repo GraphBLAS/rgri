@@ -15,13 +15,8 @@ int main(int argc, char** argv) {
   shp::device_allocator<int> d_a(q);
   shp::shared_allocator<int> s_a(q);
 
-  // shp::vector<int, shp::device_allocator<int>> v(1000, allocator);
 
-  // grb::matrix<int> a("../data/chesapeake.mtx");
-  // device_matrix<int> a({10, 10}, allocator);
   device_matrix<int> a("../data/chesapeake.mtx", d_a);
-
-  // for (auto iter = a.begin(); iter != a.end(); ++iter) {}
 
   shared_vector<int> x(a.shape()[1], s_a);
   shared_vector<int> b(a.shape()[0], s_a);
@@ -31,8 +26,6 @@ int main(int argc, char** argv) {
   spanner a_view(a);
   spanner x_view(x);
   spanner b_view(b);
-
-  auto a_tt = grb::matrix_view(a);
 
   print_range(x_view, "a");
 
