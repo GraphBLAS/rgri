@@ -12,12 +12,19 @@ int main(int argc, char** argv) {
 
   sycl::queue q(select_device(sycl::gpu_selector()));
 
-  shared_allocator<int> allocator(q);
+  shp::device_allocator<int> d_a(q);
+  shp::shared_allocator<int> s_a(q);
 
-  shared_matrix<int> a("../data/chesapeake.mtx", allocator);
+  // shp::vector<int, shp::device_allocator<int>> v(1000, allocator);
 
-  shared_vector<int> x(a.shape()[1], allocator);
-  shared_vector<int> b(a.shape()[0], allocator);
+  // grb::matrix<int> a("../data/chesapeake.mtx");
+  // device_matrix<int> a({10, 10}, allocator);
+  device_matrix<int> a("../data/chesapeake.mtx", d_a);
+
+  // for (auto iter = a.begin(); iter != a.end(); ++iter) {}
+
+  shared_vector<int> x(a.shape()[1], s_a);
+  shared_vector<int> b(a.shape()[0], s_a);
 
   grb::initialize_random(x);
 

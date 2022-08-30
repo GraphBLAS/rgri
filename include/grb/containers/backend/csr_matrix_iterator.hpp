@@ -101,7 +101,7 @@ public:
   // That is:
   // Advance `row_` until index_ >= rowptr_[row_] && index_ < rowptr_[row_+1]
   void fast_forward_row() noexcept {
-    while (index_ >= rowptr_[row_+1] && row_ < rowptr_.size()-1) {
+    while (row_ < rowptr_.size() - 1 && index_ >= rowptr_[row_+1]) {
       row_++;
     }
   }
