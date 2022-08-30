@@ -22,7 +22,7 @@ public:
   using difference_type = std::ptrdiff_t;
 
   template <typename U>
-  device_allocator(const device_allocator<U, Alignment>& other) noexcept : device_(device_), context_(context_) {}
+  device_allocator(const device_allocator<U, Alignment>& other) noexcept : device_(other.get_device()), context_(other.get_context()) {}
 
   device_allocator(const cl::sycl::queue &q) noexcept : device_(q.get_device()), context_(q.get_context()) {}
   
@@ -51,6 +51,14 @@ public:
   struct rebind {
     using other = device_allocator<U, Alignment>;
   };
+
+  cl::sycl::device get_device() const noexcept {
+    return device_;
+  }
+
+  cl::sycl::context get_context() const noexcept {
+    return context_;
+  }
 
 private:
   cl::sycl::device device_;
