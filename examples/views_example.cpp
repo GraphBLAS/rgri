@@ -1,5 +1,6 @@
 #include <grb/grb.hpp>
-#include <fmt/core.h>
+
+#include <grb/containers/views/masked_view.hpp>
 
 int main(int argc, char** argv) {
   grb::matrix<float> matrix({10, 10});
@@ -38,13 +39,27 @@ int main(int argc, char** argv) {
 
   grb::print(filter);
 
+  grb::matrix<bool> mask(matrix.shape());
+
+  grb::masked_view view(matrix, mask);
+
+  mask[{2, 3}] = true;
+  mask[{5, 5}] = true;
+  mask[{9, 6}] = false;
+
+  grb::print(matrix, "matrix");
+
+  grb::print(view, "masked view");
+
+/*
   for (size_t i = 0; i < matrix.shape()[0]; i += 4) {
     for (size_t j = 0; j < matrix.shape()[1]; j += 4) {
-      fmt::print("Submatrix [{}:{},{}:{}]\n", i, i+4, j, j+4);
+      std::cout << "Submatrix [" << i << ":" << i+4 << "," << j << ":" << j+4 << "]\n";
       grb::submatrix_view mat_sub(matrix, {i, i+4}, {j, j+4});
       grb::print(mat_sub);
     }
   }
+  */
 
   return 0;
 }
