@@ -1,7 +1,6 @@
 #include <grb/grb.hpp>
 #include <CL/sycl.hpp>
 #include <span>
-#include <fmt/core.h>
 #include "grb_help.hpp"
 
 int main(int argc, char** argv) {
@@ -14,7 +13,6 @@ int main(int argc, char** argv) {
 
   shp::device_allocator<int> d_a(q);
   shp::shared_allocator<int> s_a(q);
-
 
   device_matrix<int> a("../data/chesapeake.mtx", d_a);
 

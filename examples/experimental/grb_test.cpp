@@ -1,7 +1,6 @@
 #include <grb/grb.hpp>
 #include <CL/sycl.hpp>
 #include <span>
-#include <fmt/core.h>
 #include "grb_help.hpp"
 
 int main(int argc, char** argv) {
@@ -53,9 +52,11 @@ int main(int argc, char** argv) {
   for (auto&& [index, value] : m) {
     auto&& [i, j] = index;
     if (i % 2 == 0 && bool(value) != true) {
-      fmt::print("Error: {}, {}: {} is wrong.\n", i, j, bool(value));
+      // fmt::print("Error: {}, {}: {} is wrong.\n", i, j, bool(value));
+      std::cout << "Error: " << i << ", " << j << ": " << bool(value) << " is wrong." << std::endl;
     } else if (i % 2 == 1 && bool(value) == true) {
-      fmt::print("Error: {}, {}: {} is wrong.\n", i, j, bool(value));
+      // fmt::print("Error: {}, {}: {} is wrong.\n", i, j, bool(value));
+      std::cout << "Error: " << i << ", " << j << ": " << bool(value) << " is wrong." << std::endl;
     }
   }
 

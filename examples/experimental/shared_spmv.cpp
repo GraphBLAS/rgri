@@ -1,7 +1,6 @@
 #include <grb/grb.hpp>
 #include <CL/sycl.hpp>
 #include <span>
-#include <fmt/core.h>
 #include "grb_help.hpp"
 
 int main(int argc, char** argv) {
@@ -24,8 +23,6 @@ int main(int argc, char** argv) {
   spanner a_view(a);
   spanner x_view(x);
   spanner b_view(b);
-
-  auto a_tt = grb::matrix_view(a);
 
   print_range(x_view, "a");
 

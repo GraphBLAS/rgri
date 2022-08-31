@@ -1,7 +1,6 @@
 #include <grb/grb.hpp>
 #include <CL/sycl.hpp>
 #include <span>
-#include <fmt/core.h>
 
 template <std::ranges::forward_range R>
 void test_range(R&&) {}
