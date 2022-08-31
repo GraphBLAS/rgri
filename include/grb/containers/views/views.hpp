@@ -26,3 +26,4 @@ inline constexpr auto values = std::ranges::views::elements<1>;
 #include <grb/containers/views/filter_matrix.hpp>
 #include <grb/containers/views/submatrix_view.hpp>
 #include <grb/containers/views/complement_view.hpp>
+#include <grb/containers/views/masked_view.hpp>
