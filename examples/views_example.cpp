@@ -39,6 +39,23 @@ int main(int argc, char** argv) {
 
   grb::print(filter);
 
+  auto jklse = [](auto&&) { return "jklse"; };
+
+  std::ranges::transform_view tview(matrix, jklse);
+
+  std::cout << "Transform view: ";
+  for (auto&& v : tview) {
+    std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Transform view adapt: ";
+  for (auto&& v : std::ranges::views::transform(jklse)(matrix)) {
+    std::cout << v << " ";
+  }
+  std::cout << std::endl;
+
+
   grb::matrix<bool> mask(matrix.shape());
 
   grb::masked_view view(matrix, mask);
@@ -50,6 +67,15 @@ int main(int argc, char** argv) {
   grb::print(matrix, "matrix");
 
   grb::print(view, "masked view");
+
+  grb::print(matrix | grb::views::mask(mask), "adapted matrix");
+
+  grb::matrix<float> a(matrix.shape());
+
+  grb::assign(a, matrix | grb::views::mask(mask));
+
+  grb::print(a, "A");
+
 
 /*
   for (size_t i = 0; i < matrix.shape()[0]; i += 4) {

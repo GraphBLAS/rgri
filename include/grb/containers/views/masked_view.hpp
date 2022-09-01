@@ -75,4 +75,38 @@ private:
   filter_matrix_type filtered_matrix_;
 };
 
+namespace views {
+
+template <grb::MaskMatrixRange M>
+class mask_adaptor_closure
+{
+public:
+  mask_adaptor_closure(const M& mask) : mask_(mask) {}
+
+  template <grb::MatrixRange Matrix>
+  auto operator()(Matrix&& matrix) const {
+    return masked_view(std::forward<Matrix>(matrix), mask_);
+  }
+
+  template <grb::MatrixRange Matrix>
+  friend auto operator|(Matrix&& matrix, const mask_adaptor_closure& closure) {
+    return closure(std::forward<Matrix>(matrix));
+  }
+
+private:
+  const M& mask_;
+};
+
+template <grb::MaskMatrixRange M>
+auto mask(M&& mask) {
+  return mask_adaptor_closure(std::forward<M>(mask));
+}
+
+template <grb::MatrixRange Matrix, grb::MaskMatrixRange M>
+auto mask(Matrix&& matrix, M&& mask) {
+  return masked_view(std::forward<Matrix>(matrix), std::forward<M>(mask));
+}
+
+} // end views
+
 } // end grb
