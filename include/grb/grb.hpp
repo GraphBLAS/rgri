@@ -18,3 +18,7 @@
 #include "containers/views/views.hpp"
 
 #include "experimental/experimental.hpp"
+
+#ifdef BINSPARSE_IO
+#include "util/binsparse_io.hpp"
+#endif
