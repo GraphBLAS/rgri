@@ -2,6 +2,7 @@
 
 #include <CL/sycl.hpp>
 #include <iostream>
+#include <ranges>
 
 namespace shp {
 
@@ -18,6 +19,60 @@ cl::sycl::device select_device(Selector&& selector) {
     d = cl::sycl::device(cl::sycl::cpu_selector());
   }
   return d;
+}
+
+template <typename Selector>
+void list_devices(Selector&& selector) {
+  namespace sycl = cl::sycl;
+
+  sycl::platform p(std::forward<Selector>(selector));
+  auto devices = p.get_devices();
+
+  printf("--Platform Info-----------------\n");
+
+  printf("Platform %s has %lu root devices.\n", p.get_info<sycl::info::platform::name>().c_str(), devices.size());
+
+  for (size_t i = 0; i < devices.size(); i++) {
+    auto&& device = devices[i];
+
+    printf("  %lu %s\n", i, device.get_info<sycl::info::device::name>().c_str());
+
+    using namespace sycl::info;
+    auto subdevices = device.create_sub_devices<
+                        partition_property::partition_by_affinity_domain>(
+                          partition_affinity_domain::numa);
+
+    printf("   Subdevices:\n");
+    for (size_t j = 0; j < subdevices.size(); j++) {
+      auto&& subdevice = subdevices[j];
+      printf("     %lu.%lu %s\n", i, j, subdevice.get_info<sycl::info::device::name>().c_str());
+    }
+  }
+
+  printf("--------------------------------\n");
+}
+
+template <typename Selector>
+std::vector<cl::sycl::device> get_numa_devices(Selector&& selector) {
+  namespace sycl = cl::sycl;
+
+  std::vector<sycl::device> devices;
+
+  sycl::platform p(std::forward<Selector>(selector));
+  auto root_devices = p.get_devices();
+
+  for (auto&& root_device : root_devices) {
+    using namespace sycl::info;
+    auto subdevices = root_device.create_sub_devices<
+                        partition_property::partition_by_affinity_domain>(
+                          partition_affinity_domain::numa);
+
+    for (auto&& subdevice : subdevices) {
+      devices.push_back(subdevice);
+    }
+  }
+
+  return devices;
 }
 
 template <typename Range>
