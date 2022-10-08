@@ -113,4 +113,50 @@ auto multiply(A&& a,
   return c;
 }
 
+template <VectorRange A,
+          VectorRange B,
+          BinaryOperator<grb::vector_scalar_t<A>, grb::vector_scalar_t<B>> Combine = grb::multiplies<>,
+          Monoid<grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>
+>
+auto
+multiply(A&& a,
+         B&& b,
+         Reduce&& reduce = Reduce{},
+         Combine&& combine = Combine{})
+{
+  using a_value_type = grb::container_scalar_t<A>;
+  using b_value_type = grb::container_scalar_t<B>;
+
+  using combine_type = grb::elementwise_return_type_t<A, B, Combine>;
+
+  combine_type rv = grb::monoid_traits<Reduce, combine_type>::identity();
+
+  for (auto&& [index, value] : a) {
+    auto iter = b.find(index);
+
+    if (iter != b.end()) {
+      auto&& [_, b_value] = *iter;
+      auto result = combine(static_cast<a_value_type>(value), static_cast<b_value_type>(b_value));
+
+      rv = reduce(rv, result);
+    }
+  }
+  return rv;
+}
+
+template <VectorRange A,
+          MatrixRange B,
+          BinaryOperator<grb::vector_scalar_t<A>, grb::matrix_scalar_t<B>> Combine = grb::multiplies<>,
+          BinaryOperator<grb::elementwise_return_type_t<A, B, Combine>,
+                         grb::elementwise_return_type_t<A, B, Combine>,
+                         grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>,
+          MaskVectorRange M = grb::full_vector_mask<>>
+auto multiply(A&& a,
+              B&& b,
+              Reduce&& reduce = Reduce{},
+              Combine&& combine = Combine(),
+              M&& mask = M{}) {
+  return multiply(grb::transpose(std::forward<B>(b)), std::forward<A>(a), std::forward<Reduce>(reduce), std::forward<Combine>(combine), std::forward<M>(mask));
+}
+
 } // end grb
