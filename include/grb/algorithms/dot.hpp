@@ -4,6 +4,7 @@
 
 namespace grb {
 
+/*
 template <VectorRange A,
           VectorRange B,
           BinaryOperator<grb::vector_scalar_t<A>, grb::vector_scalar_t<B>> Combine = grb::multiplies<>,
@@ -83,5 +84,6 @@ auto dot(A&& a,
   return multiply(std::forward<A>(a), std::forward<B>(b), std::forward<Reduce>(reduce),
                   std::forward<Combine>(combine), std::forward<M>(mask));
 }
+*/
 
 } // end grb
