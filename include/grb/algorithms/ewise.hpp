@@ -159,7 +159,9 @@ template <VectorRange A,
 auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 {
   if (a.shape() != b.shape()) {
-    throw grb::invalid_argument("ewise_intersection: Dimensions of vectors are incompatible.");
+    throw grb::invalid_argument("ewise_intersection: Dimensions of vectors ("
+                                + std::to_string(a.shape()) + " and " + std::to_string(b.shape())
+                                + ") are incompatible.");
   }
 
   if (mask.shape() < a.shape()) {

@@ -40,17 +40,21 @@ auto multiply(A&& a,
     auto iter = b.find(k);
 
     if (iter != b.end()) {
-      auto&& [b_index, b_v] = *iter;
+      auto&& [_, b_v] = *iter;
 
-      if constexpr(std::is_same_v<std::decay_t<M>, grb::full_vector_mask<>>) {
-        c[i] = reduce(c[i], combine(a_v, b_v));
-      } else {
-        auto iter = mask.find(i);
+      auto iter = mask.find(i);
 
-        if (iter != mask.end()) {
-          auto&& [_, value] = *iter;
-          if (bool(value)) {
-            c[i] = reduce(c[i], combine(a_v, b_v));
+      if (iter != mask.end()) {
+        // printf("%lu was present.\n", i);
+        auto&& [_, value] = *iter;
+        if (bool(value)) {
+          // printf("%lu was true.\n", i);
+          auto combined_v = combine(a_v, b_v);
+          auto&& [insert_iter, success] = c.insert({i, combined_v});
+          if (!success) {
+            auto&& [_, c_ref] = *insert_iter;
+            c_scalar_type c_v = c_ref;
+            c_ref = reduce(c_v, combined_v);
           }
         }
       }

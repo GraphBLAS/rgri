@@ -152,7 +152,7 @@ public:
   dense_vector& operator=(dense_vector&& other) {
     data_ = std::move(other.data_);
     flags_ = std::move(other.flags_);
-    other.nnz_ = other.nnz_;
+    nnz_ = other.nnz_;
     other.nnz_ = 0;
     return *this;
   }

@@ -61,6 +61,10 @@ public:
     return vector_ == other.vector_ && index_ == other.index_;
   }
 
+  bool operator!=(const complement_vector_view_accessor& other) const noexcept {
+    return !(*this == other);
+  }
+
   value_type operator*() const noexcept {
     return value_type(index_, true);
   }
@@ -113,7 +117,7 @@ public:
   iterator find(key_type key) const {
     auto iter = vector_.find(key);
 
-    if (iter == vector_.end() && !static_cast<bool>(grb::get<1>(*iter))) {
+    if (iter == vector_.end() || !static_cast<bool>(grb::get<1>(*iter))) {
       return iterator(vector_, key);
     }  else {
       return end();

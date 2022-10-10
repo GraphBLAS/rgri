@@ -9,11 +9,11 @@ size_t pick_random_vertex(M&& matrix) {
   std::advance(iter, index_id);
   auto&& [idx, _] = *iter;
   auto&& [i, j] = idx;
-  return i;
+  return j;
 }
 
 int main(int argc, char** argv) {
-  srand48(1);
+  // srand48(0);
   // Import graph
   grb::matrix<int> a("../data/chesapeake.mtx");
 
@@ -27,20 +27,26 @@ int main(int argc, char** argv) {
 
   x[vertex] = 1;
 
-  grb::vector<int> mask = x;
+  grb::vector<bool> mask(x.shape());
+  mask[vertex] = true;
+
+  bool v = mask[vertex];
+
+  size_t iteration = 0;
 
   while (x.size() > 0) {
-    std::cout << "Iteration 1:" << std::endl;
-    grb::print(x);
+    std::cout << "Iteration " << iteration << ":" << std::endl;
+    grb::print(x, "X");
+
+    grb::print(mask, "Mask");
+
     auto b = grb::multiply(grb::transpose(a), x, grb::plus{}, grb::times{}, grb::complement_view(mask));
- 
-    std::cout << "Output:" << std::endl;
-    grb::print(b);
 
-    auto new_mask = grb::ewise_union(b, mask, grb::plus{});
-
+    auto new_mask = grb::ewise_union(b, mask, [](auto&&, auto&&) -> bool { return true; });
     std::swap(new_mask, mask);
+
     std::swap(x, b);
+    iteration++;
   }
 
   return 0;

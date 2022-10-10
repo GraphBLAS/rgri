@@ -170,7 +170,7 @@ public:
 
 private:
   index_type index_;
-	map_type& value_;
+	scalar_reference value_;
 };
 
 	

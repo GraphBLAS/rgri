@@ -84,7 +84,7 @@ public:
 		return backend_.find(index);
 	}
 
-	scalar_reference operator[](map_type index) {
+	scalar_reference operator[](key_type index) {
 		return backend_[index];
 	}
 
