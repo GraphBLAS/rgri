@@ -2,7 +2,7 @@
 
 namespace grb {
 
-template <typename MatrixType, typename MaskType>
+template <MatrixRange MatrixType, MaskMatrixRange MaskType>
 class masked_view {
 private:
   struct in_matrix;

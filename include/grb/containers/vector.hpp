@@ -56,6 +56,10 @@ public:
 		return backend_.size();
 	}
 
+	bool empty() const noexcept {
+		return size() == 0;
+	}
+
   /// Iterator to the beginning
 	iterator begin() noexcept {
 		return backend_.begin();
@@ -91,7 +95,8 @@ public:
 	template <typename InputIt>
 	void insert(InputIt first, InputIt last) {
 		for (auto iter = first; iter != last; ++iter) {
-			insert(*iter);
+			auto&& [idx, value] = *iter;
+			insert({idx, value});
 		}
 	}
 
@@ -121,6 +126,19 @@ public:
 	vector& operator=(const vector&) = default;
 	vector(vector&&) = default;
 	vector& operator=(vector&&) = default;
+
+  template <VectorRange V>
+	vector(V&& other) : backend_(other.shape()) {
+		insert(other.begin(), other.end());
+	}
+
+  template <VectorRange V>
+	vector& operator=(V&& other) {
+		clear();
+		reshape(other.shape());
+		insert(other.begin(), other.end());
+		return *this;
+	}
 
 private:
 	backend_type backend_;

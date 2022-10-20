@@ -323,4 +323,34 @@ struct logical_xor : binary_op_impl_<logical_xor_impl_, T, U, V> {};
 template <typename T = void, typename U = T, typename V = void>
 struct logical_xnor : binary_op_impl_<logical_xnor_impl_, T, U, V> {};
 
+template <typename T = void>
+struct take_left {
+  T operator()(const T& left, const T& right) {
+    return left;
+  }
+};
+
+template <>
+struct take_left<void> {
+  template <typename T, typename U>
+  T operator()(const T& left, const U& right) {
+    return left;
+  }
+};
+
+template <typename T = void>
+struct take_right {
+  T operator()(const T& left, const T& right) {
+    return right;
+  }
+};
+
+template <>
+struct take_right<void> {
+  template <typename T, typename U>
+  U operator()(const T& left, const U& right) {
+    return right;
+  }
+};
+
 } // end grb

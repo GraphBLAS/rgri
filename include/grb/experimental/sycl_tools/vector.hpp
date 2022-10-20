@@ -91,6 +91,15 @@ public:
     return *this;
   }
 
+  vector& operator=(vector&& other) noexcept
+  requires(std::is_trivially_move_constructible_v<T>)
+  {
+    data_ = other.data_;         other.data_ = nullptr;
+    size_ = other.size_;         other.size_ = 0;
+    capacity_ = other.capacity_; other.capacity_ = 0;
+
+  }
+
   template <std::forward_iterator Iter>
   void assign(Iter first, Iter last) {
     auto new_size = std::distance(first, last);
