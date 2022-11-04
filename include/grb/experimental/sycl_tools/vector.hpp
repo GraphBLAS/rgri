@@ -98,6 +98,7 @@ public:
     size_ = other.size_;         other.size_ = 0;
     capacity_ = other.capacity_; other.capacity_ = 0;
 
+    return *this;
   }
 
   template <std::forward_iterator Iter>
