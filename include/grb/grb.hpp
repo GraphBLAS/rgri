@@ -7,6 +7,7 @@
 #include "detail/matrix_traits.hpp"
 #include "detail/get.hpp"
 #include "detail/concepts.hpp"
+#include "detail/tag_invoke.hpp"
 #include "containers/functional/functional.hpp"
 #include "exceptions/exception.hpp"
 
