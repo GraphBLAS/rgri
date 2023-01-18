@@ -130,11 +130,12 @@ public:
   }
 
   auto insert(const value_type& entry) {
-    return grb::insert(mdspan_, entry);
+    auto&& [index, value] = entry;
+    return iterator(mdspan_, index);
   }
 
-  auto shape() {
-    return grb::shape(mdspan_);
+  key_type shape() {
+    return key_type(mdspan_.extent(0), mdspan_.extent(1));
   }
 
   auto size() {
@@ -143,12 +144,12 @@ public:
 
   template <typename O>
   auto insert_or_assign(const key_type& key, O&& obj) {
-    return grb::insert_or_assign(key, std::forward<O>(obj));
+    mdspan_(key[0], key[1]) = std::forward<O>(obj);
+    return iterator(mdspan_, key);
   }
 
   scalar_reference operator[](const key_type& key) {
-    auto&& [iter, inserted] = insert(value_type(key, scalar_type{}));
-    return grb::get<1>(*iter);
+    return mdspan_(key[0], key[1]);
   }
 
   decltype(auto) base() noexcept {
