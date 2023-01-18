@@ -19,6 +19,7 @@ inline constexpr auto values = std::ranges::views::elements<1>;
 
 } // end grb
 
+#include <grb/containers/views/all.hpp>
 #include <grb/containers/views/full_matrix_view.hpp>
 #include <grb/containers/views/full_vector_view.hpp>
 #include <grb/containers/views/transpose_matrix.hpp>

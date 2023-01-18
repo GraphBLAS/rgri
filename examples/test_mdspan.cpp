@@ -92,66 +92,6 @@ private:
 template <typename MDSpanType>
 using mdspan_matrix_iterator = grb::detail::iterator_adaptor<mdspan_matrix_accessor<MDSpanType>>;
 
-template <grb::MatrixRange M>
-class matrix_view {
-public:
-
-  using index_type = grb::matrix_index_t<M>;
-  using key_type = typename grb::container_traits<M>::key_type;
-  using value_type = std::ranges::range_value_t<M>;
-  using scalar_type = grb::matrix_scalar_t<M>;
-  using scalar_reference = decltype(grb::get<1>(std::declval<std::ranges::range_reference_t<M>>()));
-
-  matrix_view(M matrix) : matrix_(matrix) {}
-
-  auto begin() {
-    return std::ranges::begin(base());
-  }
-
-  auto end() {
-    return std::ranges::end(base());
-  }
-
-  auto find(const key_type& key) {
-    return grb::find(base(), key);
-  }
-
-  auto insert(const value_type& entry) {
-    return grb::insert(base(), entry);
-  }
-
-  auto size() {
-    return std::ranges::size(base());
-  }
-
-  auto shape() {
-    return grb::shape(base());
-  }
-
-  template <typename O>
-  auto insert_or_assign(const key_type& key, O&& obj) {
-    return grb::insert_or_assign(key, std::forward<O>(obj));
-  }
-
-  scalar_reference operator[](const key_type& key) {
-    auto&& [iter, inserted] = insert(value_type(key, scalar_type{}));
-    return grb::get<1>(*iter);
-  }
-
-  decltype(auto) base() noexcept {
-    if constexpr(std::ranges::view<std::decay_t<M>>) {
-      return matrix_;
-    } else {
-      return matrix_.base();
-    }
-  }
-
-private:
-  std::ranges::views::all_t<M> matrix_;
-};
-
-template <typename M>
-matrix_view(M&& m) -> matrix_view<M>;
 
 template <typename... Args>
 class mdspan_matrix_view {
@@ -219,25 +159,7 @@ private:
 template <typename... Args>
 mdspan_matrix_view(std::experimental::mdspan<Args...>) -> mdspan_matrix_view<Args...>;
 
-namespace views {
-
-inline constexpr struct all_fn_ {
-  template <typename O>
-  auto operator()(O&& x) const
-  requires(grb::is_tag_invocable_v<all_fn_, O> ||
-           grb::MatrixRange<O>)
-  {
-    if constexpr(grb::is_tag_invocable_v<all_fn_, O>) {
-      return grb::tag_invoke(*this, std::forward<O>(x));
-    } else if constexpr(grb::MatrixRange<O>) {
-      return grb::matrix_view(std::forward<O>(x));
-    }
-  }
-} all{};
-
-} // end views
-
-} // end grb
+}
 
 namespace std {
 
@@ -248,30 +170,6 @@ auto tag_invoke(grb::tag_t<grb::views::all>, std::experimental::mdspan<Args...> 
 requires(m.rank() == 2)
 {
   return grb::mdspan_matrix_view(m);
-}
-
-template <typename... Args>
-auto tag_invoke(grb::tag_t<grb::size>, std::experimental::mdspan<Args...> m)
-{
-  return m.size();
-}
-
-template <typename... Args>
-auto tag_invoke(grb::tag_t<grb::shape>, std::experimental::mdspan<Args...> m)
-requires(m.rank() == 2)
-{
-
-  using index_type = decltype(m)::index_type;
-  return grb::index<index_type>(m.extent(0), m.extent(1));
-}
-
-template <typename... Args>
-auto tag_invoke(grb::tag_t<grb::insert_or_assign>, std::experimental::mdspan<Args...> m)
-requires(m.rank() == 2)
-{
-
-  using index_type = decltype(m)::index_type;
-  return grb::index<index_type>(m.extent(0), m.extent(1));
 }
 
 } // end experimental
@@ -286,12 +184,8 @@ int main(int argc, char** argv) {
 
   std::vector<float> data(b.shape()[0]*b.shape()[1], 0);
 
-  std::experimental::mdspan b_span(data.data(), b.shape()[0], b.shape()[1]);
 
-  for (auto&& [index, value] : b) {
-    auto&& [i, j] = index;
-    b_span(i, j) = value;
-  }
+  std::experimental::mdspan b_span(data.data(), b.shape()[0], b.shape()[1]);
 
   for (size_t i = 0; i < b.shape()[0]; i++) {
     for (size_t j = 0; j < b.shape()[1]; j++) {
@@ -300,15 +194,52 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
   }
 
-  auto c = grb::multiply(a, b);
 
-  auto shape = grb::shape(b_span);
 
-  std::cout << shape[0] << ", " << shape[1] << std::endl;
 
-  auto v = grb::views::all(b_span);
 
-  grb::print(v, "v");
+
+/*
+  std::experimental::mdspan b_span(data.data(), b.shape()[0], b.shape()[1]);
+  grb::mdspan_matrix_view view(b_span);
+
+  auto c = grb::multiply(view, a);
+
+
+
+
+  nwg::compressed_graph g(...);
+  grb::nwgraph_matrix_view view(g);
+
+  auto z = grb::multiply(view, c);
+
+
+
+
+  float* values = ...;
+  int* rowptr = ...;
+  int* colind = ...;
+  int m, n, nnz = ...;
+
+  grb::csr_matrix_view view(values, rowptr, colind, m, n, nnz);
+
+  auto c = grb::multiply(view, c);
+  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return 0;
 }
