@@ -7,8 +7,8 @@ namespace grb {
 
 template <MatrixRange A,
           MatrixRange B,
-          BinaryOperator<grb::matrix_scalar_type_t<A>,
-                         grb::matrix_scalar_type_t<B>> Combine,
+          BinaryOperator<grb::matrix_scalar_t<A>,
+                         grb::matrix_scalar_t<B>> Combine,
           MaskMatrixRange M = grb::full_matrix_mask<>
           >
 auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
@@ -50,8 +50,8 @@ auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 
 template <MatrixRange A,
           MatrixRange B,
-          BinaryOperator<grb::matrix_scalar_type_t<A>,
-                         grb::matrix_scalar_type_t<B>> Combine,
+          BinaryOperator<grb::matrix_scalar_t<A>,
+                         grb::matrix_scalar_t<B>> Combine,
           MaskMatrixRange M = grb::full_matrix_mask<>
           >
 auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
@@ -109,8 +109,8 @@ auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 
 template <VectorRange A,
           VectorRange B,
-          BinaryOperator<grb::vector_scalar_type_t<A>,
-                         grb::vector_scalar_type_t<B>> Combine,
+          BinaryOperator<grb::vector_scalar_t<A>,
+                         grb::vector_scalar_t<B>> Combine,
           MaskVectorRange M = grb::full_vector_mask<>
           >
 auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
@@ -152,8 +152,8 @@ auto ewise_intersection(A&& a, B&& b, Combine&& combine, M&& mask = M{})
 
 template <VectorRange A,
           VectorRange B,
-          BinaryOperator<grb::vector_scalar_type_t<A>,
-                         grb::vector_scalar_type_t<B>> Combine,
+          BinaryOperator<grb::vector_scalar_t<A>,
+                         grb::vector_scalar_t<B>> Combine,
           MaskVectorRange M = grb::full_vector_mask<>
           >
 auto ewise_union(A&& a, B&& b, Combine&& combine, M&& mask = M{})

@@ -88,19 +88,19 @@ auto multiply(A&& a,
 
   using c_index_type = grb::bigger_integral_t<a_index_type, b_index_type>;
 
-  grb::matrix<c_scalar_type, c_index_type> c({a.shape()[0], b.shape()[1]});
+  grb::matrix<c_scalar_type, c_index_type> c(grb::index<c_index_type>(a.shape()[0], b.shape()[1]));
 
   for (auto&& [a_index, a_v] : a) {
     auto&& [i, k] = a_index;
 
     for (c_index_type j = 0; j < b.shape()[1]; j++) {
-      auto iter = b.find({k, j});
+      auto iter = b.find(grb::index<b_index_type>(k, j));
 
       if (iter != b.end()) {
         auto&& [b_index, b_v] = *iter;
 
         if constexpr(std::is_same_v<std::decay_t<M>, grb::full_matrix_mask<>>) {
-          c[{i, j}] = reduce(c[{i, j}], combine(a_v, b_v));
+          c[grb::index<c_index_type>(i, j)] = reduce(c[grb::index<c_index_type>(i, j)], combine(a_v, b_v));
         } else {
           auto iter = mask.find({i, j});
           if (iter != mask.end()) {
