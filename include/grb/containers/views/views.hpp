@@ -29,3 +29,7 @@ inline constexpr auto values = std::ranges::views::elements<1>;
 #include <grb/containers/views/complement_view.hpp>
 #include <grb/containers/views/masked_view.hpp>
 #include <grb/containers/views/traditional_formats/csr_matrix_view.hpp>
+
+#if __has_include(<experimental/mdspan>)
+#include <grb/containers/views/third_party/mdspan_view.hpp>
+#endif
