@@ -268,18 +268,18 @@ public:
 
   auto colind_data() const { return colind_; }
 
-  auto row(index_type row_index) {
+  auto row(index_type row_index) const {
     auto offset = rowptr_[row_index];
-    return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index, shape()[1]);
+    auto size = rowptr_[row_index+1] - offset;
+    return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index, size);
   }
 
-  auto rows() {
-    auto row_indices = std::ranges::views::iota(index_type(0), index_type(shape()[1]));
+  auto rows() const {
+    auto row_indices = std::ranges::views::iota(index_type(0), index_type(shape()[0]));
 
     return row_indices | std::ranges::views::transform(
                            [*this](index_type row_index) {
-                             auto offset = rowptr_[row_index];
-                             return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index, shape()[1]);
+                             return row(row_index);
                            });
   }
 
