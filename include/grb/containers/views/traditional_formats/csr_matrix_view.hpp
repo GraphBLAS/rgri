@@ -146,16 +146,7 @@ public:
                                      size_type idx, index_type row,
                                      size_type row_dim) noexcept
       : values_(values), rowptr_(rowptr), colind_(colind), idx_(idx), row_(row),
-        row_dim_(row_dim), idx_offset_(key_type{0, 0}) {
-    fast_forward_row();
-  }
-
-  constexpr csr_matrix_view_accessor(TIter values, IIter rowptr, IIter colind,
-                                     size_type idx, index_type row,
-                                     size_type row_dim,
-                                     key_type idx_offset) noexcept
-      : values_(values), rowptr_(rowptr), colind_(colind), idx_(idx), row_(row),
-        row_dim_(row_dim), idx_offset_(idx_offset) {
+        row_dim_(row_dim) {
     fast_forward_row();
   }
 
@@ -205,7 +196,7 @@ public:
 
   constexpr reference operator*() const noexcept {
     return reference(
-        key_type(row_ + idx_offset_[0], colind_[idx_] + idx_offset_[1]),
+        key_type(row_, colind_[idx_]),
         values_[idx_]);
   }
 
@@ -216,7 +207,6 @@ private:
   size_type idx_;
   index_type row_;
   size_type row_dim_;
-  key_type idx_offset_;
 };
 
 template <typename T, typename I, typename TIter, typename IIter>
@@ -242,24 +232,18 @@ public:
   csr_matrix_view(TIter values, IIter rowptr, IIter colind, key_type shape,
                   size_type nnz)
       : values_(values), rowptr_(rowptr), colind_(colind), shape_(shape),
-        nnz_(nnz), idx_offset_(key_type{0, 0}) {}
-
-  csr_matrix_view(TIter values, IIter rowptr, IIter colind, key_type shape,
-                  size_type nnz, key_type idx_offset)
-      : values_(values), rowptr_(rowptr), colind_(colind), shape_(shape),
-        nnz_(nnz), idx_offset_(idx_offset) {}
+        nnz_(nnz) {}
 
   key_type shape() const noexcept { return shape_; }
 
   size_type size() const noexcept { return nnz_; }
 
   iterator begin() const {
-    return iterator(values_, rowptr_, colind_, 0, 0, shape()[1], idx_offset_);
+    return iterator(values_, rowptr_, colind_, 0, 0, shape()[1]);
   }
 
   iterator end() const {
-    return iterator(values_, rowptr_, colind_, nnz_, shape()[1], shape()[1],
-                    idx_offset_);
+    return iterator(values_, rowptr_, colind_, nnz_, shape()[1], shape()[1]);
   }
 
   auto values_data() const { return values_; }
@@ -267,6 +251,16 @@ public:
   auto rowptr_data() const { return rowptr_; }
 
   auto colind_data() const { return colind_; }
+
+  iterator find(const key_type& key) const {
+    index_type i = key[0];
+    for (index_type j_ptr = rowptr_[i]; j_ptr < rowptr_[i+1]; j_ptr++) {
+      if (colind_[j_ptr] == key[1]) {
+        return iterator(values_, rowptr_, colind_, j_ptr, i, shape()[1]);
+      }
+    }
+    return end();
+  }
 
   auto row(index_type row_index) const {
     auto offset = rowptr_[row_index];
@@ -290,7 +284,6 @@ private:
   size_type nnz_;
 
   key_type shape_;
-  key_type idx_offset_;
 };
 
 template <typename TIter, typename IIter, typename... Args>
