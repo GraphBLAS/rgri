@@ -8,6 +8,111 @@
 namespace grb {
 
 template <typename T, typename I, typename TIter = T*, typename IIter = I*>
+class csr_matrix_row_accessor {
+public:
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+
+  using scalar_type = std::iter_value_t<TIter>;
+  using scalar_reference = std::iter_reference_t<TIter>;
+
+  using index_type = I;
+
+  using value_type = grb::matrix_entry<scalar_type, I>;
+
+  using reference = grb::matrix_ref<T, I, scalar_reference>;
+
+  using iterator_category = std::random_access_iterator_tag;
+
+  using iterator_accessor = csr_matrix_row_accessor;
+  using const_iterator_accessor = iterator_accessor;
+  using nonconst_iterator_accessor = iterator_accessor;
+
+  using key_type = grb::index<I>;
+
+  constexpr csr_matrix_row_accessor() noexcept = default;
+  constexpr ~csr_matrix_row_accessor() noexcept = default;
+  constexpr csr_matrix_row_accessor(
+      const csr_matrix_row_accessor &) noexcept = default;
+  constexpr csr_matrix_row_accessor &
+  operator=(const csr_matrix_row_accessor &) noexcept = default;
+
+  constexpr csr_matrix_row_accessor(TIter values, IIter colind,
+                                     index_type row, size_type idx) noexcept
+      : values_(values), colind_(colind), row_(row), idx_(idx) {}
+
+  constexpr csr_matrix_row_accessor &
+  operator+=(difference_type offset) noexcept {
+    idx_ += offset;
+    return *this;
+  }
+
+  constexpr bool operator==(const iterator_accessor &other) const noexcept {
+    return idx_ == other.idx_;
+  }
+
+  constexpr difference_type
+  operator-(const iterator_accessor &other) const noexcept {
+    return difference_type(idx_) - difference_type(other.idx_);
+  }
+
+  constexpr bool operator<(const iterator_accessor &other) const noexcept {
+    return idx_ < other.idx_;
+  }
+
+  constexpr reference operator*() const noexcept {
+    return reference(key_type(row_, colind_[idx_]), values_[idx_]);
+  }
+
+private:
+  TIter values_;
+  IIter colind_;
+  index_type row_;
+  size_type idx_;
+};
+
+template <typename T, typename I, typename TIter, typename IIter>
+using csr_matrix_row_iterator =
+    grb::detail::iterator_adaptor<csr_matrix_row_accessor<T, I, TIter, IIter>>;
+
+template <typename T, typename I, typename TIter, typename IIter>
+class csr_matrix_row_view {
+public:
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+
+  using scalar_type = T;
+  using index_type = I;
+
+  using scalar_reference = std::iter_reference_t<TIter>;
+
+  using key_type = grb::index<I>;
+  using map_type = T;
+
+  using iterator = csr_matrix_row_iterator<T, I, TIter, IIter>;
+
+  csr_matrix_row_view(TIter values, IIter colind, index_type row, size_type size)
+      : values_(values), colind_(colind), row_(row), size_(size) {}
+
+  scalar_reference operator[](size_type idx) { return values_[idx]; }
+
+  iterator begin() const { return iterator(values_, colind_, row_, 0); }
+
+  iterator end() const { return iterator(values_, colind_, row_, size_); }
+
+  size_type size() const noexcept { return size_; }
+
+  TIter values_;
+  IIter colind_;
+  index_type row_;
+  size_type size_;
+};
+
+template <std::random_access_iterator TIter, std::random_access_iterator IIter, typename... Args>
+csr_matrix_row_view(TIter, IIter, Args&&...)
+    -> csr_matrix_row_view<std::iter_value_t<TIter>, std::iter_value_t<IIter>, TIter, IIter>;
+
+template <typename T, typename I, typename TIter = T*, typename IIter = I*>
 class csr_matrix_view_accessor {
 public:
   using size_type = std::size_t;
@@ -129,26 +234,24 @@ public:
   using scalar_type = T;
   using index_type = I;
 
-  using key_type = grb::index<>;
+  using key_type = grb::index<I>;
   using map_type = T;
 
   using iterator = csr_matrix_view_iterator<T, I, TIter, IIter>;
 
   csr_matrix_view(TIter values, IIter rowptr, IIter colind, key_type shape,
-                  size_type nnz, size_type rank)
+                  size_type nnz)
       : values_(values), rowptr_(rowptr), colind_(colind), shape_(shape),
-        nnz_(nnz), rank_(rank), idx_offset_(key_type{0, 0}) {}
+        nnz_(nnz), idx_offset_(key_type{0, 0}) {}
 
   csr_matrix_view(TIter values, IIter rowptr, IIter colind, key_type shape,
-                  size_type nnz, size_type rank, key_type idx_offset)
+                  size_type nnz, key_type idx_offset)
       : values_(values), rowptr_(rowptr), colind_(colind), shape_(shape),
-        nnz_(nnz), rank_(rank), idx_offset_(idx_offset) {}
+        nnz_(nnz), idx_offset_(idx_offset) {}
 
   key_type shape() const noexcept { return shape_; }
 
   size_type size() const noexcept { return nnz_; }
-
-  std::size_t rank() const { return rank_; }
 
   iterator begin() const {
     return iterator(values_, rowptr_, colind_, 0, 0, shape()[1], idx_offset_);
@@ -165,6 +268,21 @@ public:
 
   auto colind_data() const { return colind_; }
 
+  auto row(index_type row_index) {
+    auto offset = rowptr_[row_index];
+    return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index, shape()[1]);
+  }
+
+  auto rows() {
+    auto row_indices = std::ranges::views::iota(index_type(0), index_type(shape()[1]));
+
+    return row_indices | std::ranges::views::transform(
+                           [*this](index_type row_index) {
+                             auto offset = rowptr_[row_index];
+                             return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index, shape()[1]);
+                           });
+  }
+
 private:
   TIter values_;
   IIter rowptr_;
@@ -172,7 +290,6 @@ private:
   size_type nnz_;
 
   key_type shape_;
-  size_type rank_;
   key_type idx_offset_;
 };
 
