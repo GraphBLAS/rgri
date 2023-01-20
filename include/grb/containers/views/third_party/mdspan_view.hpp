@@ -165,9 +165,9 @@ mdspan_matrix_view(std::experimental::mdspan<Args...>) -> mdspan_matrix_view<Arg
 
 }
 
-namespace std {
+namespace grb {
 
-namespace experimental {
+namespace views {
 
 template <typename... Args>
 auto tag_invoke(grb::tag_t<grb::views::all>, std::experimental::mdspan<Args...> m)
@@ -176,7 +176,6 @@ requires(m.rank() == 2)
   return grb::mdspan_matrix_view(m);
 }
 
-} // end experimental
+} // end views
 
-
-} // end std
+} // end grb

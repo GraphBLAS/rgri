@@ -33,3 +33,7 @@ inline constexpr auto values = std::ranges::views::elements<1>;
 #if __has_include(<experimental/mdspan>)
 #include <grb/containers/views/third_party/mdspan_view.hpp>
 #endif
+
+#if __has_include(<nwgraph/edge_list.hpp>)
+#include <grb/containers/views/third_party/nwgraph_view.hpp>
+#endif
