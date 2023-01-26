@@ -5,6 +5,34 @@
 
 namespace grb {
 
+/*
+template <std::ranges::viewable_range R>
+auto enumerate(R&& r) {
+  using W = std::ranges::range_size_t<R>;
+  return std::ranges::views::zip(std::ranges::views::iota(W{0}),
+                                 std::forward<R>(r));
+}
+
+class enumerate_adapter_closure {
+public:
+  enumerate_adapter_closure() {}
+
+  template <std::ranges::viewable_range R>
+  auto operator()(R&& r) const {
+    return enumerate(std::forward<R>(r));
+  }
+
+  template <std::ranges::viewable_range R>
+  friend auto operator|(R&& r, const enumerate_adapter_closure& closure) {
+    return enumerate(std::forward<R>(r));
+  }
+};
+
+auto enumerate() {
+  return enumerate_adapter_closure();
+}
+*/
+
 template <typename T>
 class nwgraph_view;
 
@@ -126,9 +154,11 @@ public:
 
   constexpr iterator_accessor& operator++() {
     ++col_;
-    if (col_ == (*graph_)[row_].end() && row_ != graph_->size()-1) {
+    if (col_ == (*graph_)[row_].end() /* && row_ != graph_->size()-1 */) {
       ++row_;
-      col_ = (*graph_)[row_].begin();
+      if (row_ != graph_->size()-1) {
+        col_ = (*graph_)[row_].begin();
+      }
     }
     return *this;
   }
@@ -210,7 +240,8 @@ public:
   }
 
   iterator end() const {
-    return iterator(base(), graph_.size()-1, base()[graph_.size()-1].end());
+    return iterator(base(), graph_.size(), base()[graph_.size()-1].end());
+    // return iterator(base(), graph_.size()-1, base()[graph_.size()-1].end());
   }
 
 
