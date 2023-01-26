@@ -33,10 +33,22 @@ int main(int argc, char** argv) {
   }
 
   {
+  auto edge_list = get_edge_list(a);
+  std::cout << "NWGraph edge_list (RAW)" << std::endl;
+  test_sumreduce(edge_list);
+  }
+
+  {
   auto adjacency_list = get_adjacency_list(a);
   auto al_view = grb::views::all(adjacency_list);
   std::cout << "NWGraph adjacency_list" << std::endl;
   test_sumreduce(al_view);
+  }
+
+  {
+  auto adjacency_list = get_adjacency_list(a);
+  std::cout << "NWGraph adjacency_list (RAW)" << std::endl;
+  test_sumreduce(adjacency_list);
   }
 
   {
@@ -68,10 +80,22 @@ int main(int argc, char** argv) {
   }
 
   {
+  auto edge_list = get_edge_list(a);
+  std::cout << "NWGraph edge_list (RAW)" << std::endl;
+  test_spmm(edge_list);
+  }
+
+  {
   auto adjacency_list = get_adjacency_list(a);
   auto al_view = grb::views::all(adjacency_list);
   std::cout << "NWGraph adjacency_list" << std::endl;
   test_spmm(al_view);
+  }
+
+  {
+  auto adjacency_list = get_adjacency_list(a);
+  std::cout << "NWGraph adjacency_list (RAW)" << std::endl;
+  test_spmm(adjacency_list);
   }
 
   {

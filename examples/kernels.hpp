@@ -12,6 +12,49 @@ auto sumreduce(M&& m) {
   return sum;
 }
 
+template <nw::graph::edge_list_graph M>
+auto sumreduce(M&& m) {
+  float sum = 0;
+  for (auto&& [i, j, v] : m) {
+    sum += v;
+  }
+  return sum;
+}
+
+template <nw::graph::adjacency_list_graph M>
+auto sumreduce(M&& m) {
+  float sum = 0;
+  for (auto&& row : m) {
+    for (auto&& [_, v] : row) {
+      sum += v;
+    }
+  }
+  return sum;
+}
+
+template <nw::graph::edge_list_graph M>
+void spmm(M&& a, auto&& b, auto&& c, size_t n_vecs) {
+  for (auto&& [i, k, v] : a) {
+    for (size_t j = 0; j < n_vecs; j++) {
+      auto r = v * b[k * n_vecs + j];
+      c[i*n_vecs + j] += r;
+    }
+  }
+}
+
+template <nw::graph::adjacency_list_graph M>
+void spmm(M&& a, auto&& b, auto&& c, size_t n_vecs) {
+  for (size_t i = 0; i < a.size(); i++) {
+    auto&& row = a[i];
+    for (auto&& [k, v] : row) {
+      for (size_t j = 0; j < n_vecs; j++) {
+        auto r = v * b[k * n_vecs + j];
+        c[i*n_vecs + j] += r;
+      }
+    }
+  }
+}
+
 template <grb::MatrixRange M>
 void spmm(M&& a, auto&& b, auto&& c, size_t n_vecs) {
   for (auto&& [index, v] : a) {
@@ -44,7 +87,7 @@ auto get_mean(R&& r) {
   return sum / std::size(r);
 }
 
-template <grb::MatrixRange M>
+template <typename M>
 void test_sumreduce(M&& m, std::size_t n_trials = 10) {
   std::vector<double> durations;
   durations.reserve(n_trials);
@@ -77,7 +120,7 @@ void test_sumreduce(M&& m, std::size_t n_trials = 10) {
   printf("Mean is %lfms\n", mean * 1000);
 }
 
-template <grb::MatrixRange M>
+template <typename M>
 void test_spmm(M&& a, std::size_t n_trials = 10) {
   std::vector<double> durations;
   durations.reserve(n_trials);
@@ -87,9 +130,11 @@ void test_spmm(M&& a, std::size_t n_trials = 10) {
   std::vector<double> sums;
   sums.reserve(n_trials);
 
-  std::vector<double> b(a.shape()[1] * n_vecs, 1);
+  auto shape = grb::views::all(a).shape();
 
-  std::vector<double> c(a.shape()[0] * n_vecs, 0);
+  std::vector<double> b(shape[1] * n_vecs, 1);
+
+  std::vector<double> c(shape[0] * n_vecs, 0);
 
   std::cout << "Beginning trials..." << std::endl;
 
@@ -117,3 +162,4 @@ void test_spmm(M&& a, std::size_t n_trials = 10) {
   printf("Median is %lfms\n", median * 1000);
   printf("Mean is %lfms\n", mean * 1000);
 }
+

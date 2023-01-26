@@ -40,3 +40,8 @@ auto get_csr_view(const grb::matrix<T, I, grb::sparse>& a) {
 
   return grb::csr_matrix_view(values, rowptr, colind, shape, nnz);
 }
+
+template <std::ranges::contiguous_range R>
+auto get_mdspan_view(R&& r, grb::index<> shape) {
+  return std::experimental::mdspan(std::ranges::data(r), shape[0], shape[1]);
+}
