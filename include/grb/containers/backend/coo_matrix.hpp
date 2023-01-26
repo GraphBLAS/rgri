@@ -67,6 +67,17 @@ public:
   }
 
   template <typename InputIt>
+  void push_back(InputIt first, InputIt last) {
+    for (auto iter = first; iter != last; ++iter) {
+      push_back(*iter);
+    }
+  }
+
+  void push_back(const value_type& value) {
+    tuples_.push_back(value);
+  }
+
+  template <typename InputIt>
   void assign_tuples(InputIt first, InputIt last) {
     tuples_.assign(first, last);
   }

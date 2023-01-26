@@ -29,6 +29,7 @@ public:
                                 {}
 
   template <std::size_t Index>
+  requires(Index <= 1)
   auto get() const noexcept {
     if constexpr(Index == 0) { return index(); }
     if constexpr(Index == 1) { return value(); }
@@ -138,8 +139,8 @@ public:
   }
 
   template <std::size_t Index>
-  decltype(auto) get() const noexcept
   requires(Index <= 1)
+  decltype(auto) get() const noexcept
   {
     if constexpr(Index == 0) { return index(); }
     if constexpr(Index == 1) { return value(); }
@@ -220,7 +221,7 @@ requires(Index <= 1)
   if constexpr(Index == 1) { return ref.value(); }
 }
 
-template <std::size_t Index, typename T, typename I, typename TRef>
+template <std::size_t Index, typename T, typename I>
 inline decltype(auto) get(grb::matrix_entry<T, I> entry)
 requires(Index <= 1)
 {
@@ -229,3 +230,4 @@ requires(Index <= 1)
 }
 
 } // end std
+

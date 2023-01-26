@@ -11,7 +11,6 @@ int main(int argc, char** argv) {
   grb::print(x1, "x");
   grb::print(y1, "y");
   auto z1 = grb::multiply(x1, y1);
-  std::cout << z1.value_or(0) << std::endl;
 
   return 0;
 }

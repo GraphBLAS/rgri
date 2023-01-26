@@ -309,10 +309,10 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
       throw std::runtime_error("read_MatrixMarket: file has nonzero out of bounds.");
     }
 
-    matrix.insert({{i, j}, v});
+    matrix.push_back({{i, j}, v});
 
     if (symmetric && i != j) {
-      matrix.insert({{j, i}, v});
+      matrix.push_back({{j, i}, v});
     }
 
     c++;
