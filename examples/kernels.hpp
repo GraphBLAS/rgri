@@ -92,7 +92,7 @@ void test_sumreduce(M&& m, std::size_t n_trials = 10) {
   std::vector<double> durations;
   durations.reserve(n_trials);
 
-  std::vector<double> sums;
+  std::vector<float> sums;
   sums.reserve(n_trials);
 
   std::cout << "Beginning trials..." << std::endl;
@@ -127,14 +127,14 @@ void test_spmm(M&& a, std::size_t n_trials = 10) {
 
   constexpr std::size_t n_vecs = 32;
 
-  std::vector<double> sums;
+  std::vector<float> sums;
   sums.reserve(n_trials);
 
   auto shape = grb::views::all(a).shape();
 
-  std::vector<double> b(shape[1] * n_vecs, 1);
+  std::vector<float> b(shape[1] * n_vecs, 1);
 
-  std::vector<double> c(shape[0] * n_vecs, 0);
+  std::vector<float> c(shape[0] * n_vecs, 0);
 
   std::cout << "Beginning trials..." << std::endl;
 
