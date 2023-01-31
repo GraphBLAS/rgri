@@ -4,6 +4,7 @@
 #include <concepts>
 #include <utility>
 #include <ranges>
+#include <tuple>
 #include <any>
 #include <grb/detail/tag_invoke.hpp>
 
