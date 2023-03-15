@@ -36,5 +36,32 @@ int main(int argc, char** argv) {
 More documentation is [available here](https://rgri.readthedocs.io/en/main/?).
 
 ## Compiling with RGRI
-RGRI is a header-only library. To compile with RGRI, add the `include` directory to your path (something like `-I$HOME/src/rgri/include`) and include `grb/grb.hpp` in your source files.  RGRI requires C++17, which will likely require the compile flag `-std=gnu++17`, `-std=c++17` or higher.  Check the directory `examples` for examples.
+RGRI is a header-only library. To compile with RGRI, add the `include` directory to your path (something like `-I$HOME/src/rgri/include`) and include `grb/grb.hpp` in your source files.  RGRI requires C++20, which will likely require the compile flag `-std=gnu++20`, `-std=c++20` or higher.  Check the directory `examples` for examples.
 
+## Citation
+To cite the RGRI reference GraphBLAS implementation:
+
+Benjamin Brock. RGRI: A reference implementation of the C++ GraphBLAS specification. https://github.com/GraphBLAS/rgri, 2022.
+
+```bibtex
+@misc{rgri_repo,
+  title = {{RGRI}: A Reference Implementation of the {C++} {GraphBLAS} Specification},
+  howpublished = {\url{https://github.com/GraphBLAS/rgri}},
+  author={Benjamin Brock},
+  year={2022}
+}
+```
+
+To cite the [GraphBLAS C++ Specification](https://github.com/GraphBLAS/graphblas-api-cpp):
+
+Benjamin Brock, Scott McMillan, Aydın Buluc ̧, Timothy Mattson, and Jose ́ Moreira. GraphBLAS C++ specification. https://github.com/ GraphBLAS/graphblas-api-cpp, 2022.
+ 
+```bibtex
+@misc{graphblascppspec,
+  title={Graph{BLAS} {C}++ Specification},
+  author={Brock, Benjamin and McMillan, Scott and Bulu\c{c}, Ayd{\i}n and Mattson, Timothy and Moreira, Jos{\'e}},
+  howpublished={\url{https://github.com/GraphBLAS/graphblas-api-cpp}},
+  volume = {Draft Version 0.1a},
+  year={2022}
+}
+```
