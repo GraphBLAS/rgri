@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
   grb::vector<int> independent_set(a.shape()[0]);
 
   // Compute the degree of each vertex
-  auto a_structure = grb::transform(a, [](auto&&) -> int { return 1; });
+  auto a_structure = grb::views::transform(a, [](auto&&) -> int { return 1; });
   auto degrees = grb::reduce(a_structure);
 
   grb::vector<bool> candidates = degrees;

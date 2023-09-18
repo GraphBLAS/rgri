@@ -2,8 +2,6 @@
 #include <iterator>
 #include <iostream>
 
-struct Foo {};
-
 template <typename M>
 size_t pick_random_vertex(M&& matrix) {
   size_t index_id = lrand48() % matrix.size();
@@ -36,27 +34,22 @@ int main(int argc, char** argv) {
 
   while (x.size() > 0) {
     std::cout << "Iteration " << iteration << ":" << std::endl;
-    grb::print(x, "Nodes Visited This Iteration");
+    grb::print(x, "Frontier");
 
-    grb::print(mask, "All Nodes Previously Visited");
 
     auto b = grb::multiply(grb::transpose(a), x,
                            grb::plus{}, grb::times<int, bool, int>{},
                            grb::complement_view(mask));
 
-    // TODO: should use transform mask here
-    for (auto&& [_, v] : b) {
-      v = iteration;
-    }
+    auto b_view = grb::transform_vector_view(b, [=](auto&&) { return iteration; });
 
-    grb::print(b, "b (iteration): " + std::to_string(iteration));
+    auto new_mask = grb::ewise_union(b_view, mask, [=](auto&&, auto&&) -> int { return iteration; });
 
-    auto new_mask = grb::ewise_union(b, mask, [=](auto&&, auto&&) -> int { return iteration; });
     std::swap(new_mask, mask);
-
-
     std::swap(x, b);
+
     iteration++;
+    grb::print(mask, "Nodes visited");
   }
 
   grb::print(mask, "final mask");

@@ -12,6 +12,7 @@ struct sparse {};
 struct dense {};
 struct row {};
 struct column {};
+struct coordinate {};
 
 template <typename... Hints>
 struct compose {
@@ -28,6 +29,12 @@ template <>
 struct pick_backend_type<sparse> {
 	template <typename... Args>
 	using type = grb::csr_matrix<Args...>;
+};
+
+template <>
+struct pick_backend_type<coordinate> {
+  template <typename... Args>
+  using type = grb::coo_matrix<Args...>;
 };
 
 template <>
@@ -56,6 +63,15 @@ struct pick_backend_type<compose<Hints...>,
 {
   template <typename... Args>
   using type = grb::csr_matrix<Args...>;
+};
+
+template <typename... Hints>
+struct pick_backend_type<compose<Hints...>,
+                         std::enable_if_t<compose<Hints...>:: template includes<grb::coordinate>::value>
+                         >
+{
+  template <typename... Args>
+  using type = grb::coo_matrix<Args...>;
 };
 
 // Current logic: if one of the matrices is dense,

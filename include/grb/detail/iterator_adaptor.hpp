@@ -35,6 +35,8 @@ public:
   ~iterator_adaptor() = default;
   iterator_adaptor(const iterator_adaptor&) = default;
   iterator_adaptor& operator=(const iterator_adaptor&) = default;
+  iterator_adaptor(iterator_adaptor&&) = default;
+  iterator_adaptor& operator=(iterator_adaptor&&) = default;
 
   template <typename... Args>
   requires(  sizeof...(Args) >= 1 &&

@@ -4,16 +4,18 @@
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
 #include <grb/detail/concepts.hpp>
-#include <utility>
+#include <tuple>
+#include <type_traits>
+#include <variant>
 
 namespace grb {
 
 template <typename Iterator, typename Fn>
 class transform_matrix_accessor {
 public:
-  using scalar_type = std::remove_cvref_t<decltype(std::declval<Fn>()(*std::declval<Iterator>()))>;
-  using index_type = std::remove_cvref_t<decltype(grb::get<0>(grb::get<0>(*std::declval<Iterator>())))>;
-  using difference_type = typename Iterator::difference_type;
+  using scalar_type = decltype(std::declval<Fn>()(*std::declval<Iterator>()));
+  using index_type = typename __detail::get_index_type<std::iter_value_t<Iterator>>::type;
+  using difference_type = std::iter_difference_t<Iterator>;
 
   using value_type = grb::matrix_entry<scalar_type, index_type>;
   using reference = grb::matrix_entry<scalar_type, index_type>;
@@ -22,17 +24,27 @@ public:
   using const_iterator_accessor = transform_matrix_accessor;
   using nonconst_iterator_accessor = transform_matrix_accessor;
 
-  using iterator_category = typename Iterator::iterator_category;
+  using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
 
-  transform_matrix_accessor() noexcept = default;
-  ~transform_matrix_accessor() noexcept = default;
-  transform_matrix_accessor(const transform_matrix_accessor&) noexcept = default;
-  transform_matrix_accessor& operator=(const transform_matrix_accessor&) noexcept = default;
+  transform_matrix_accessor() = default;
+  ~transform_matrix_accessor() = default;
+  transform_matrix_accessor(const transform_matrix_accessor&) = default;
+  transform_matrix_accessor(transform_matrix_accessor&&) = default;
+
+  transform_matrix_accessor& operator=(const transform_matrix_accessor& other) {
+    iter_ = other.iter_;
+    return *this;
+  }
+
+  transform_matrix_accessor& operator=(transform_matrix_accessor&& other) {
+    iter_ = other.iter_;
+    return *this;
+  }
 
   transform_matrix_accessor(Iterator iter, Fn fn) : iter_(iter), fn_(fn) {}
 
   transform_matrix_accessor& operator++() noexcept {
-    iter_++;
+    ++iter_;
     return *this;
   }
 
@@ -49,72 +61,73 @@ public:
 
   reference operator*() const noexcept {
     auto&& [index, _] = *iter_;
-    return reference(index, fn_(*iter_));
+    return reference(index, fn()(*iter_));
+  }
+
+  const Fn& fn() const noexcept {
+    return std::get<Fn>(fn_);
   }
 
 private:
   Iterator iter_;
-  Fn fn_;
+  std::variant<char, Fn> fn_;
 };
 
 template <typename Iterator, typename Fn>
 using transform_matrix_iterator = grb::detail::iterator_adaptor<transform_matrix_accessor<Iterator, Fn>>;
 
-template <typename MatrixType,
-          typename Fn>
-class transform_matrix_view {
+template <grb::MatrixRange MatrixType,
+          std::copy_constructible Fn>
+class transform_matrix_view : public std::ranges::view_interface<transform_matrix_view<MatrixType, Fn>> {
 public:
 
-  using matrix_type = MatrixType;
+  using matrix_type = std::decay_t<MatrixType>;
 
-  using index_type = typename matrix_type::index_type;
-  using scalar_type = std::remove_cvref_t<decltype(std::declval<Fn>()(std::declval<typename matrix_type::value_type>()))>;
-  using size_type = typename matrix_type::size_type;
-  using difference_type = typename matrix_type::difference_type;
+  using index_type = container_index_t<matrix_type>;
+  using scalar_type = decltype(std::declval<Fn>()(std::declval<container_value_t<matrix_type>>()));
+  using size_type = container_size_t<matrix_type>;
+  using difference_type = container_difference_t<matrix_type>;
 
-  using key_type = typename matrix_type::key_type;
+  using key_type = container_key_t<matrix_type>;
 
-  using iterator = transform_matrix_iterator<typename matrix_type::const_iterator, Fn>;
+  using iterator = transform_matrix_iterator<decltype(std::declval<std::ranges::views::all_t<MatrixType>>().base().begin()), Fn>;
   using const_iterator = iterator;
 
   using value_type = std::remove_cvref_t<decltype(*std::declval<iterator>())>;
 
-  transform_matrix_view(const MatrixType& matrix, Fn fn) : matrix_(matrix), fn_(fn) {}
+  transform_matrix_view(MatrixType&& matrix, Fn fn) : matrix_(matrix), fn_(fn) {}
 
-  grb::index<index_type> shape() const noexcept {
-    return {matrix_.shape()[0], matrix_.shape()[1]};
+  auto shape() const noexcept {
+    return base().shape();
   }
 
   size_type size() const noexcept {
-    return matrix_.size();
+    return base().size();
   }
 
   iterator begin() const noexcept {
-    return iterator(matrix_.begin(), fn_);
+    return iterator(base().begin(), fn_);
   }
 
   iterator end() const noexcept {
-    return iterator(matrix_.end(), fn_);
+    return iterator(base().end(), fn_);
   }
 
   iterator find(key_type key) const noexcept {
-    return iterator(matrix_.find(key), fn_);
+    return iterator(base().find(key), fn_);
+  }
+
+  decltype(auto) base() const noexcept {
+    return matrix_.base();
   }
 
 private:
-  const MatrixType& matrix_;
+  std::ranges::views::all_t<MatrixType> matrix_;
   Fn fn_;
 };
 
-template <typename MatrixType, typename Fn>
-auto transform(MatrixType& matrix, Fn fn) {
-  return transform_matrix_view<MatrixType, Fn>(matrix, fn);
-}
-
-template <typename MatrixType>
-auto structure(MatrixType& matrix) {
-  auto always_true = [](auto&&) -> bool { return true; };
-  return transform(matrix, always_true);
-}
+template <grb::MatrixRange MatrixType,
+          std::copy_constructible Fn>
+transform_matrix_view(MatrixType&&, Fn) -> transform_matrix_view<MatrixType, Fn>;
 
 } // end grb

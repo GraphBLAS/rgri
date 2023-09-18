@@ -5,6 +5,8 @@
 #include <grb/detail/iterator_adaptor.hpp>
 #include <grb/detail/concepts.hpp>
 
+#include <ranges>
+
 namespace grb {
 
 template <typename Iterator>
@@ -59,7 +61,7 @@ template <typename Iterator>
 using transpose_matrix_iterator = grb::detail::iterator_adaptor<transpose_matrix_accessor<Iterator>>;
 
 template <typename MatrixType>
-class transpose_matrix_view {
+class transpose_matrix_view : public std::ranges::view_interface<transpose_matrix_view<MatrixType>> {
 public:
 
   using matrix_type = std::decay_t<MatrixType>;

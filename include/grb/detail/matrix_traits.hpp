@@ -10,6 +10,26 @@
 
 namespace grb {
 
+namespace __detail {
+
+template <typename Tuple>
+struct get_index_type {};
+
+template <typename Tuple>
+requires(std::is_integral_v<std::tuple_element_t<0, Tuple>>)
+struct get_index_type<Tuple> {
+  using type = std::tuple_element_t<0, Tuple>;
+};
+
+template <typename Tuple>
+requires(requires { typename std::tuple_element<0, Tuple>::type; }
+         && !std::is_integral_v<std::tuple_element_t<0, Tuple>>)
+struct get_index_type<Tuple> {
+  using type = typename get_index_type<std::tuple_element_t<0, Tuple>>::type;
+};
+
+} // end __detail
+
 using any = std::any;
 
 namespace {
@@ -85,6 +105,12 @@ using container_value_t = typename container_traits<T>::value_type;
 
 template <typename T>
 using container_key_t = typename container_traits<T>::key_type;
+
+template <typename T>
+using container_size_t = typename container_traits<T>::size_type;
+
+template <typename T>
+using container_difference_t = typename container_traits<T>::difference_type;
 
 template <typename T>
 using matrix_scalar_t = typename container_traits<std::remove_cvref_t<T>>::scalar_type;

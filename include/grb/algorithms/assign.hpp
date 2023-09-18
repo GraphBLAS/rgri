@@ -33,4 +33,11 @@ void assign(A&& a, B&& b) {
   a.insert(std::ranges::begin(b), std::ranges::end(b));
 }
 
+template <typename T, grb::MutableVectorRange<T> A>
+void assign(A&& a, const T& value) {
+  for (std::size_t i = 0; i < a.shape(); i++) {
+    a[i] = value;
+  }
+}
+
 } // end grb
