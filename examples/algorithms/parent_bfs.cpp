@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
     grb::print(b, "b (iteration): " + std::to_string(iteration));
 
     auto new_mask = grb::ewise_union(b, mask, grb::take_right{});
-    std::swap(new_mask, mask);
 
+    std::swap(new_mask, mask);
     std::swap(x, b);
     iteration++;
   }

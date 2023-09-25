@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
                            grb::plus{}, grb::times<int, bool, int>{},
                            grb::complement_view(mask));
 
-    auto b_view = grb::transform_vector_view(b, [=](auto&&) { return iteration; });
+    auto b_view = grb::views::transform(b, [=](auto&&) { return iteration; });
 
     auto new_mask = grb::ewise_union(b_view, mask, [=](auto&&, auto&&) -> int { return iteration; });
 

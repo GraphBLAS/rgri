@@ -53,6 +53,12 @@ public:
     return reference({index[1], index[0]}, value);
   }
 
+  difference_type operator-(const transpose_matrix_accessor& other) const noexcept
+  requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
+  {
+    return iter_ - other.iter_;
+  }
+
 private:
   Iterator iter_;
 };

@@ -14,10 +14,8 @@ using values_view = std::ranges::elements_view<MatrixType, 1>;
 
 namespace views {
 
-/*
-inline constexpr auto indices = std::ranges::views::elements<0>;
-inline constexpr auto values = std::ranges::views::elements<1>;
-*/
+inline constexpr auto indices = std::ranges::views::transform([](auto&& e) { return grb::get<0>(e); });
+inline constexpr auto values = std::ranges::views::transform([](auto&& e) { return grb::get<1>(e); });
 
 } // end views
 
