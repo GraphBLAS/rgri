@@ -10,7 +10,7 @@ public:
 
   using matrix_type = std::decay_t<MatrixType>;
   using mask_type = std::decay_t<MaskType>;
-  using filter_matrix_type = grb::filter_matrix_view<matrix_type, in_matrix>;
+  using filter_matrix_type = grb::filter_view<matrix_type, in_matrix>;
 
   using index_type = typename matrix_type::index_type;
   using scalar_type = typename matrix_type::scalar_type;

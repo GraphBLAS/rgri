@@ -4,3 +4,4 @@
 #include <grb/algorithms/ewise.hpp>
 #include <grb/algorithms/assign.hpp>
 #include <grb/algorithms/reduce.hpp>
+#include <grb/algorithms/permute.hpp>

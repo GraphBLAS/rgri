@@ -18,7 +18,7 @@ public:
   using matrix_type = std::decay_t<MatrixType>;
   // using filter_matrix_type = decltype(grb::filter_matrix_view(std::declval<const MatrixType&>(), in_matrix<std::ranges::range_value_t<matrix_type>));
   // using filter_matrix_type = grb::filter_matrix_view<MatrixType, decltype(in_matrix<std::ranges::range_value_t<matrix_type>)>;
-  using filter_matrix_type = grb::filter_matrix_view<matrix_type, in_matrix>;
+  using filter_matrix_type = grb::filter_view<matrix_type, in_matrix>;
 
   using index_type = typename matrix_type::index_type;
   using scalar_type = typename matrix_type::scalar_type;

@@ -325,7 +325,7 @@ struct logical_xnor : binary_op_impl_<logical_xnor_impl_, T, U, V> {};
 
 template <typename T = void>
 struct take_left {
-  T operator()(const T& left, const T& right) {
+  T operator()(const T& left, const T& right) const {
     return left;
   }
 };
@@ -333,14 +333,14 @@ struct take_left {
 template <>
 struct take_left<void> {
   template <typename T, typename U>
-  T operator()(const T& left, const U& right) {
+  T operator()(const T& left, const U& right) const {
     return left;
   }
 };
 
 template <typename T = void>
 struct take_right {
-  T operator()(const T& left, const T& right) {
+  T operator()(const T& left, const T& right) const {
     return right;
   }
 };
@@ -348,8 +348,24 @@ struct take_right {
 template <>
 struct take_right<void> {
   template <typename T, typename U>
-  U operator()(const T& left, const U& right) {
+  U operator()(const T& left, const U& right) const {
     return right;
+  }
+};
+
+struct lower_triangle {
+  bool operator()(auto&& matrix_entry) const{
+    auto&& [idx, _] = matrix_entry;
+    auto&& [i, j] = idx;
+    return j < i;
+  }
+};
+
+struct upper_triangle {
+  bool operator()(auto&& matrix_entry) const {
+    auto&& [idx, _] = matrix_entry;
+    auto&& [i, j] = idx;
+    return i < j;
   }
 };
 

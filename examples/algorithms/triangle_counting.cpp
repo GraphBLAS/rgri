@@ -1,25 +1,11 @@
 #include <grb/grb.hpp>
-
-template <grb::MatrixRange M>
-auto lower_triangle(M&& m) {
-  using T = grb::matrix_scalar_t<M>;
-  using I = grb::matrix_index_t<M>;
-  grb::matrix<T, I> l(m.shape());
-
-  for (auto&& [idx, v] : m) {
-    auto&& [i, j] = idx;
-    if (i <= j) {
-      l.insert({idx, v});
-    }
-  }
-  return l;
-}
+#include <algorithm>
 
 int main(int argc, char** argv) {
   // Import graph
   grb::matrix<bool> a("../data/chesapeake.mtx");
 
-  auto l = lower_triangle(a);
+  auto l = grb::views::filter(a, grb::lower_triangle());
 
   auto c = grb::multiply(l, l, grb::plus(), grb::times(), l);
 

@@ -8,7 +8,7 @@
 namespace grb {
 
 template <typename Iterator, typename Fn>
-class filter_matrix_accessor {
+class filter_accessor {
 public:
   using scalar_type = decltype(std::declval<Fn>()(*std::declval<Iterator>()));
   using index_type = typename __detail::get_index_type<std::iter_value_t<Iterator>>::type;
@@ -18,37 +18,44 @@ public:
 
   using value_type = std::iter_value_t<Iterator>;
 
-  using iterator_accessor = filter_matrix_accessor;
-  using const_iterator_accessor = filter_matrix_accessor;
-  using nonconst_iterator_accessor = filter_matrix_accessor;
+  using iterator_accessor = filter_accessor;
+  using const_iterator_accessor = filter_accessor;
+  using nonconst_iterator_accessor = filter_accessor;
 
-  using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
+  using iterator_category = std::forward_iterator_tag;
 
-  filter_matrix_accessor() = default;
-  ~filter_matrix_accessor() = default;
-  filter_matrix_accessor(const filter_matrix_accessor&) = default;
-  filter_matrix_accessor(filter_matrix_accessor&&) = default;
+  filter_accessor() = default;
+  ~filter_accessor() = default;
+  filter_accessor(const filter_accessor&) = default;
+  filter_accessor(filter_accessor&&) = default;
 
-  filter_matrix_accessor& operator=(const filter_matrix_accessor& other) {
+  filter_accessor& operator=(const filter_accessor& other) {
     iter_ = other.iter_;
     return *this;
   }
 
-  filter_matrix_accessor& operator=(filter_matrix_accessor&& other) {
+  filter_accessor& operator=(filter_accessor&& other) {
     iter_ = other.iter_;
     return *this;
   }
 
-  filter_matrix_accessor(Iterator iter, Iterator end, Fn fn) : iter_(iter), end_(end), fn_(fn) {}
+  filter_accessor(Iterator iter, Iterator end, Fn fn) : iter_(iter), end_(end), fn_(fn) {
+    fast_forward();
+  }
 
-  filter_matrix_accessor& operator++() noexcept {
-    do {
+  filter_accessor& operator++() noexcept {
+    ++iter_;
+    fast_forward();
+    return *this;
+  }
+
+  void fast_forward() {
+    while (iter_ != end_ && !std::get<Fn>(fn_)(*iter_)) {
       ++iter_;
-    } while (iter_ != end_ && !std::get<Fn>(fn_)(*iter_));
-    return *this;
+    }
   }
 
-  bool operator==(const filter_matrix_accessor& other) const noexcept {
+  bool operator==(const filter_accessor& other) const noexcept {
     return iter_ == other.iter_;
   }
 
@@ -63,28 +70,29 @@ private:
 };
 
 template <typename Iterator, typename Fn>
-using filter_matrix_iterator = grb::detail::iterator_adaptor<filter_matrix_accessor<Iterator, Fn>>;
+using filter_iterator = grb::detail::iterator_adaptor<filter_accessor<Iterator, Fn>>;
 
-template <grb::MatrixRange MatrixType,
+template <typename ContainerType,
           std::copy_constructible Fn>
-class filter_matrix_view : public std::ranges::view_interface<filter_matrix_view<MatrixType, Fn>> {
+requires(grb::MatrixRange<ContainerType> || grb::VectorRange<ContainerType>)
+class filter_view : public std::ranges::view_interface<filter_view<ContainerType, Fn>> {
 public:
 
-  using matrix_type = std::decay_t<MatrixType>;
+  using container_type = std::decay_t<ContainerType>;
 
-  using index_type = container_index_t<matrix_type>;
-  using scalar_type = decltype(std::declval<Fn>()(std::declval<container_value_t<matrix_type>>()));
-  using size_type = container_size_t<matrix_type>;
-  using difference_type = container_difference_t<matrix_type>;
+  using index_type = container_index_t<container_type>;
+  using scalar_type = decltype(std::declval<Fn>()(std::declval<container_value_t<container_type>>()));
+  using size_type = container_size_t<container_type>;
+  using difference_type = container_difference_t<container_type>;
 
-  using key_type = container_key_t<matrix_type>;
+  using key_type = container_key_t<container_type>;
 
-  using iterator = filter_matrix_iterator<decltype(std::declval<std::ranges::views::all_t<MatrixType>>().base().begin()), Fn>;
+  using iterator = filter_iterator<decltype(std::declval<std::ranges::views::all_t<ContainerType>>().base().begin()), Fn>;
   using const_iterator = iterator;
 
   using value_type = std::remove_cvref_t<decltype(*std::declval<iterator>())>;
 
-  filter_matrix_view(MatrixType&& matrix, Fn fn) : matrix_(matrix), fn_(fn) {}
+  filter_view(ContainerType&& matrix, Fn fn) : matrix_(matrix), fn_(fn) {}
 
   auto shape() const noexcept {
     return base().shape();
@@ -102,12 +110,12 @@ public:
     return iterator(base().end(), base().end(), fn_);
   }
 
-  iterator find(key_type key) const noexcept {
+  iterator find(key_type key) noexcept {
     auto iter = base().find(key);
-    if (iter != base().end()) {
-      return iterator(base().find(key), base().end(), fn_);
-    } else {
+    if (iter == base().end() || !fn_(*iter)) {
       return end();
+    } else {
+      return iterator(base().find(key), base().end(), fn_);
     }
   }
 
@@ -116,12 +124,16 @@ public:
   }
 
 private:
-  std::ranges::views::all_t<MatrixType> matrix_;
+  std::ranges::views::all_t<ContainerType> matrix_;
   Fn fn_;
 };
 
 template <grb::MatrixRange MatrixType,
           std::copy_constructible Fn>
-filter_matrix_view(MatrixType&&, Fn) -> filter_matrix_view<MatrixType, Fn>;
+filter_view(MatrixType&&, Fn) -> filter_view<MatrixType, Fn>;
+
+template <grb::VectorRange VectorType,
+          std::copy_constructible Fn>
+filter_view(VectorType&&, Fn) -> filter_view<VectorType, Fn>;
 
 } // end grb

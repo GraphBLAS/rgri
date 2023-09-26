@@ -7,7 +7,8 @@ namespace grb {
 
 namespace views {
 
-template <std::copy_constructible F> class transform_adapter_closure {
+template <std::copy_constructible F>
+class transform_adapter_closure {
 public:
   transform_adapter_closure(F fn) : fn_(fn) {}
 
