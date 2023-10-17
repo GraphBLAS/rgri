@@ -5,9 +5,11 @@
 
 namespace grb {
 
-template <grb::MatrixRange M, std::integral I>
-auto permute(M&& m, const std::vector<I>& permutation) {
+template <grb::MatrixRange M, std::ranges::random_access_range P>
+requires(std::integral<std::ranges::range_value_t<P>>)
+auto permute(M&& m, P&& permutation) {
   using T = grb::matrix_scalar_t<M>;
+  using I = std::ranges::range_value_t<P>;
   using I2 = grb::matrix_index_t<M>;
 
   grb::matrix<T, I2> o({permutation.size(), permutation.size()});
@@ -36,11 +38,12 @@ auto permute(M&& m, const std::vector<I>& permutation) {
   return o;
 }
 
-template <grb::MatrixRange M, std::integral I>
-auto permute(M&& m,
-             const std::vector<I>& row_permutation,
-             const std::vector<I>& column_permutation) {
+template <grb::MatrixRange M, std::ranges::random_access_range R, std::ranges::random_access_range C>
+requires(std::integral<std::ranges::range_value_t<R>> &&
+         std::integral<std::ranges::range_value_t<C>>)
+auto permute(M&& m, R&& row_permutation, C&& column_permutation) {
   using T = grb::matrix_scalar_t<M>;
+  using I = std::ranges::range_value_t<R>;
   using I2 = grb::matrix_index_t<M>;
 
   grb::matrix<T, I2> o({row_permutation.size(), column_permutation.size()});

@@ -2,8 +2,6 @@
 #include <iterator>
 #include <iostream>
 
-struct Foo {};
-
 template <typename M>
 size_t pick_random_vertex(M&& matrix) {
   size_t index_id = lrand48() % matrix.size();
