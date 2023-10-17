@@ -13,9 +13,9 @@ namespace grb {
 template <MatrixRange A,
           VectorRange B,
           BinaryOperator<grb::matrix_scalar_t<A>, grb::vector_scalar_t<B>> Combine = grb::multiplies<>,
-          BinaryOperator<grb::elementwise_return_type_t<A, B, Combine>,
-                         grb::elementwise_return_type_t<A, B, Combine>,
-                         grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>,
+          BinaryOperator<grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>,
           MaskVectorRange M = grb::full_vector_mask<>>
 auto multiply(A&& a,
               B&& b,
@@ -45,10 +45,8 @@ auto multiply(A&& a,
       auto iter = mask.find(i);
 
       if (iter != mask.end()) {
-        // printf("%lu was present.\n", i);
         auto&& [_, value] = *iter;
         if (bool(value)) {
-          // printf("%lu was true.\n", i);
           auto combined_v = combine(a_v, b_v);
           auto&& [insert_iter, success] = c.insert({i, combined_v});
           if (!success) {
@@ -69,9 +67,9 @@ auto multiply(A&& a,
 template <MatrixRange A,
           MatrixRange B,
           BinaryOperator<grb::matrix_scalar_t<A>, grb::matrix_scalar_t<B>> Combine = grb::multiplies<>,
-          BinaryOperator<grb::elementwise_return_type_t<A, B, Combine>,
-                         grb::elementwise_return_type_t<A, B, Combine>,
-                         grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>,
+          BinaryOperator<grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>,
           MaskMatrixRange M = grb::full_matrix_mask<>>
 auto multiply(A&& a,
               B&& b,
@@ -120,7 +118,7 @@ auto multiply(A&& a,
 template <VectorRange A,
           VectorRange B,
           BinaryOperator<grb::vector_scalar_t<A>, grb::vector_scalar_t<B>> Combine = grb::multiplies<>,
-          Monoid<grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>
+          Monoid<grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>
 >
 auto
 multiply(A&& a,
@@ -131,7 +129,7 @@ multiply(A&& a,
   using a_value_type = grb::container_scalar_t<A>;
   using b_value_type = grb::container_scalar_t<B>;
 
-  using combine_type = grb::elementwise_return_type_t<A, B, Combine>;
+  using combine_type = grb::combine_result_t<A, B, Combine>;
 
   combine_type rv = grb::monoid_traits<Reduce, combine_type>::identity();
 
@@ -151,9 +149,9 @@ multiply(A&& a,
 template <VectorRange A,
           MatrixRange B,
           BinaryOperator<grb::vector_scalar_t<A>, grb::matrix_scalar_t<B>> Combine = grb::multiplies<>,
-          BinaryOperator<grb::elementwise_return_type_t<A, B, Combine>,
-                         grb::elementwise_return_type_t<A, B, Combine>,
-                         grb::elementwise_return_type_t<A, B, Combine>> Reduce = grb::plus<>,
+          BinaryOperator<grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>,
           MaskVectorRange M = grb::full_vector_mask<>>
 auto multiply(A&& a,
               B&& b,

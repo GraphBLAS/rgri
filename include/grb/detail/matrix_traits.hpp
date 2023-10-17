@@ -125,6 +125,6 @@ template <typename T>
 using vector_index_t = typename container_traits<std::remove_cvref_t<T>>::index_type;
 
 template <typename A, typename B, typename Fn>
-using elementwise_return_type_t = std::invoke_result_t<Fn, container_scalar_t<A>, container_scalar_t<B>>;
+using combine_result_t = std::invoke_result_t<Fn, container_scalar_t<A>, container_scalar_t<B>>;
 
 } // end grb
