@@ -1,5 +1,7 @@
 #include <grb/grb.hpp>
 
+#include <fmt/core.h>
+
 template <typename M>
 size_t pick_random_vertex(M&& matrix) {
   size_t index_id = lrand48() % matrix.size();
@@ -10,11 +12,8 @@ size_t pick_random_vertex(M&& matrix) {
   return j;
 }
 
-int main(int argc, char** argv) {
-  grb::matrix<int> a("../data/chesapeake.mtx");
-
-  int source_vertex = pick_random_vertex(a);
-
+template <grb::MatrixRange A>
+auto betweenness_centrality(A&& a, std::size_t source_vertex) {
   grb::vector<float> delta(a.shape()[0]);
 
   std::vector<grb::vector<int>> sigma;
@@ -25,13 +24,13 @@ int main(int argc, char** argv) {
 
   grb::vector<int> p = q;
 
-  q = grb::multiply(grb::transpose(a), q, grb::plus{}, grb::times{}, grb::complement_view(q));
+  q = grb::multiply(grb::transpose(a), q, grb::plus{}, grb::times{}, grb::complement_view(p));
 
   int d = 0;
   int sum = 0;
 
   do {
-    sigma.push_back(p);
+    sigma.push_back(q);
 
     p = grb::ewise_union(p, q, grb::plus{});
 
@@ -50,20 +49,43 @@ int main(int argc, char** argv) {
 
     t1 = grb::ewise_union(t1, delta, grb::plus{});
 
-    auto&& t2 = sigma[i];
+    t2 = sigma[i];
 
     t2 = grb::ewise_intersection(t1, t2, grb::divides{});
-
     t3 = grb::multiply(a, t2, grb::plus{}, grb::times{});
-
-    auto&& t4 = sigma[i-1];
+    t4 = sigma[i-1];
 
     t4 = grb::ewise_intersection(t4, t3, grb::times{});
 
     delta = grb::ewise_union(delta, t4, grb::plus{});
   }
 
-  grb::print(delta);
+  return delta;
+}
+
+int main(int argc, char** argv) {
+  grb::matrix<int> a("../data/gilbert.mtx");
+
+  grb::print(a, "my graph");
+
+  // int source_vertex = pick_random_vertex(a);
+  int source_vertex = 0;
+
+  auto d = betweenness_centrality(a, source_vertex);
+
+  fmt::print("========================================\n");
+
+  grb::print(d, "d");
+  grb::vector<float> total_sum(a.shape()[0]);
+
+  for (std::size_t source_vertex = 0; source_vertex < a.shape()[0]; source_vertex++) {
+    auto d = betweenness_centrality(a, source_vertex);
+    grb::print(d, "d");
+    total_sum = grb::ewise_union(total_sum, d, grb::plus{});
+  }
+
+  grb::print(total_sum, "sum");
+
 
   return 0;
 }
