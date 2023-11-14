@@ -271,4 +271,10 @@ private:
   const M& matrix_;
 };
 
+template <grb::MatrixRange M>
+complement_view(M&& m) -> complement_view<std::remove_cvref_t<M>>;
+
+template <grb::VectorRange V>
+complement_view(V&& v) -> complement_view<std::remove_cvref_t<V>>;
+
 } // end grb
