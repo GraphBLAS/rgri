@@ -92,6 +92,11 @@ public:
     return backend_.size();
   }
 
+  /// Whether the matrix is empty
+  bool empty() const noexcept {
+    return size() == 0;
+  }
+
   /// Iterator to the beginning
   iterator begin() noexcept {
     return backend_.begin();
