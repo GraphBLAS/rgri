@@ -36,6 +36,6 @@ inline constexpr auto values = std::ranges::views::transform([](auto&& e) { retu
 #include <grb/containers/views/third_party/mdspan_view.hpp>
 #endif
 
-#if __has_include(<nwgraph/edge_list.hpp>)
+#if USE_NWGRAPH
 #include <grb/containers/views/third_party/nwgraph_view.hpp>
 #endif

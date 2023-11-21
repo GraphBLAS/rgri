@@ -1,35 +1,30 @@
 
-DPCXX = dpcpp
-HSCXX = syclcc
+CXX = g++-13
+
+MDSPAN_DIR = /Users/bbrock/pkg/mdspan
+HDF5_DIR = /opt/homebrew/Cellar/hdf5/1.14.3
+TBB_DIR = /opt/homebrew/Cellar/tbb/2021.11.0
 
 SOURCES += $(wildcard *.cpp)
-DPCXX_TARGETS := $(patsubst %.cpp, %-dpcpp, $(SOURCES))
-HSCXX_TARGETS := $(patsubst %.cpp, %-hsc, $(SOURCES))
-TARGETS := $(DPCXX_TARGETS) $(HSCXX_TARGETS)
+TARGETS := $(patsubst %.cpp, %, $(SOURCES))
 
 GRB_DIR=../../include
 
-CXXFLAGS = -std=c++20 -I$(GRB_DIR)
+MDSPAN_FLAGS = -I$(MDSPAN_DIR)/include
+BINSPARSE_FLAGS = -I$(HDF5_DIR)/include -DBINSPARSE_IO
+NWGRAPH_FLAGS = -I$(HOME)/src/NWGraph/include -DUSE_NWGRAPH
+TBB_FLAGS= -I$(TBB_DIR)/include -L$(TBB_DIR)/lib
 
-LDLIBS = -lfmt
+HDF5_LIBS = -L$(HDF5_DIR)/lib -lhdf5_hl_cpp -lhdf5_cpp -lhdf5_hl -lhdf5  -ltbb
 
-HIPSYCL_FLAGS = --hipsycl-targets='cuda:sm_75'
+CXXFLAGS = -std=c++20 -O3 -I$(GRB_DIR) -lfmt $(MDSPAN_FLAGS) $(BINSPARSE_FLAGS) $(TBB_FLAGS) $(NWGRAPH_FLAGS)
+
+LD_FLAGS = $(HDF5_LIBS) -Wl,-ld_classic
 
 all: $(TARGETS)
 
-run: all
-	@for target in $(foreach target,$(TARGETS),./$(target)) ; do echo "Running \"$$target\"" ; $$target ; done
-
-
-dpcpp: $(DPCXX_TARGETS)
-
-hipsycl: $(HSCXX_TARGETS)
-
-%-dpcpp: %.cpp
-	$(DPCXX) $(CXXFLAGS) -o $@ $^ $(LD_FLAGS) $(DPCPP_FLAGS) $(LDLIBS)
-
-%-hsc: %.cpp
-	$(HSCXX) $(CXXFLAGS) -o $@ $^ $(LD_FLAGS) $(HIPSYCL_FLAGS) $(LDLIBS)
+%: %.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LD_FLAGS)
 
 clean:
 	rm -fv $(TARGETS)
