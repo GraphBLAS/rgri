@@ -6,6 +6,7 @@
 #include <grb/detail/detail.hpp>
 #include <grb/containers/views/views.hpp>
 #include <grb/detail/concepts.hpp>
+#include <grb/algorithms/assign.hpp>
 
 namespace grb {
 
@@ -159,6 +160,102 @@ auto multiply(A&& a,
               Combine&& combine = Combine(),
               M&& mask = M{}) {
   return multiply(grb::transpose(std::forward<B>(b)), std::forward<A>(a), std::forward<Reduce>(reduce), std::forward<Combine>(combine), std::forward<M>(mask));
+}
+
+namespace {
+
+template <typename C,
+          typename A,
+          typename B,
+          typename Combine,
+          typename Reduce,
+          typename M,
+          typename Accumulate>
+void multiply_impl_(C&& c, A&& a, B&& b, Reduce&& reduce, Combine&& combine, M&& mask, Accumulate&& acc, bool merge) {
+  auto z = multiply(a, b, reduce, combine, mask);
+
+  if (merge) {
+    grb::assign(c, ewise_union(c, z, acc));
+  } else {
+    grb::assign(c, ewise_union(c, z, acc, grb::views::structure(z)));
+  }
+}
+
+} // end anonymous
+
+// Matrix matrix
+
+template <MatrixRange A,
+          MatrixRange B,
+          BinaryOperator<grb::matrix_scalar_t<A>, grb::matrix_scalar_t<B>> Combine = grb::multiplies<>,
+          BinaryOperator<grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>,
+          MaskMatrixRange M = grb::full_matrix_mask<>,
+          MutableMatrixRange<grb::combine_result_t<A, B, Combine>> C,
+          BinaryOperator<grb::matrix_scalar_t<C>,
+                         grb::combine_result_t<A, B, Combine>> Accumulate = grb::take_right<>
+>
+void multiply(C&& c,
+              A&& a,
+              B&& b,
+              Reduce&& reduce = Reduce{},
+              Combine&& combine = Combine{},
+              M&& mask = M{},
+              Accumulate&& acc = Accumulate{},
+              bool merge = false)
+{
+  multiply_impl_(c, a, b, reduce, combine, mask, acc, merge);
+}
+
+// Matrix vector
+
+template <MatrixRange A,
+          VectorRange B,
+          BinaryOperator<grb::matrix_scalar_t<A>, grb::vector_scalar_t<B>> Combine = grb::multiplies<>,
+          BinaryOperator<grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>,
+          MaskVectorRange M = grb::full_vector_mask<>,
+          MutableVectorRange<grb::combine_result_t<A, B, Combine>> C,
+          BinaryOperator<grb::vector_scalar_t<C>,
+                         grb::combine_result_t<A, B, Combine>> Accumulate = grb::take_right<>
+>
+void multiply(C&& c,
+              A&& a,
+              B&& b,
+              Reduce&& reduce = Reduce{},
+              Combine&& combine = Combine{},
+              M&& mask = M{},
+              Accumulate&& acc = Accumulate{},
+              bool merge = false)
+{
+  multiply_impl_(c, a, b, reduce, combine, mask, acc, merge);
+}
+
+// Vector matrix
+
+template <VectorRange A,
+          MatrixRange B,
+          BinaryOperator<grb::vector_scalar_t<A>, grb::matrix_scalar_t<B>> Combine = grb::multiplies<>,
+          BinaryOperator<grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>,
+                         grb::combine_result_t<A, B, Combine>> Reduce = grb::plus<>,
+          MaskVectorRange M = grb::full_vector_mask<>,
+          MutableVectorRange<grb::combine_result_t<A, B, Combine>> C,
+          BinaryOperator<grb::vector_scalar_t<C>,
+                         grb::combine_result_t<A, B, Combine>> Accumulate = grb::take_right<>
+>
+void multiply(C&& c,
+              A&& a,
+              B&& b,
+              Reduce&& reduce = Reduce{},
+              Combine&& combine = Combine{},
+              M&& mask = M{},
+              Accumulate&& acc = Accumulate{},
+              bool merge = false)
+{
+  multiply_impl_(c, a, b, reduce, combine, mask, acc, merge);
 }
 
 } // end grb
