@@ -92,7 +92,7 @@ public:
 
   using value_type = std::remove_cvref_t<decltype(*std::declval<iterator>())>;
 
-  filter_view(ContainerType&& matrix, Fn fn) : matrix_(matrix), fn_(fn) {}
+  filter_view(ContainerType matrix, Fn fn) : matrix_(matrix), fn_(fn) {}
 
   auto shape() const noexcept {
     return base().shape();
@@ -110,7 +110,7 @@ public:
     return iterator(base().end(), base().end(), fn_);
   }
 
-  iterator find(key_type key) noexcept {
+  iterator find(key_type key) const noexcept {
     auto iter = base().find(key);
     if (iter == base().end() || !fn_(*iter)) {
       return end();

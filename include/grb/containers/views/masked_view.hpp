@@ -3,14 +3,14 @@
 namespace grb {
 
 template <MatrixRange MatrixType, MaskMatrixRange MaskType>
-class masked_view {
+class masked_view : public std::ranges::view_interface<masked_view<MatrixType, MaskType>> {
 private:
   struct in_matrix;
 public:
 
   using matrix_type = std::decay_t<MatrixType>;
   using mask_type = std::decay_t<MaskType>;
-  using filter_matrix_type = grb::filter_view<matrix_type, in_matrix>;
+  using filter_matrix_type = grb::filter_view<const matrix_type&, in_matrix>;
 
   using index_type = typename matrix_type::index_type;
   using scalar_type = typename matrix_type::scalar_type;

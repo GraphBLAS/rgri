@@ -2,6 +2,21 @@
 
 #include <grb/containers/views/masked_view.hpp>
 
+template <typename ContainerType>
+requires(grb::MatrixRange<ContainerType> || grb::VectorRange<ContainerType>)
+class tmp : public std::ranges::view_interface<tmp<ContainerType>> {
+public:
+  tmp(ContainerType matrix) : matrix_(matrix) {}
+private:
+  std::ranges::views::all_t<ContainerType> matrix_;
+};
+
+template <grb::MatrixRange MatrixType>
+tmp(MatrixType&&) -> tmp<MatrixType>;
+
+template <grb::VectorRange VectorType>
+tmp(VectorType&&) -> tmp<VectorType>;
+
 int main(int argc, char** argv) {
   grb::matrix<float> matrix({10, 10});
 
@@ -17,7 +32,7 @@ int main(int argc, char** argv) {
 
   grb::print(matrix_t, "matrix transposed");
 
-  auto matrix_tr = grb::transform(matrix_t, [](auto&& entry) {
+  auto matrix_tr = grb::views::transform(matrix_t, [](auto&& entry) {
                                             auto&& [idx, value] = entry;
                                             auto&& [i, j] = idx;
                                             return i + j / 10.0f;
@@ -25,13 +40,14 @@ int main(int argc, char** argv) {
 
   grb::print(matrix_tr, "matrix transformed");
 
-  auto matrix_str = grb::structure(matrix_tr);
+  auto matrix_str = grb::views::structure(matrix_tr);
 
   grb::print(matrix_str, "matrix structure");
 
   auto lel = grb::get<1>(*matrix_str.begin());
 
-  auto filter = grb::filter(matrix_tr, [](auto&& entry) {
+
+  auto filter = grb::views::filter(matrix_tr, [](auto&& entry) {
                                       auto&& [index, value] = entry;
                                       auto&& [i, j] = index;
                                       return i < 5;
@@ -57,6 +73,7 @@ int main(int argc, char** argv) {
 
 
   grb::matrix<bool> mask(matrix.shape());
+
 
   grb::masked_view view(matrix, mask);
 
