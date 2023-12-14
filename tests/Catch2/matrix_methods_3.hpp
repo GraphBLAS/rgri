@@ -2,7 +2,8 @@
 #include <string>
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 
 TEMPLATE_PRODUCT_TEST_CASE( "can create insert into matrix", "[matrix][template]",
   (grb::matrix), ((float, int, grb::sparse), (float, size_t, grb::sparse),
@@ -11,7 +12,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can create insert into matrix", "[matrix][template]
   using value_type = typename TestType::value_type;
 
   // Each of the test matrices should have `1` as the value for each nonzero.
-	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
+  std::vector<std::string> fnames = {"chesapeake/chesapeake.mtx"};
 	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 340}};
 	for (size_t i = 0; i < fnames.size(); i++) {
 		const auto& fname = fnames[i];

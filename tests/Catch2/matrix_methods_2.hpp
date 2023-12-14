@@ -2,7 +2,8 @@
 #include <string>
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 
 template <typename MatrixType>
 void check_matrix(MatrixType& matrix, size_t m, size_t n, size_t nnz, size_t expected_value) {
@@ -33,7 +34,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can iterate through matrix, modify values", "[matri
                   (float, int, grb::dense),  (float, size_t, grb::dense))) {
 
   // Each of the test matrices should have `1` as the value for each nonzero.
-	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
+  std::vector<std::string> fnames = {"chesapeake/chesapeake.mtx"};
 	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 340}};
 	for (size_t i = 0; i < fnames.size(); i++) {
 		const auto& fname = fnames[i];

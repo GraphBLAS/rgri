@@ -1,7 +1,8 @@
 #pragma once
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 #include <vector>
 #include <algorithm>
 #include <functional>
