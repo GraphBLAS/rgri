@@ -6,12 +6,9 @@ string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-# Add the cmake folder so the FindSphinx module is found
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+option(BUILD_DOCS "Build Sphinx documentation" OFF)
 
 add_subdirectory(include)
-add_subdirectory(docs)
 
 if (is_top_level)
   include(FetchContent)
@@ -24,4 +21,9 @@ if (is_top_level)
 
   add_subdirectory(examples)
   add_subdirectory(tests)
+
+  if (BUILD_DOCS)
+    add_subdirectory(docs)
+  endif()
+
 endif()
