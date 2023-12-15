@@ -1,5 +1,6 @@
 #pragma once
 
+#include <grb/detail/monoid_traits.hpp>
 #include <limits>
 #include <type_traits>
 #include <utility>

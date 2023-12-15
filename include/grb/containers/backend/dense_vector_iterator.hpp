@@ -1,6 +1,7 @@
 #pragma once
 
 #include <grb/containers/backend/dense_vector_iterator.hpp>
+#include <grb/containers/vector_entry.hpp>
 #include <grb/detail/spanner.hpp>
 #include <ranges>
 

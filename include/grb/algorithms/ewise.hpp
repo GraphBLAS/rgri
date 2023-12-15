@@ -1,5 +1,6 @@
 #pragma once
 
+#include <grb/detail/detail.hpp>
 #include <grb/detail/matrix_traits.hpp>
 #include <grb/detail/monoid_traits.hpp>
 

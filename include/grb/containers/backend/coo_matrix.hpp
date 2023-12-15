@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <grb/containers/matrix_entry.hpp>
+
 namespace grb {
 
 template <typename T, typename I, typename Allocator = std::allocator<T>>

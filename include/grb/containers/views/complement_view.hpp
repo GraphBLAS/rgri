@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <grb/detail/iterator_adaptor.hpp>
+
 namespace grb {
 
 /*

@@ -1,6 +1,8 @@
 #include <concepts>
+#include <grb/containers/matrix.hpp>
+#include <grb/containers/vector.hpp>
 #include <grb/exceptions/exception.hpp>
-#include <grb/grb.hpp>
+#include <grb/util/matrix_hints.hpp>
 #include <random>
 #include <unordered_map>
 
