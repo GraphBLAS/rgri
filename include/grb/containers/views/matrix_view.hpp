@@ -7,12 +7,12 @@ namespace grb {
 template <grb::MatrixRange M>
 class matrix_view {
 public:
-
   using index_type = grb::matrix_index_t<M>;
   using key_type = typename grb::container_traits<M>::key_type;
   using value_type = std::ranges::range_value_t<M>;
   using scalar_type = grb::matrix_scalar_t<M>;
-  using scalar_reference = decltype(grb::get<1>(std::declval<std::ranges::range_reference_t<M>>()));
+  using scalar_reference =
+      decltype(grb::get<1>(std::declval<std::ranges::range_reference_t<M>>()));
 
   matrix_view(M matrix) : matrix_(matrix) {}
 
@@ -51,7 +51,7 @@ public:
   }
 
   decltype(auto) base() noexcept {
-    if constexpr(std::ranges::view<std::decay_t<M>>) {
+    if constexpr (std::ranges::view<std::decay_t<M>>) {
       return matrix_;
     } else {
       return matrix_.base();
@@ -65,4 +65,4 @@ private:
 template <typename M>
 matrix_view(M&& m) -> matrix_view<M>;
 
-} // end grb
+} // namespace grb

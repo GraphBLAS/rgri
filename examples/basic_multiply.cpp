@@ -1,7 +1,7 @@
-#include <iostream>
+#include <algorithm>
 #include <grb/grb.hpp>
 #include <iomanip>
-#include <algorithm>
+#include <iostream>
 
 int main(int argc, char** argv) {
   grb::matrix<float, int> a("chesapeake/chesapeake.mtx");

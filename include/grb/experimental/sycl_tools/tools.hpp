@@ -12,8 +12,10 @@ cl::sycl::device select_device(Selector&& selector) {
 
   try {
     d = cl::sycl::device(std::forward<Selector>(selector));
-    std::cout << "Running on device \"" << d.get_info<cl::sycl::info::device::name>() << "\"" << std::endl;
-  } catch (cl::sycl::exception const &e) {
+    std::cout << "Running on device \""
+              << d.get_info<cl::sycl::info::device::name>() << "\""
+              << std::endl;
+  } catch (cl::sycl::exception const& e) {
     std::cout << "Cannot select an accelerator\n" << e.what() << "\n";
     std::cout << "Using a CPU device\n";
     d = cl::sycl::device(cl::sycl::cpu_selector());
@@ -30,22 +32,25 @@ void list_devices(Selector&& selector) {
 
   printf("--Platform Info-----------------\n");
 
-  printf("Platform %s has %lu root devices.\n", p.get_info<sycl::info::platform::name>().c_str(), devices.size());
+  printf("Platform %s has %lu root devices.\n",
+         p.get_info<sycl::info::platform::name>().c_str(), devices.size());
 
   for (size_t i = 0; i < devices.size(); i++) {
     auto&& device = devices[i];
 
-    printf("  %lu %s\n", i, device.get_info<sycl::info::device::name>().c_str());
+    printf("  %lu %s\n", i,
+           device.get_info<sycl::info::device::name>().c_str());
 
     using namespace sycl::info;
     auto subdevices = device.create_sub_devices<
-                        partition_property::partition_by_affinity_domain>(
-                          partition_affinity_domain::numa);
+        partition_property::partition_by_affinity_domain>(
+        partition_affinity_domain::numa);
 
     printf("   Subdevices:\n");
     for (size_t j = 0; j < subdevices.size(); j++) {
       auto&& subdevice = subdevices[j];
-      printf("     %lu.%lu %s\n", i, j, subdevice.get_info<sycl::info::device::name>().c_str());
+      printf("     %lu.%lu %s\n", i, j,
+             subdevice.get_info<sycl::info::device::name>().c_str());
     }
   }
 
@@ -64,8 +69,8 @@ std::vector<cl::sycl::device> get_numa_devices(Selector&& selector) {
   for (auto&& root_device : root_devices) {
     using namespace sycl::info;
     auto subdevices = root_device.create_sub_devices<
-                        partition_property::partition_by_affinity_domain>(
-                          partition_affinity_domain::numa);
+        partition_property::partition_by_affinity_domain>(
+        partition_affinity_domain::numa);
 
     for (auto&& subdevice : subdevices) {
       devices.push_back(subdevice);
@@ -105,4 +110,4 @@ void print_range(Range&& r, std::string label = "") {
   std::cout << std::endl;
 }
 
-} // end shp
+} // namespace shp

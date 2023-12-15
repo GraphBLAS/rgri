@@ -1,9 +1,9 @@
 #pragma once
 
-#include <grb/util/index.hpp>
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
 #include <grb/detail/matrix_traits.hpp>
+#include <grb/util/index.hpp>
 
 namespace grb {
 
@@ -11,7 +11,8 @@ template <typename Iterator, typename Fn>
 class filter_accessor {
 public:
   using scalar_type = decltype(std::declval<Fn>()(*std::declval<Iterator>()));
-  using index_type = typename __detail::get_index_type<std::iter_value_t<Iterator>>::type;
+  using index_type =
+      typename __detail::get_index_type<std::iter_value_t<Iterator>>::type;
   using difference_type = std::iter_difference_t<Iterator>;
 
   using reference = std::iter_reference_t<Iterator>;
@@ -39,7 +40,8 @@ public:
     return *this;
   }
 
-  filter_accessor(Iterator iter, Iterator end, Fn fn) : iter_(iter), end_(end), fn_(fn) {
+  filter_accessor(Iterator iter, Iterator end, Fn fn)
+      : iter_(iter), end_(end), fn_(fn) {
     fast_forward();
   }
 
@@ -70,24 +72,29 @@ private:
 };
 
 template <typename Iterator, typename Fn>
-using filter_iterator = grb::detail::iterator_adaptor<filter_accessor<Iterator, Fn>>;
+using filter_iterator =
+    grb::detail::iterator_adaptor<filter_accessor<Iterator, Fn>>;
 
-template <typename ContainerType,
-          std::copy_constructible Fn>
-requires(grb::MatrixRange<ContainerType> || grb::VectorRange<ContainerType>)
-class filter_view : public std::ranges::view_interface<filter_view<ContainerType, Fn>> {
+template <typename ContainerType, std::copy_constructible Fn>
+  requires(grb::MatrixRange<ContainerType> || grb::VectorRange<ContainerType>)
+class filter_view
+    : public std::ranges::view_interface<filter_view<ContainerType, Fn>> {
 public:
-
   using container_type = std::decay_t<ContainerType>;
 
   using index_type = container_index_t<container_type>;
-  using scalar_type = decltype(std::declval<Fn>()(std::declval<container_value_t<container_type>>()));
+  using scalar_type = decltype(std::declval<Fn>()(
+      std::declval<container_value_t<container_type>>()));
   using size_type = container_size_t<container_type>;
   using difference_type = container_difference_t<container_type>;
 
   using key_type = container_key_t<container_type>;
 
-  using iterator = filter_iterator<decltype(std::declval<std::ranges::views::all_t<ContainerType>>().base().begin()), Fn>;
+  using iterator = filter_iterator<
+      decltype(std::declval<std::ranges::views::all_t<ContainerType>>()
+                   .base()
+                   .begin()),
+      Fn>;
   using const_iterator = iterator;
 
   using value_type = std::remove_cvref_t<decltype(*std::declval<iterator>())>;
@@ -128,12 +135,10 @@ private:
   Fn fn_;
 };
 
-template <grb::MatrixRange MatrixType,
-          std::copy_constructible Fn>
+template <grb::MatrixRange MatrixType, std::copy_constructible Fn>
 filter_view(MatrixType&&, Fn) -> filter_view<MatrixType, Fn>;
 
-template <grb::VectorRange VectorType,
-          std::copy_constructible Fn>
+template <grb::VectorRange VectorType, std::copy_constructible Fn>
 filter_view(VectorType&&, Fn) -> filter_view<VectorType, Fn>;
 
-} // end grb
+} // namespace grb

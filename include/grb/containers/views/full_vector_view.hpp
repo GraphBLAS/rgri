@@ -3,9 +3,9 @@
 #include <limits>
 #include <type_traits>
 
-#include <grb/util/index.hpp>
 #include <grb/containers/vector_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
+#include <grb/util/index.hpp>
 
 namespace grb {
 
@@ -22,25 +22,31 @@ public:
 
   constexpr full_vector_accessor() noexcept = default;
   constexpr ~full_vector_accessor() noexcept = default;
-  constexpr full_vector_accessor(const full_vector_accessor&) noexcept = default;
-  constexpr full_vector_accessor& operator=(const full_vector_accessor&) noexcept = default;
+  constexpr full_vector_accessor(const full_vector_accessor&) noexcept =
+      default;
+  constexpr full_vector_accessor&
+  operator=(const full_vector_accessor&) noexcept = default;
 
-  constexpr full_vector_accessor(I i, I n, T value) noexcept : i_(i), n_(n), value_(value) {}
+  constexpr full_vector_accessor(I i, I n, T value) noexcept
+      : i_(i), n_(n), value_(value) {}
 
   constexpr full_vector_accessor& operator+=(difference_type offset) noexcept {
     i_ += offset;
     return *this;
   }
 
-  constexpr difference_type operator-(const const_iterator_accessor& other) const noexcept {
+  constexpr difference_type
+  operator-(const const_iterator_accessor& other) const noexcept {
     return difference_type(i_) - difference_type(other.i_);
   }
 
-  constexpr bool operator==(const const_iterator_accessor& other) const noexcept {
+  constexpr bool
+  operator==(const const_iterator_accessor& other) const noexcept {
     return i_ == other.i_;
   }
 
-  constexpr bool operator<(const const_iterator_accessor& other) const noexcept {
+  constexpr bool
+  operator<(const const_iterator_accessor& other) const noexcept {
     return i_ < other.i_;
   }
 
@@ -49,19 +55,18 @@ public:
   }
 
 private:
-
   I i_;
   I n_;
   T value_;
 };
 
 template <typename T, std::integral I = std::size_t>
-using full_vector_iterator = grb::detail::iterator_adaptor<full_vector_accessor<T, I>>;
+using full_vector_iterator =
+    grb::detail::iterator_adaptor<full_vector_accessor<T, I>>;
 
 template <typename T, typename I = std::size_t>
-class full_vector
-{
-public: 
+class full_vector {
+public:
   using scalar_type = T;
 
   using index_type = I;
@@ -80,11 +85,8 @@ public:
   using iterator = full_vector_iterator<T, I>;
   using const_iterator = iterator;
 
-
-  full_vector(I shape = std::numeric_limits<I>::max(),
-              T value = T())
-    : shape_(shape), value_(value)
-  {}
+  full_vector(I shape = std::numeric_limits<I>::max(), T value = T())
+      : shape_(shape), value_(value) {}
 
   iterator begin() const noexcept {
     return iterator(0, shape_, value_);
@@ -107,7 +109,7 @@ public:
   }
 
   iterator find(key_type key) const noexcept {
-    if constexpr(std::is_signed_v<I>) {
+    if constexpr (std::is_signed_v<I>) {
       if (key < 0) {
         return end();
       }
@@ -126,24 +128,17 @@ private:
 };
 
 template <typename I = std::size_t>
-class full_vector_mask : public full_vector<bool, I>
-{
+class full_vector_mask : public full_vector<bool, I> {
 public:
-
   full_vector_mask(I shape = std::numeric_limits<I>::max())
-    : full_vector<bool, I>(shape, true)
-  {}
+      : full_vector<bool, I>(shape, true) {}
 };
-
 
 template <typename I = std::size_t>
-class empty_vector_mask : public full_vector<bool, I>
-{
+class empty_vector_mask : public full_vector<bool, I> {
 public:
-
   empty_vector_mask(I shape = std::numeric_limits<I>::max())
-    : full_vector<bool, I>(shape, false)
-  {}
+      : full_vector<bool, I>(shape, false) {}
 };
 
-} // end grb
+} // namespace grb

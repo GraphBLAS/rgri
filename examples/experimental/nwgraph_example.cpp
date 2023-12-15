@@ -1,6 +1,6 @@
 #include <grb/grb.hpp>
-#include <nwgraph/edge_list.hpp>
 #include <nwgraph/adjacency.hpp>
+#include <nwgraph/edge_list.hpp>
 
 int main(int argc, char** argv) {
   nw::graph::edge_list<nw::graph::directedness::directed, float> graph(0);
@@ -15,9 +15,7 @@ int main(int argc, char** argv) {
   // grb::nwgraph_view view(graph);
   auto view = grb::views::all(graph);
 
-
   auto c = grb::multiply(view, a);
-
 
   // grb::print(view, "View of NWGraph edge_list");
 
@@ -33,24 +31,22 @@ int main(int argc, char** argv) {
   // grb::nwgraph_view view2(csr_graph);
   auto view2 = grb::views::all(csr_graph);
 
-
-
   std::cout << view2.shape()[0] << " x " << view2.shape()[1] << std::endl;
   std::cout << view2.size() << " nnz" << std::endl;
 
   grb::print(view2);
 
-/*
-  for (std::size_t i = 0; i < csr_graph.size(); ++i) {
-    auto&& row = csr_graph[i];
-    for (auto&& entry : row) {
-      auto j = nw::graph::target(csr_graph, entry);
+  /*
+    for (std::size_t i = 0; i < csr_graph.size(); ++i) {
+      auto&& row = csr_graph[i];
+      for (auto&& entry : row) {
+        auto j = nw::graph::target(csr_graph, entry);
 
-      auto&& [_, v] = entry;
-      std::cout << i << ", " << j << ": " << v << std::endl;
+        auto&& [_, v] = entry;
+        std::cout << i << ", " << j << ": " << v << std::endl;
+      }
     }
-  }
-  */
+    */
 
   return 0;
 }

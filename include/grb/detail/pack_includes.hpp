@@ -7,7 +7,8 @@ struct pack_includes_impl_;
 
 template <typename T, typename U, typename... Us>
 struct pack_includes_impl_<T, U, Us...> {
-  static constexpr bool value = std::is_same<T, U>::value || pack_includes_impl_<T, Us...>::value;
+  static constexpr bool value =
+      std::is_same<T, U>::value || pack_includes_impl_<T, Us...>::value;
 };
 
 template <typename T, typename U>
@@ -26,4 +27,4 @@ struct pack_includes {
   static constexpr bool value = pack_includes_impl_<T, Ts...>::value;
 };
 
-} // end grb
+} // namespace grb

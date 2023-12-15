@@ -1,9 +1,9 @@
 #pragma once
 
-#include <span>
-#include <type_traits>
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/spanner.hpp>
+#include <span>
+#include <type_traits>
 
 namespace grb {
 
@@ -26,10 +26,7 @@ namespace grb {
 //    std::numeric_limits<I>::max() in location m + 2 (or m + 1?) in
 //    the row_ptr array.
 
-template <typename T,
-          typename I,
-          typename TIter,
-          typename TConstIter,
+template <typename T, typename I, typename TIter, typename TConstIter,
           typename IIter>
 class csr_matrix_iterator {
 public:
@@ -41,24 +38,24 @@ public:
   using index_type = I;
   using map_type = T;
 
-  using backend_iterator = std::conditional_t<!std::is_const_v<T>, TIter, TConstIter>;
+  using backend_iterator =
+      std::conditional_t<!std::is_const_v<T>, TIter, TConstIter>;
 
   using value_type = grb::matrix_entry<T, index_type>;
   using iterator = csr_matrix_iterator;
-  using const_iterator = csr_matrix_iterator<std::add_const_t<T>,
-                                             index_type,
-                                             TIter,
-                                             TConstIter,
-                                             IIter>;
+  using const_iterator = csr_matrix_iterator<std::add_const_t<T>, index_type,
+                                             TIter, TConstIter, IIter>;
 
-  using nonconst_iterator = csr_matrix_iterator<std::remove_const_t<T>, index_type,
-                                                TIter, TConstIter, IIter>;
+  using nonconst_iterator =
+      csr_matrix_iterator<std::remove_const_t<T>, index_type, TIter, TConstIter,
+                          IIter>;
 
   using scalar_reference = decltype(*std::declval<TIter>());
   using const_scalar_reference = decltype(*std::declval<TConstIter>());
 
   using reference = grb::matrix_ref<T, I, scalar_reference>;
-  using const_reference = grb::matrix_ref<std::add_const_t<T>, I, const_scalar_reference>;
+  using const_reference =
+      grb::matrix_ref<std::add_const_t<T>, I, const_scalar_reference>;
 
   using pointer = iterator;
   using const_pointer = const_iterator;
@@ -68,12 +65,11 @@ public:
   template <std::ranges::random_access_range R1,
             std::ranges::random_access_range R2,
             std::ranges::random_access_range R3>
-  csr_matrix_iterator(index_type row, index_type index,
-                      R1&& values, R2&& rowptr, R3&& colind)
-    : row_(row), index_(index),
-      values_(values.begin(), values.end()),
-      rowptr_(rowptr.begin(), rowptr.end()),
-      colind_(colind.begin(), colind.end()) {
+  csr_matrix_iterator(index_type row, index_type index, R1&& values,
+                      R2&& rowptr, R3&& colind)
+      : row_(row), index_(index), values_(values.begin(), values.end()),
+        rowptr_(rowptr.begin(), rowptr.end()),
+        colind_(colind.begin(), colind.end()) {
     fast_forward_row();
   }
 
@@ -83,14 +79,14 @@ public:
 
   // reference operator*() const noexcept
   reference operator*() const noexcept
-  requires(!std::is_const_v<T>)
+    requires(!std::is_const_v<T>)
   {
     return reference({row_, colind_[index_]}, values_[index_]);
   }
 
   // const_reference operator*() const noexcept
   const_reference operator*() const noexcept
-  requires(std::is_const_v<T>)
+    requires(std::is_const_v<T>)
   {
     // return const_reference(row_, index_, values_, rowptr_, colind_);
     return const_reference({row_, colind_[index_]}, values_[index_]);
@@ -101,7 +97,7 @@ public:
   // That is:
   // Advance `row_` until index_ >= rowptr_[row_] && index_ < rowptr_[row_+1]
   void fast_forward_row() noexcept {
-    while (row_ < rowptr_.size() - 1 && index_ >= rowptr_[row_+1]) {
+    while (row_ < rowptr_.size() - 1 && index_ >= rowptr_[row_ + 1]) {
       row_++;
     }
   }
@@ -193,18 +189,17 @@ public:
   }
 
   bool operator<(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return index_ < other.index_;
   }
-
 
   bool operator<=(iterator other) const noexcept {
     return index_ <= other.index_;
   }
 
   bool operator<=(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return index_ <= other.index_;
   }
@@ -214,7 +209,7 @@ public:
   }
 
   bool operator>(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return index_ > other.index_;
   }
@@ -224,28 +219,25 @@ public:
   }
 
   bool operator>=(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return index_ >= other.index_;
   }
 
-
   bool operator==(iterator other) const noexcept {
     return values_.begin() == other.values_.begin() &&
            rowptr_.begin() == other.rowptr_.begin() &&
-           colind_.begin() == other.colind_.begin() &&
-                               row_ == other.row_ &&
-                           index_ == other.index_;
+           colind_.begin() == other.colind_.begin() && row_ == other.row_ &&
+           index_ == other.index_;
   }
 
   bool operator==(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return values_.begin() == other.values_.begin() &&
            rowptr_.begin() == other.rowptr_.begin() &&
-           colind_.begin() == other.colind_.begin() &&
-                               row_ == other.row_ &&
-                           index_ == other.index_;
+           colind_.begin() == other.colind_.begin() && row_ == other.row_ &&
+           index_ == other.index_;
   }
 
   bool operator!=(iterator other) const noexcept {
@@ -253,7 +245,7 @@ public:
   }
 
   bool operator!=(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return !(*this == other);
   }
@@ -273,7 +265,6 @@ public:
   friend nonconst_iterator;
 
 private:
-
   using const_index_type = std::add_const_t<index_type>;
 
   grb::detail::spanner<backend_iterator> values_;
@@ -284,4 +275,4 @@ private:
   index_type index_;
 };
 
-} // end grb
+} // namespace grb

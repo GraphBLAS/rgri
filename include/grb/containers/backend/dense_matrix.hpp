@@ -1,15 +1,13 @@
 
 #pragma once
 
-#include <grb/util/matrix_io.hpp>
 #include <grb/containers/backend/dense_matrix_iterator.hpp>
 #include <grb/containers/backend/dense_matrix_reference.hpp>
+#include <grb/util/matrix_io.hpp>
 
 namespace grb {
 
-template <typename T,
-          typename I,
-          typename Allocator>
+template <typename T, typename I, typename Allocator>
 struct dense_matrix_impl_ {
   using value_type = T;
   using index_type = I;
@@ -19,7 +17,8 @@ struct dense_matrix_impl_ {
   using iterator = dense_matrix_impl_iterator<dense_matrix_impl_>;
   using reference = dense_matrix_impl_reference<dense_matrix_impl_>;
 
-  using tuples_type = std::vector<std::tuple<value_type, index_type, index_type>>;
+  using tuples_type =
+      std::vector<std::tuple<value_type, index_type, index_type>>;
 
   dense_matrix_impl_() : m_(0), n_(0), nnz_(0) {}
 
@@ -48,7 +47,7 @@ struct dense_matrix_impl_ {
 
   iterator end() const {
     // TODO: I should perhaps not do this.
-    return iterator(*const_cast<dense_matrix_impl_*>(this), m()*n());
+    return iterator(*const_cast<dense_matrix_impl_*>(this), m() * n());
   }
 
   iterator find(index_t idx) const;
@@ -68,6 +67,6 @@ struct dense_matrix_impl_ {
   friend reference;
 };
 
-} // end grb
+} // namespace grb
 
 #include <grb/containers/backend/dense_matrix_impl.hpp>

@@ -1,15 +1,15 @@
 #pragma once
 
-#include <grb/detail/detail.hpp>
 #include <grb/containers/views/views.hpp>
 #include <grb/detail/concepts.hpp>
+#include <grb/detail/detail.hpp>
 
 namespace grb {
 
 template <MatrixRange A,
-          BinaryOperator<grb::matrix_scalar_t<A>,
-                         grb::matrix_scalar_t<A>,
-                         grb::matrix_scalar_t<A>> Reduce = grb::plus<>,
+          BinaryOperator<grb::matrix_scalar_t<A>, grb::matrix_scalar_t<A>,
+                         grb::matrix_scalar_t<A>>
+              Reduce = grb::plus<>,
           MaskVectorRange M = grb::full_vector_mask<>>
 auto reduce(A&& a, Reduce&& reduce = Reduce{}, M&& mask = M{}) {
   using T = grb::matrix_scalar_t<A>;
@@ -36,4 +36,4 @@ auto reduce(A&& a, Reduce&& reduce = Reduce{}, M&& mask = M{}) {
   return v;
 }
 
-} // end grb
+} // namespace grb

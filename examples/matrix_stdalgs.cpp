@@ -1,11 +1,12 @@
+#include <algorithm>
 #include <grb/grb.hpp>
 #include <iostream>
-#include <algorithm>
 
 int main(int argc, char** argv) {
   grb::matrix<float, size_t> matrix("chesapeake/chesapeake.mtx");
 
-  std::cout << "Loaded " << matrix.shape()[0] << " x " << matrix.shape()[1] << " matrix with " << matrix.size() << " nonzeros." << std::endl;
+  std::cout << "Loaded " << matrix.shape()[0] << " x " << matrix.shape()[1]
+            << " matrix with " << matrix.size() << " nonzeros." << std::endl;
 
   auto iterator = matrix.begin();
 

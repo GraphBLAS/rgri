@@ -1,6 +1,6 @@
 #include <grb/grb.hpp>
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 int main(int argc, char** argv) {
   // srand48(0);
@@ -29,10 +29,10 @@ int main(int argc, char** argv) {
 
   while (!candidates.empty()) {
     printf("Iteration %lu\n", iteration++);
-    auto prob = grb::ewise_intersection(candidates, degrees,
-                                        [&](auto&&, int degree) -> float {
-                                          return 0.0001 + distribution(generator) / 1. + 2.*degree;
-                                        });
+    auto prob = grb::ewise_intersection(
+        candidates, degrees, [&](auto&&, int degree) -> float {
+          return 0.0001 + distribution(generator) / 1. + 2. * degree;
+        });
 
     grb::print(prob, "probabilities");
 
@@ -40,8 +40,8 @@ int main(int argc, char** argv) {
 
     grb::print(neighbor_max, "neighbor max");
 
-
-    auto new_members = grb::ewise_union(prob, neighbor_max, std::greater<float>());
+    auto new_members =
+        grb::ewise_union(prob, neighbor_max, std::greater<float>());
     grb::print(new_members, "new members");
 
     grb::vector<bool> new_members_sparse(new_members.shape());
@@ -55,20 +55,25 @@ int main(int argc, char** argv) {
     grb::print(new_members_sparse, "sparsified new members");
 
     // Remove new_members from candidates
-    candidates = grb::ewise_intersection(candidates, grb::complement_view(new_members_sparse), grb::take_left<int>());
+    candidates = grb::ewise_intersection(
+        candidates, grb::complement_view(new_members_sparse),
+        grb::take_left<int>());
 
     grb::print(candidates, "candidates with new members removed");
 
     // Add new_members to independent_set
-    independent_set = grb::ewise_union(independent_set, new_members_sparse, grb::plus());
+    independent_set =
+        grb::ewise_union(independent_set, new_members_sparse, grb::plus());
 
     grb::print(independent_set, "independent set with new candidates");
 
-    auto new_neighbors = grb::multiply(a, new_members_sparse, grb::logical_or(), grb::logical_and());
+    auto new_neighbors = grb::multiply(a, new_members_sparse, grb::logical_or(),
+                                       grb::logical_and());
 
     grb::print(new_neighbors, "new neighbors");
 
-    candidates = grb::ewise_intersection(candidates, grb::complement_view(new_neighbors), grb::take_left());
+    candidates = grb::ewise_intersection(
+        candidates, grb::complement_view(new_neighbors), grb::take_left());
 
     grb::print(candidates, "candidates with new neighbors removed");
   }

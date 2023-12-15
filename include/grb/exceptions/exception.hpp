@@ -5,8 +5,7 @@
 
 namespace grb {
 
-class exception : public std::exception
-{
+class exception : public std::exception {
 public:
   exception(const std::string& what_arg) : what_arg_(what_arg) {}
   exception() {}
@@ -19,8 +18,7 @@ private:
   std::string what_arg_;
 };
 
-class out_of_range final : public grb::exception
-{
+class out_of_range final : public grb::exception {
 public:
   out_of_range(const std::string& what_arg) : what_arg_(what_arg) {}
 
@@ -32,8 +30,7 @@ private:
   std::string what_arg_;
 };
 
-class invalid_argument final : public grb::exception
-{
+class invalid_argument final : public grb::exception {
 public:
   invalid_argument(const std::string& what_arg) : what_arg_(what_arg) {}
 
@@ -45,4 +42,4 @@ private:
   std::string what_arg_;
 };
 
-} // end grb
+} // namespace grb

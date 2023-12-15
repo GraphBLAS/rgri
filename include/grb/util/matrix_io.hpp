@@ -1,20 +1,19 @@
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <fstream>
 #include <algorithm>
-#include <vector>
-#include <tuple>
 #include <cassert>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <tuple>
+#include <vector>
 
 #include <grb/containers/backend/coo_matrix.hpp>
 
 namespace grb {
 
-template <typename T,
-          typename I>
+template <typename T, typename I>
 class mmread_matrix_iterator {
 public:
   using index_type = I;
@@ -26,8 +25,7 @@ public:
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
-  using iterator = mmread_matrix_iterator<T,
-                                          index_type>;
+  using iterator = mmread_matrix_iterator<T, index_type>;
 
   using const_iterator = iterator;
 
@@ -38,7 +36,7 @@ public:
   using const_pointer = const_iterator;
 
   mmread_matrix_iterator(index_type idx, std::ifstream&& f, bool is_symmetric)
-    : idx_(idx), f_(std::move(f)), is_symmetric_(is_symmetric) {}
+      : idx_(idx), f_(std::move(f)), is_symmetric_(is_symmetric) {}
 
   mmread_matrix_iterator& operator++() {
     std::string buf;
@@ -80,8 +78,7 @@ private:
   T v_;
 };
 
-template <typename T,
-          typename I = std::size_t>
+template <typename T, typename I = std::size_t>
 class mmread_matrix {
 public:
   using index_type = I;
@@ -93,8 +90,7 @@ public:
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
-  using iterator = mmread_matrix_iterator<T,
-                                          index_type>;
+  using iterator = mmread_matrix_iterator<T, index_type>;
 
   using const_iterator = iterator;
 
@@ -123,15 +119,18 @@ public:
     std::string item;
     ss >> item;
     if (item != "%%MatrixMarket") {
-      throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
+      throw std::runtime_error(fname +
+                               " could not be parsed as a Matrix Market file.");
     }
     ss >> item;
     if (item != "matrix") {
-      throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
+      throw std::runtime_error(fname +
+                               " could not be parsed as a Matrix Market file.");
     }
     ss >> item;
     if (item != "coordinate") {
-      throw std::runtime_error(fname + " could not be parsed as a Matrix Market file.");
+      throw std::runtime_error(fname +
+                               " could not be parsed as a Matrix Market file.");
     }
     bool pattern;
     ss >> item;
@@ -208,8 +207,7 @@ private:
 /// Read in the Matrix Market file at location `file_path` and a return
 /// a coo_matrix data structure with its contents.
 template <typename T, typename I = std::size_t>
-inline
-coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
+inline coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
   using index_type = I;
   using size_type = std::size_t;
 
@@ -233,15 +231,18 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
   std::string item;
   ss >> item;
   if (item != "%%MatrixMarket") {
-    throw std::runtime_error(file_path + " could not be parsed as a Matrix Market file.");
+    throw std::runtime_error(file_path +
+                             " could not be parsed as a Matrix Market file.");
   }
   ss >> item;
   if (item != "matrix") {
-    throw std::runtime_error(file_path + " could not be parsed as a Matrix Market file.");
+    throw std::runtime_error(file_path +
+                             " could not be parsed as a Matrix Market file.");
   }
   ss >> item;
   if (item != "coordinate") {
-    throw std::runtime_error(file_path + " could not be parsed as a Matrix Market file.");
+    throw std::runtime_error(file_path +
+                             " could not be parsed as a Matrix Market file.");
   }
   bool pattern;
   ss >> item;
@@ -281,7 +282,7 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
   // stored values (including "mirrored" symmetric values).
   coo_matrix<T, I> matrix({m, n});
   if (symmetric) {
-    matrix.reserve(2*nnz);
+    matrix.reserve(2 * nnz);
   } else {
     matrix.reserve(nnz);
   }
@@ -306,7 +307,8 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
     }
 
     if (i >= m || j >= n) {
-      throw std::runtime_error("read_MatrixMarket: file has nonzero out of bounds.");
+      throw std::runtime_error(
+          "read_MatrixMarket: file has nonzero out of bounds.");
     }
 
     matrix.push_back({{i, j}, v});
@@ -317,7 +319,8 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
 
     c++;
     if (c > nnz) {
-      throw std::runtime_error("read_MatrixMarket: error reading Matrix Market file, file has more nonzeros than reported.");
+      throw std::runtime_error("read_MatrixMarket: error reading Matrix Market "
+                               "file, file has more nonzeros than reported.");
     }
   }
 
@@ -328,4 +331,4 @@ coo_matrix<T, I> mmread(std::string file_path, bool one_indexed = true) {
   return matrix;
 }
 
-} // end grb
+} // namespace grb

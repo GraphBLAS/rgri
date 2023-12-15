@@ -1,7 +1,7 @@
 #pragma once
 
-#include <grb/grb.hpp>
 #include <chrono>
+#include <grb/grb.hpp>
 
 template <grb::MatrixRange M>
 auto sumreduce(M&& m) {
@@ -37,7 +37,7 @@ void spmm(M&& a, auto&& b, auto&& c, size_t n_vecs) {
   for (auto&& [i, k, v] : a) {
     for (size_t j = 0; j < n_vecs; j++) {
       auto r = v * b[k * n_vecs + j];
-      c[i*n_vecs + j] += r;
+      c[i * n_vecs + j] += r;
     }
   }
 }
@@ -49,7 +49,7 @@ void spmm(M&& a, auto&& b, auto&& c, size_t n_vecs) {
     for (auto&& [k, v] : row) {
       for (size_t j = 0; j < n_vecs; j++) {
         auto r = v * b[k * n_vecs + j];
-        c[i*n_vecs + j] += r;
+        c[i * n_vecs + j] += r;
       }
     }
   }
@@ -61,7 +61,7 @@ void spmm(M&& a, auto&& b, auto&& c, size_t n_vecs) {
     auto&& [i, k] = index;
     for (size_t j = 0; j < n_vecs; j++) {
       auto r = v * b[k * n_vecs + j];
-      c[i*n_vecs + j] += r;
+      c[i * n_vecs + j] += r;
     }
   }
 }
@@ -73,9 +73,9 @@ auto get_median(R&& r) {
   auto size = std::ranges::size(r);
 
   if (size % 2 == 1) {
-    return r[size/2];
+    return r[size / 2];
   } else {
-    return (r[size/2] + r[(size/2) - 1])/2;
+    return (r[size / 2] + r[(size / 2) - 1]) / 2;
   }
 }
 
@@ -109,7 +109,7 @@ void test_sumreduce(M&& m, std::size_t n_trials = 10) {
   }
 
   for (size_t i = 1; i < sums.size(); i++) {
-    assert(sums[i] = sums[i-1]);
+    assert(sums[i] = sums[i - 1]);
     assert(sums[i] != 172);
   }
 
@@ -152,7 +152,7 @@ void test_spmm(M&& a, std::size_t n_trials = 10) {
   }
 
   for (size_t i = 1; i < sums.size(); i++) {
-    assert(sums[i] = sums[i-1]);
+    assert(sums[i] = sums[i - 1]);
     assert(sums[i] != 172);
   }
 
@@ -162,4 +162,3 @@ void test_spmm(M&& a, std::size_t n_trials = 10) {
   printf("Median is %lfms\n", median * 1000);
   printf("Mean is %lfms\n", mean * 1000);
 }
-

@@ -15,24 +15,27 @@ public:
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
   using pointer = typename std::allocator_traits<allocator_type>::pointer;
-  using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
+  using const_pointer =
+      typename std::allocator_traits<allocator_type>::const_pointer;
   using reference = decltype(*std::declval<pointer>());
   using const_reference = decltype(*std::declval<const_pointer>());
   using iterator = pointer;
   using const_iterator = const_pointer;
 
   vector() noexcept {}
-  explicit vector(const Allocator& allocator) noexcept : allocator_(allocator) {}
+  explicit vector(const Allocator& allocator) noexcept
+      : allocator_(allocator) {}
 
-  explicit vector(size_type count, const T& value, const Allocator& alloc = Allocator())
-    : allocator_(alloc) {
+  explicit vector(size_type count, const T& value,
+                  const Allocator& alloc = Allocator())
+      : allocator_(alloc) {
     change_capacity_impl_(count);
     using namespace std;
     fill(data(), data() + size(), value);
   }
 
   explicit vector(size_type count, const Allocator& alloc = Allocator())
-    : allocator_(alloc) {
+      : allocator_(alloc) {
     change_capacity_impl_(count);
     T value;
     using namespace std;
@@ -40,15 +43,17 @@ public:
   }
 
   template <std::forward_iterator Iter>
-  constexpr vector(Iter first, Iter last,
-                   const Allocator& alloc = Allocator()) : allocator_(alloc) {
+  constexpr vector(Iter first, Iter last, const Allocator& alloc = Allocator())
+      : allocator_(alloc) {
     change_capacity_impl_(std::distance(first, last));
     using namespace std;
     copy(first, last, begin());
   }
 
-  vector(const vector& other) : allocator_(std::allocator_traits<allocator_type>::select_on_container_copy_construction(
-    other.get_allocator())) {
+  vector(const vector& other)
+      : allocator_(
+            std::allocator_traits<allocator_type>::
+                select_on_container_copy_construction(other.get_allocator())) {
     change_capacity_impl_(other.size());
     using namespace std;
     copy(other.begin(), other.end(), begin());
@@ -61,26 +66,29 @@ public:
   }
 
   vector(vector&& other) noexcept
-  requires(std::is_trivially_move_constructible_v<T>)
-    : allocator_(std::move(other.get_allocator()))
-  {
-    data_ = other.data_;         other.data_ = nullptr;
-    size_ = other.size_;         other.size_ = 0;
-    capacity_ = other.capacity_; other.capacity_ = 0;
+    requires(std::is_trivially_move_constructible_v<T>)
+      : allocator_(std::move(other.get_allocator())) {
+    data_ = other.data_;
+    other.data_ = nullptr;
+    size_ = other.size_;
+    other.size_ = 0;
+    capacity_ = other.capacity_;
+    other.capacity_ = 0;
   }
 
   vector(vector&& other, const Allocator& alloc) noexcept
-  requires(std::is_trivially_move_constructible_v<T>)
-   : allocator_(alloc)
-  {
-    data_ = other.data_;         other.data_ = nullptr;
-    size_ = other.size_;         other.size_ = 0;
-    capacity_ = other.capacity_; other.capacity_ = 0;
+    requires(std::is_trivially_move_constructible_v<T>)
+      : allocator_(alloc) {
+    data_ = other.data_;
+    other.data_ = nullptr;
+    size_ = other.size_;
+    other.size_ = 0;
+    capacity_ = other.capacity_;
+    other.capacity_ = 0;
   }
 
   vector(std::initializer_list<T> init, const Allocator& alloc = Allocator())
-    : allocator_(alloc)
-  {
+      : allocator_(alloc) {
     change_capacity_impl_(init.size());
     using namespace std;
     copy(init.begin(), init.end(), begin());
@@ -92,11 +100,14 @@ public:
   }
 
   vector& operator=(vector&& other) noexcept
-  requires(std::is_trivially_move_constructible_v<T>)
+    requires(std::is_trivially_move_constructible_v<T>)
   {
-    data_ = other.data_;         other.data_ = nullptr;
-    size_ = other.size_;         other.size_ = 0;
-    capacity_ = other.capacity_; other.capacity_ = 0;
+    data_ = other.data_;
+    other.data_ = nullptr;
+    size_ = other.size_;
+    other.size_ = 0;
+    capacity_ = other.capacity_;
+    other.capacity_ = 0;
 
     return *this;
   }
@@ -239,7 +250,6 @@ public:
   }
 
 private:
-
   // For use only inside constructors and assignment operators
   void change_capacity_impl_(size_type count) {
     if (data_ != nullptr && capacity_ != count) {
@@ -257,8 +267,10 @@ private:
     n |= n >> 2;
     n |= n >> 4;
     n |= n >> 8;
-    if constexpr(sizeof(size_type) > 2) n |= n >> 16;
-    if constexpr(sizeof(size_type) > 4) n |= n >> 32;
+    if constexpr (sizeof(size_type) > 2)
+      n |= n >> 16;
+    if constexpr (sizeof(size_type) > 4)
+      n |= n >> 32;
     n++;
     return n;
   }
@@ -269,4 +281,4 @@ private:
   allocator_type allocator_;
 };
 
-} // end shp
+} // namespace shp

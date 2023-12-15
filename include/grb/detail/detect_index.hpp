@@ -20,8 +20,9 @@ struct instantiation_of_index<index<T>> {
 };
 
 template <typename T>
-inline constexpr bool instantiation_of_index_v = instantiation_of_index<T>::value;
+inline constexpr bool instantiation_of_index_v =
+    instantiation_of_index<T>::value;
 
-} // end __detail
+} // namespace __detail
 
-} // end grb
+} // namespace grb

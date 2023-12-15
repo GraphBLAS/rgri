@@ -1,9 +1,9 @@
 #pragma once
 
-#include <iterator>
-#include <grb/util/index.hpp>
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
+#include <grb/util/index.hpp>
+#include <iterator>
 
 namespace grb {
 
@@ -32,31 +32,31 @@ public:
 
   constexpr csr_matrix_row_accessor() noexcept = default;
   constexpr ~csr_matrix_row_accessor() noexcept = default;
-  constexpr csr_matrix_row_accessor(
-      const csr_matrix_row_accessor &) noexcept = default;
-  constexpr csr_matrix_row_accessor &
-  operator=(const csr_matrix_row_accessor &) noexcept = default;
+  constexpr csr_matrix_row_accessor(const csr_matrix_row_accessor&) noexcept =
+      default;
+  constexpr csr_matrix_row_accessor&
+  operator=(const csr_matrix_row_accessor&) noexcept = default;
 
-  constexpr csr_matrix_row_accessor(TIter values, IIter colind,
-                                     index_type row, size_type idx) noexcept
+  constexpr csr_matrix_row_accessor(TIter values, IIter colind, index_type row,
+                                    size_type idx) noexcept
       : values_(values), colind_(colind), row_(row), idx_(idx) {}
 
-  constexpr csr_matrix_row_accessor &
+  constexpr csr_matrix_row_accessor&
   operator+=(difference_type offset) noexcept {
     idx_ += offset;
     return *this;
   }
 
-  constexpr bool operator==(const iterator_accessor &other) const noexcept {
+  constexpr bool operator==(const iterator_accessor& other) const noexcept {
     return idx_ == other.idx_;
   }
 
   constexpr difference_type
-  operator-(const iterator_accessor &other) const noexcept {
+  operator-(const iterator_accessor& other) const noexcept {
     return difference_type(idx_) - difference_type(other.idx_);
   }
 
-  constexpr bool operator<(const iterator_accessor &other) const noexcept {
+  constexpr bool operator<(const iterator_accessor& other) const noexcept {
     return idx_ < other.idx_;
   }
 
@@ -91,16 +91,25 @@ public:
 
   using iterator = csr_matrix_row_iterator<T, I, TIter, IIter>;
 
-  csr_matrix_row_view(TIter values, IIter colind, index_type row, size_type size)
+  csr_matrix_row_view(TIter values, IIter colind, index_type row,
+                      size_type size)
       : values_(values), colind_(colind), row_(row), size_(size) {}
 
-  scalar_reference operator[](size_type idx) { return values_[idx]; }
+  scalar_reference operator[](size_type idx) {
+    return values_[idx];
+  }
 
-  iterator begin() const { return iterator(values_, colind_, row_, 0); }
+  iterator begin() const {
+    return iterator(values_, colind_, row_, 0);
+  }
 
-  iterator end() const { return iterator(values_, colind_, row_, size_); }
+  iterator end() const {
+    return iterator(values_, colind_, row_, size_);
+  }
 
-  size_type size() const noexcept { return size_; }
+  size_type size() const noexcept {
+    return size_;
+  }
 
   TIter values_;
   IIter colind_;
@@ -108,9 +117,11 @@ public:
   size_type size_;
 };
 
-template <std::random_access_iterator TIter, std::random_access_iterator IIter, typename... Args>
+template <std::random_access_iterator TIter, std::random_access_iterator IIter,
+          typename... Args>
 csr_matrix_row_view(TIter, IIter, Args&&...)
-    -> csr_matrix_row_view<std::iter_value_t<TIter>, std::iter_value_t<IIter>, TIter, IIter>;
+    -> csr_matrix_row_view<std::iter_value_t<TIter>, std::iter_value_t<IIter>,
+                           TIter, IIter>;
 
 template <typename T, typename I, typename TIter = T*, typename IIter = I*>
 class csr_matrix_view_accessor {
@@ -137,10 +148,10 @@ public:
 
   constexpr csr_matrix_view_accessor() noexcept = default;
   constexpr ~csr_matrix_view_accessor() noexcept = default;
-  constexpr csr_matrix_view_accessor(
-      const csr_matrix_view_accessor &) noexcept = default;
-  constexpr csr_matrix_view_accessor &
-  operator=(const csr_matrix_view_accessor &) noexcept = default;
+  constexpr csr_matrix_view_accessor(const csr_matrix_view_accessor&) noexcept =
+      default;
+  constexpr csr_matrix_view_accessor&
+  operator=(const csr_matrix_view_accessor&) noexcept = default;
 
   constexpr csr_matrix_view_accessor(TIter values, IIter rowptr, IIter colind,
                                      size_type idx, index_type row,
@@ -170,7 +181,7 @@ public:
     }
   }
 
-  constexpr csr_matrix_view_accessor &
+  constexpr csr_matrix_view_accessor&
   operator+=(difference_type offset) noexcept {
     idx_ += offset;
     if (offset < 0) {
@@ -181,23 +192,21 @@ public:
     return *this;
   }
 
-  constexpr bool operator==(const iterator_accessor &other) const noexcept {
+  constexpr bool operator==(const iterator_accessor& other) const noexcept {
     return idx_ == other.idx_;
   }
 
   constexpr difference_type
-  operator-(const iterator_accessor &other) const noexcept {
+  operator-(const iterator_accessor& other) const noexcept {
     return difference_type(idx_) - difference_type(other.idx_);
   }
 
-  constexpr bool operator<(const iterator_accessor &other) const noexcept {
+  constexpr bool operator<(const iterator_accessor& other) const noexcept {
     return idx_ < other.idx_;
   }
 
   constexpr reference operator*() const noexcept {
-    return reference(
-        key_type(row_, colind_[idx_]),
-        values_[idx_]);
+    return reference(key_type(row_, colind_[idx_]), values_[idx_]);
   }
 
 private:
@@ -213,7 +222,7 @@ template <typename T, typename I, typename TIter, typename IIter>
 using csr_matrix_view_iterator =
     grb::detail::iterator_adaptor<csr_matrix_view_accessor<T, I, TIter, IIter>>;
 
-template <typename T, typename I, typename TIter = T *, typename IIter = I *>
+template <typename T, typename I, typename TIter = T*, typename IIter = I*>
 class csr_matrix_view {
 public:
   using size_type = std::size_t;
@@ -234,9 +243,13 @@ public:
       : values_(values), rowptr_(rowptr), colind_(colind), shape_(shape),
         nnz_(nnz) {}
 
-  key_type shape() const noexcept { return shape_; }
+  key_type shape() const noexcept {
+    return shape_;
+  }
 
-  size_type size() const noexcept { return nnz_; }
+  size_type size() const noexcept {
+    return nnz_;
+  }
 
   iterator begin() const {
     return iterator(values_, rowptr_, colind_, 0, 0, shape()[1]);
@@ -246,15 +259,21 @@ public:
     return iterator(values_, rowptr_, colind_, nnz_, shape()[1], shape()[1]);
   }
 
-  auto values_data() const { return values_; }
+  auto values_data() const {
+    return values_;
+  }
 
-  auto rowptr_data() const { return rowptr_; }
+  auto rowptr_data() const {
+    return rowptr_;
+  }
 
-  auto colind_data() const { return colind_; }
+  auto colind_data() const {
+    return colind_;
+  }
 
   iterator find(const key_type& key) const {
     index_type i = key[0];
-    for (index_type j_ptr = rowptr_[i]; j_ptr < rowptr_[i+1]; j_ptr++) {
+    for (index_type j_ptr = rowptr_[i]; j_ptr < rowptr_[i + 1]; j_ptr++) {
       if (colind_[j_ptr] == key[1]) {
         return iterator(values_, rowptr_, colind_, j_ptr, i, shape()[1]);
       }
@@ -264,17 +283,18 @@ public:
 
   auto row(index_type row_index) const {
     auto offset = rowptr_[row_index];
-    auto size = rowptr_[row_index+1] - offset;
-    return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index, size);
+    auto size = rowptr_[row_index + 1] - offset;
+    return csr_matrix_row_view(values_ + offset, colind_ + offset, row_index,
+                               size);
   }
 
   auto rows() const {
-    auto row_indices = std::ranges::views::iota(index_type(0), index_type(shape()[0]));
+    auto row_indices =
+        std::ranges::views::iota(index_type(0), index_type(shape()[0]));
 
-    return row_indices | std::ranges::views::transform(
-                           [*this](index_type row_index) {
-                             return row(row_index);
-                           });
+    return row_indices |
+           std::ranges::views::transform(
+               [*this](index_type row_index) { return row(row_index); });
   }
 
 private:
@@ -287,7 +307,7 @@ private:
 };
 
 template <typename TIter, typename IIter, typename... Args>
-csr_matrix_view(TIter, IIter, IIter, Args &&...)
+csr_matrix_view(TIter, IIter, IIter, Args&&...)
     -> csr_matrix_view<std::iter_value_t<TIter>, std::iter_value_t<IIter>,
                        TIter, IIter>;
 

@@ -1,15 +1,15 @@
 #pragma once
 
-#include <vector>
-#include <ranges>
 #include <H5Cpp.h>
+#include <ranges>
+#include <vector>
 
 namespace hdf5_tools {
 
 template <typename U>
 inline H5::PredType get_hdf5_native_type() {
   using T = std::decay_t<U>;
-  if constexpr(std::is_same_v<T, char>) {
+  if constexpr (std::is_same_v<T, char>) {
     return H5::PredType::NATIVE_CHAR;
   } else if constexpr (std::is_same_v<T, unsigned char>) {
     return H5::PredType::NATIVE_UCHAR;
@@ -43,11 +43,11 @@ inline H5::PredType get_hdf5_native_type() {
 template <typename U>
 inline H5::PredType get_hdf5_standard_type() {
   using T = std::decay_t<U>;
-  if constexpr(std::is_same_v<T, char>) {
+  if constexpr (std::is_same_v<T, char>) {
     return H5::PredType::STD_I8LE;
-  } else if constexpr(std::is_same_v<T, unsigned char>) {
+  } else if constexpr (std::is_same_v<T, unsigned char>) {
     return H5::PredType::STD_U8LE;
-  } else if constexpr(std::is_same_v<T, int8_t>) {
+  } else if constexpr (std::is_same_v<T, int8_t>) {
     return H5::PredType::STD_I8LE;
   } else if constexpr (std::is_same_v<T, uint8_t>) {
     return H5::PredType::STD_U8LE;
@@ -79,7 +79,8 @@ void write_dataset(H5::H5File& f, const std::string& label, R&& r) {
   using T = std::ranges::range_value_t<R>;
   hsize_t size = std::ranges::size(r);
   H5::DataSpace dataspace(1, &size);
-  auto dataset = f.createDataSet(label.c_str(), get_hdf5_standard_type<T>(), dataspace);
+  auto dataset =
+      f.createDataSet(label.c_str(), get_hdf5_standard_type<T>(), dataspace);
 
   dataset.write(std::ranges::data(r), get_hdf5_native_type<T>());
   dataset.close();
@@ -101,4 +102,4 @@ std::vector<T> read_dataset(H5::H5File& f, const std::string& label) {
   return v;
 }
 
-} // end hdf_tools
+} // namespace hdf5_tools

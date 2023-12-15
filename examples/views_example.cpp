@@ -3,10 +3,11 @@
 #include <grb/containers/views/masked_view.hpp>
 
 template <typename ContainerType>
-requires(grb::MatrixRange<ContainerType> || grb::VectorRange<ContainerType>)
+  requires(grb::MatrixRange<ContainerType> || grb::VectorRange<ContainerType>)
 class tmp : public std::ranges::view_interface<tmp<ContainerType>> {
 public:
   tmp(ContainerType matrix) : matrix_(matrix) {}
+
 private:
   std::ranges::views::all_t<ContainerType> matrix_;
 };
@@ -33,10 +34,10 @@ int main(int argc, char** argv) {
   grb::print(matrix_t, "matrix transposed");
 
   auto matrix_tr = grb::views::transform(matrix_t, [](auto&& entry) {
-                                            auto&& [idx, value] = entry;
-                                            auto&& [i, j] = idx;
-                                            return i + j / 10.0f;
-                                          });
+    auto&& [idx, value] = entry;
+    auto&& [i, j] = idx;
+    return i + j / 10.0f;
+  });
 
   grb::print(matrix_tr, "matrix transformed");
 
@@ -46,12 +47,11 @@ int main(int argc, char** argv) {
 
   auto lel = grb::get<1>(*matrix_str.begin());
 
-
   auto filter = grb::views::filter(matrix_tr, [](auto&& entry) {
-                                      auto&& [index, value] = entry;
-                                      auto&& [i, j] = index;
-                                      return i < 5;
-                                    });
+    auto&& [index, value] = entry;
+    auto&& [i, j] = index;
+    return i < 5;
+  });
 
   grb::print(filter);
 
@@ -71,9 +71,7 @@ int main(int argc, char** argv) {
   }
   std::cout << std::endl;
 
-
   grb::matrix<bool> mask(matrix.shape());
-
 
   grb::masked_view view(matrix, mask);
 
@@ -93,16 +91,15 @@ int main(int argc, char** argv) {
 
   grb::print(a, "A");
 
-
-/*
-  for (size_t i = 0; i < matrix.shape()[0]; i += 4) {
-    for (size_t j = 0; j < matrix.shape()[1]; j += 4) {
-      std::cout << "Submatrix [" << i << ":" << i+4 << "," << j << ":" << j+4 << "]\n";
-      grb::submatrix_view mat_sub(matrix, {i, i+4}, {j, j+4});
-      grb::print(mat_sub);
+  /*
+    for (size_t i = 0; i < matrix.shape()[0]; i += 4) {
+      for (size_t j = 0; j < matrix.shape()[1]; j += 4) {
+        std::cout << "Submatrix [" << i << ":" << i+4 << "," << j << ":" << j+4
+    << "]\n"; grb::submatrix_view mat_sub(matrix, {i, i+4}, {j, j+4});
+        grb::print(mat_sub);
+      }
     }
-  }
-  */
+    */
 
   return 0;
 }

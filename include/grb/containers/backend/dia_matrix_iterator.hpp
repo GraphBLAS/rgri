@@ -3,8 +3,7 @@
 #include <map>
 #include <vector>
 
-template <typename T,
-          typename I>
+template <typename T, typename I>
 class dia_matrix_iterator {
 public:
   using size_type = std::size_t;
@@ -16,8 +15,7 @@ public:
 
   using value_type = grb::matrix_entry<T, index_type>;
   using iterator = dia_matrix_iterator;
-  using const_iterator = dia_matrix_iterator<std::add_const_t<T>,
-                                             index_type>;
+  using const_iterator = dia_matrix_iterator<std::add_const_t<T>, index_type>;
 
   using reference = grb::matrix_ref<T, I>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, I>;
@@ -27,20 +25,16 @@ public:
 
   using iterator_category = std::forward_iterator_tag;
 
-  dia_matrix_iterator(index_type idx,
-                      index_type m,
-                      index_type n,
-                      typename std::map<index_type,
-                               std::pair<std::vector<T>,
-                                         std::vector<bool>>
-                                        >::iterator diagonal,
-                      typename std::map<index_type,
-                               std::pair<std::vector<T>,
-                                         std::vector<bool>>
-                                        >::iterator end
-                      ) : idx_(idx), m_(m), n_(n),
-                          diagonal_(diagonal), end_(end) {
-                            fast_forward();
+  dia_matrix_iterator(
+      index_type idx, index_type m, index_type n,
+      typename std::map<index_type,
+                        std::pair<std::vector<T>, std::vector<bool>>>::iterator
+          diagonal,
+      typename std::map<index_type,
+                        std::pair<std::vector<T>, std::vector<bool>>>::iterator
+          end)
+      : idx_(idx), m_(m), n_(n), diagonal_(diagonal), end_(end) {
+    fast_forward();
   }
 
   void fast_forward() {
@@ -49,8 +43,7 @@ public:
       ++diagonal_;
       idx_ = 0;
     }
-    while (diagonal_ != end_ &&
-           !bool(diagonal_->second.second[idx_])) {
+    while (diagonal_ != end_ && !bool(diagonal_->second.second[idx_])) {
       idx_++;
       index_type diagonal_count = diagonal_->second.second.size();
       if (idx_ >= diagonal_count) {
@@ -76,7 +69,8 @@ public:
   reference operator*() noexcept {
     difference_type i, j;
 
-    difference_type v = difference_type(m_) - 1 - difference_type(diagonal_->first);
+    difference_type v =
+        difference_type(m_) - 1 - difference_type(diagonal_->first);
     if (v >= 0) {
       i = v;
       j = 0;
@@ -88,7 +82,8 @@ public:
     i += idx_;
     j += idx_;
 
-    return reference({index_type(i), index_type(j)}, diagonal_->second.first[idx_]);
+    return reference({index_type(i), index_type(j)},
+                     diagonal_->second.first[idx_]);
   }
 
   dia_matrix_iterator() = default;
@@ -105,11 +100,8 @@ private:
   index_type idx_;
   index_type m_, n_;
   typename std::map<index_type,
-           std::pair<std::vector<T>,
-                     std::vector<bool>>
-                    >::iterator diagonal_;
-  typename std::map<index_type,
-           std::pair<std::vector<T>,
-                     std::vector<bool>>
-                    >::iterator end_;
+                    std::pair<std::vector<T>, std::vector<bool>>>::iterator
+      diagonal_;
+  typename std::map<
+      index_type, std::pair<std::vector<T>, std::vector<bool>>>::iterator end_;
 };

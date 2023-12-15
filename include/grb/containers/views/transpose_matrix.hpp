@@ -1,9 +1,9 @@
 #pragma once
 
-#include <grb/util/index.hpp>
 #include <grb/containers/matrix_entry.hpp>
-#include <grb/detail/iterator_adaptor.hpp>
 #include <grb/detail/concepts.hpp>
+#include <grb/detail/iterator_adaptor.hpp>
+#include <grb/util/index.hpp>
 
 #include <ranges>
 
@@ -12,8 +12,10 @@ namespace grb {
 template <typename Iterator>
 class transpose_matrix_accessor {
 public:
-  using scalar_type = std::remove_cvref_t<decltype(grb::get<1>(*std::declval<Iterator>()))>;
-  using index_type = std::remove_cvref_t<decltype(grb::get<0>(grb::get<0>(*std::declval<Iterator>())))>;
+  using scalar_type =
+      std::remove_cvref_t<decltype(grb::get<1>(*std::declval<Iterator>()))>;
+  using index_type = std::remove_cvref_t<decltype(grb::get<0>(
+      grb::get<0>(*std::declval<Iterator>())))>;
   using difference_type = typename Iterator::difference_type;
 
   using value_type = grb::matrix_entry<scalar_type, index_type>;
@@ -27,8 +29,10 @@ public:
 
   transpose_matrix_accessor() noexcept = default;
   ~transpose_matrix_accessor() noexcept = default;
-  transpose_matrix_accessor(const transpose_matrix_accessor&) noexcept = default;
-  transpose_matrix_accessor& operator=(const transpose_matrix_accessor&) noexcept = default;
+  transpose_matrix_accessor(const transpose_matrix_accessor&) noexcept =
+      default;
+  transpose_matrix_accessor&
+  operator=(const transpose_matrix_accessor&) noexcept = default;
 
   transpose_matrix_accessor(Iterator iter) : iter_(iter) {}
 
@@ -38,7 +42,7 @@ public:
   }
 
   transpose_matrix_accessor& operator+=(difference_type offset) noexcept
-  requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
+    requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
   {
     iter_ += offset;
     return *this;
@@ -53,8 +57,9 @@ public:
     return reference({index[1], index[0]}, value);
   }
 
-  difference_type operator-(const transpose_matrix_accessor& other) const noexcept
-  requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
+  difference_type
+  operator-(const transpose_matrix_accessor& other) const noexcept
+    requires(std::is_same_v<iterator_category, std::random_access_iterator_tag>)
   {
     return iter_ - other.iter_;
   }
@@ -64,12 +69,13 @@ private:
 };
 
 template <typename Iterator>
-using transpose_matrix_iterator = grb::detail::iterator_adaptor<transpose_matrix_accessor<Iterator>>;
+using transpose_matrix_iterator =
+    grb::detail::iterator_adaptor<transpose_matrix_accessor<Iterator>>;
 
 template <typename MatrixType>
-class transpose_matrix_view : public std::ranges::view_interface<transpose_matrix_view<MatrixType>> {
+class transpose_matrix_view
+    : public std::ranges::view_interface<transpose_matrix_view<MatrixType>> {
 public:
-
   using matrix_type = std::decay_t<MatrixType>;
 
   using index_type = typename matrix_type::index_type;
@@ -77,7 +83,8 @@ public:
   using size_type = typename matrix_type::size_type;
   using difference_type = typename matrix_type::difference_type;
 
-  using iterator = transpose_matrix_iterator<typename matrix_type::const_iterator>;
+  using iterator =
+      transpose_matrix_iterator<typename matrix_type::const_iterator>;
   using const_iterator = iterator;
 
   using value_type = std::remove_cvref_t<decltype(*std::declval<iterator>())>;
@@ -115,4 +122,4 @@ auto transpose(const MatrixType& matrix) {
   return transpose_matrix_view<MatrixType>(matrix);
 }
 
-} // end grb
+} // namespace grb

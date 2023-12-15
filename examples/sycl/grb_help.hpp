@@ -16,4 +16,4 @@ void initialize_random(Vector&& vector) {
   }
 }
 
-} // end grb
+} // namespace grb

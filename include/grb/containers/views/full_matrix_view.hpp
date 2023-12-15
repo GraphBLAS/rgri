@@ -3,9 +3,9 @@
 #include <limits>
 #include <type_traits>
 
-#include <grb/util/index.hpp>
 #include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
+#include <grb/util/index.hpp>
 
 namespace grb {
 
@@ -22,27 +22,34 @@ public:
 
   constexpr full_matrix_accessor() noexcept = default;
   constexpr ~full_matrix_accessor() noexcept = default;
-  constexpr full_matrix_accessor(const full_matrix_accessor&) noexcept = default;
-  constexpr full_matrix_accessor& operator=(const full_matrix_accessor&) noexcept = default;
+  constexpr full_matrix_accessor(const full_matrix_accessor&) noexcept =
+      default;
+  constexpr full_matrix_accessor&
+  operator=(const full_matrix_accessor&) noexcept = default;
 
-  constexpr full_matrix_accessor(I i, I j, I n, T value) noexcept : i_(i), j_(j), n_(n), value_(value) {}
+  constexpr full_matrix_accessor(I i, I j, I n, T value) noexcept
+      : i_(i), j_(j), n_(n), value_(value) {}
 
   constexpr full_matrix_accessor& operator+=(difference_type offset) noexcept {
-  	auto new_offset = flat_offset() + offset;
-  	i_ = new_offset / n_;
-  	j_ = new_offset % n_;
+    auto new_offset = flat_offset() + offset;
+    i_ = new_offset / n_;
+    j_ = new_offset % n_;
     return *this;
   }
 
-  constexpr difference_type operator-(const const_iterator_accessor& other) const noexcept {
-  	return difference_type(flat_offset()) - difference_type(other.flat_offset());
+  constexpr difference_type
+  operator-(const const_iterator_accessor& other) const noexcept {
+    return difference_type(flat_offset()) -
+           difference_type(other.flat_offset());
   }
 
-  constexpr bool operator==(const const_iterator_accessor& other) const noexcept {
+  constexpr bool
+  operator==(const const_iterator_accessor& other) const noexcept {
     return i_ == other.i_ && j_ == other.j_;
   }
 
-  constexpr bool operator<(const const_iterator_accessor& other) const noexcept {
+  constexpr bool
+  operator<(const const_iterator_accessor& other) const noexcept {
     return i_ < other.i_ || (i_ == other.i_ && j_ < other.j_);
   }
 
@@ -51,10 +58,9 @@ public:
   }
 
 private:
-
-	std::size_t flat_offset() const noexcept {
-		return std::size_t(i_)*n_ + j_;
-	}
+  std::size_t flat_offset() const noexcept {
+    return std::size_t(i_) * n_ + j_;
+  }
 
   I i_, j_;
   I n_;
@@ -62,94 +68,88 @@ private:
 };
 
 template <typename T, std::integral I = std::size_t>
-using full_matrix_iterator = grb::detail::iterator_adaptor<full_matrix_accessor<T, I>>;
+using full_matrix_iterator =
+    grb::detail::iterator_adaptor<full_matrix_accessor<T, I>>;
 
 template <typename T, typename I = std::size_t>
-class full_matrix
-{
-public:	
-	using scalar_type = T;
+class full_matrix {
+public:
+  using scalar_type = T;
 
-	using index_type = I;
+  using index_type = I;
 
-	using value_type = grb::matrix_entry<T, I>;
+  using value_type = grb::matrix_entry<T, I>;
 
-	using key_type = grb::index<I>;
-	using map_type = T;
+  using key_type = grb::index<I>;
+  using map_type = T;
 
-	using size_type = std::size_t;
+  using size_type = std::size_t;
 
-	using difference_type = std::ptrdiff_t;
+  using difference_type = std::ptrdiff_t;
 
-	using scalar_reference = scalar_type;
+  using scalar_reference = scalar_type;
 
-	using iterator = full_matrix_iterator<T, I>;
-	using const_iterator = iterator;
+  using iterator = full_matrix_iterator<T, I>;
+  using const_iterator = iterator;
 
+  full_matrix(grb::index<I> shape = {std::numeric_limits<I>::max(),
+                                     std::numeric_limits<I>::max()},
+              T value = T())
+      : shape_(shape), value_(value) {}
 
-	full_matrix(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()},
-		          T value = T())
-	  : shape_(shape), value_(value)
-	{}
+  iterator begin() const noexcept {
+    return iterator(0, 0, shape()[1], value_);
+  }
 
-	iterator begin() const noexcept {
-		return iterator(0, 0, shape()[1], value_);
-	}
+  iterator end() const noexcept {
+    return iterator(shape()[0], 0, shape()[1], value_);
+  }
 
-	iterator end() const noexcept {
-		return iterator(shape()[0], 0, shape()[1], value_);
-	}
+  grb::index<I> shape() const noexcept {
+    return shape_;
+  }
 
-	grb::index<I> shape() const noexcept {
-		return shape_;
-	}
+  size_type size() const noexcept {
+    return shape()[0] * shape()[1];
+  }
 
-	size_type size() const noexcept {
-		return shape()[0]*shape()[1];
-	}
+  scalar_reference operator[](grb::index<I> index) const noexcept {
+    return value_;
+  }
 
-	scalar_reference operator[](grb::index<I> index) const noexcept {
-		return value_;
-	}
+  iterator find(key_type key) const noexcept {
+    if constexpr (std::is_signed_v<I>) {
+      if (key[0] < 0 || key[1] < 0) {
+        return end();
+      }
+    }
 
-	iterator find(key_type key) const noexcept {
-		if constexpr(std::is_signed_v<I>) {
-			if (key[0] < 0 || key[1] < 0) {
-				return end();
-			}
-		}
-
-		if (key[0] < shape()[0] && key[1] < shape()[1]) {
-			return iterator(key[0], key[1], shape()[1], value_);
-		} else {
-			return end();
-		}
-	}
+    if (key[0] < shape()[0] && key[1] < shape()[1]) {
+      return iterator(key[0], key[1], shape()[1], value_);
+    } else {
+      return end();
+    }
+  }
 
 private:
-	T value_;
-	grb::index<I> shape_;
+  T value_;
+  grb::index<I> shape_;
 };
 
 template <typename I = std::size_t>
-class full_matrix_mask : public full_matrix<bool, I>
-{
+class full_matrix_mask : public full_matrix<bool, I> {
 public:
-
-	full_matrix_mask(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()})
-	  : full_matrix<bool, I>(shape, true)
-	{}
+  full_matrix_mask(grb::index<I> shape = {std::numeric_limits<I>::max(),
+                                          std::numeric_limits<I>::max()})
+      : full_matrix<bool, I>(shape, true) {}
 };
-
 
 template <typename I = std::size_t>
-class empty_matrix_mask : public full_matrix<bool, I>
-{
+class empty_matrix_mask : public full_matrix<bool, I> {
 public:
-
-	empty_matrix_mask(grb::index<I> shape = {std::numeric_limits<I>::max(), std::numeric_limits<I>::max()})
-	  : full_matrix<bool, I>(shape, false)
-	{}
+  empty_matrix_mask(grb::index<I> shape = {std::numeric_limits<I>::max(),
+                                           std::numeric_limits<I>::max()})
+      : full_matrix<bool, I>(shape, false) {}
 };
 
-} // end grb
+} // namespace grb

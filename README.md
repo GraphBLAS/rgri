@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
   }
 
   auto c = grb::multiply(a, b);
-  
+
   grb::print(c);
 
   return 0;
@@ -55,7 +55,7 @@ Benjamin Brock. RGRI: A reference implementation of the C++ GraphBLAS specificat
 To cite the [GraphBLAS C++ Specification](https://github.com/GraphBLAS/graphblas-api-cpp):
 
 Benjamin Brock, Scott McMillan, Aydın Buluc ̧, Timothy Mattson, and Jose ́ Moreira. GraphBLAS C++ specification. https://github.com/ GraphBLAS/graphblas-api-cpp, 2022.
- 
+
 ```bibtex
 @misc{graphblascppspec,
   title={Graph{BLAS} {C}++ Specification},

@@ -6,10 +6,7 @@
 
 namespace grb {
 
-template <typename T,
-          typename I,
-          typename TIter,
-          typename TConstIter,
+template <typename T, typename I, typename TIter, typename TConstIter,
           typename BIter>
 class dense_vector_iterator {
 public:
@@ -22,22 +19,24 @@ public:
   using key_type = grb::index<I>;
   using map_type = T;
 
-  using backend_iterator = std::conditional_t<!std::is_const_v<T>, TIter, TConstIter>;
+  using backend_iterator =
+      std::conditional_t<!std::is_const_v<T>, TIter, TConstIter>;
 
   using value_type = grb::vector_entry<T, index_type>;
   using iterator = dense_vector_iterator;
-  using const_iterator = dense_vector_iterator<std::add_const_t<T>,
-                                               index_type,
+  using const_iterator = dense_vector_iterator<std::add_const_t<T>, index_type,
                                                TIter, TConstIter, BIter>;
 
-  using nonconst_iterator = dense_vector_iterator<std::remove_const_t<T>, index_type,
-                                                TIter, TConstIter, BIter>;
+  using nonconst_iterator =
+      dense_vector_iterator<std::remove_const_t<T>, index_type, TIter,
+                            TConstIter, BIter>;
 
   using scalar_reference = decltype(*std::declval<TIter>());
   using const_scalar_reference = decltype(*std::declval<TConstIter>());
 
   using reference = grb::vector_ref<T, I, scalar_reference>;
-  using const_reference = grb::vector_ref<std::add_const_t<T>, I, const_scalar_reference>;
+  using const_reference =
+      grb::vector_ref<std::add_const_t<T>, I, const_scalar_reference>;
 
   using pointer = iterator;
   using const_pointer = const_iterator;
@@ -47,25 +46,25 @@ public:
   template <std::ranges::random_access_range R1,
             std::ranges::random_access_range R2>
   dense_vector_iterator(R1&& data, R2&& flags, index_type index)
-    : data_(data), flags_(flags), index_(index) {
-      fast_forward();
+      : data_(data), flags_(flags), index_(index) {
+    fast_forward();
   }
 
   reference operator*() const noexcept
-  requires(!std::is_const_v<T>)
+    requires(!std::is_const_v<T>)
   {
     return reference(index_, data_[index_]);
   }
 
   const_reference operator*() const noexcept
-  requires(std::is_const_v<T>)
+    requires(std::is_const_v<T>)
   {
     return const_reference(index_, data_[index_]);
   }
 
   void fast_forward() noexcept {
     while (!flags_[index_] && index_ < flags_.size()) {
-    	index_++;
+      index_++;
     }
   }
 
@@ -106,7 +105,7 @@ public:
   }
 
   bool operator==(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return index_ == other.index_;
   }
@@ -116,7 +115,7 @@ public:
   }
 
   bool operator!=(const_iterator other) const noexcept
-  requires(!std::is_same_v<iterator, const_iterator>)
+    requires(!std::is_same_v<iterator, const_iterator>)
   {
     return !(*this == other);
   }
@@ -135,4 +134,4 @@ private:
   index_type index_;
 };
 
-} // end grb
+} // namespace grb

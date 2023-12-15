@@ -1,5 +1,5 @@
-#include <grb/grb.hpp>
 #include <CL/sycl.hpp>
+#include <grb/grb.hpp>
 #include <span>
 
 template <std::ranges::forward_range R>
@@ -7,7 +7,6 @@ void test_range(R&&) {}
 
 template <std::random_access_iterator Iter>
 void test_iter(Iter&&) {}
-
 
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
@@ -23,9 +22,8 @@ int main(int argc, char** argv) {
 
   test_range(vec);
 
-  for_each(vec_view, [](auto&& entry) {
-                       entry = entry + 2;
-                     }, q);
+  for_each(
+      vec_view, [](auto&& entry) { entry = entry + 2; }, q);
   print_range(vec, "vec");
 
   device_ptr<int> ptr = a.allocate(100);
@@ -35,8 +33,8 @@ int main(int argc, char** argv) {
   }
 
   q.parallel_for(sycl::range<1>(100), [=](sycl::id<1> id) {
-                                      ptr[id] = 2 + int(ptr[id]);
-                                    }).wait();
+     ptr[id] = 2 + int(ptr[id]);
+   }).wait();
 
   print_range(grb::detail::spanner(ptr, 100));
   // grb::detail::spanner<device_ptr<int>> s;

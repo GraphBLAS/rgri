@@ -1,10 +1,10 @@
 #include <grb/grb.hpp>
 
-#include <string>
-#include <fstream>
-#include <ranges>
-#include <nlohmann/json.hpp>
 #include <H5Cpp.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
+#include <ranges>
+#include <string>
 
 int main(int argc, char** argv) {
   auto m = grb::generate_random<float>({10, 10}, 0.25);

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <grb/containers/backend/csr_matrix.hpp>
 #include <grb/containers/backend/coo_matrix.hpp>
+#include <grb/containers/backend/csr_matrix.hpp>
 #include <grb/containers/backend/dia_matrix.hpp>
 
 #include <grb/containers/matrix_entry.hpp>
@@ -14,12 +14,11 @@ namespace grb {
 /// 1. Template parameter `T` specifies the type of values stored in the matrix.
 /// 2. `I` is an integer type used to record the indices of stored elements.
 /// 3. `Hint` is a hint as to what backend data structure should be used to
-///    store the matrix elements, and can be either `grb::sparse` or `grb::dense`.
+///    store the matrix elements, and can be either `grb::sparse` or
+///    `grb::dense`.
 /// 4. `Allocator` is the C++ allocator used to allocate memory.
-template <typename T,
-          std::integral I = std::size_t,
-          typename Hint = grb::sparse,
-          typename Allocator = std::allocator<T>>
+template <typename T, std::integral I = std::size_t,
+          typename Hint = grb::sparse, typename Allocator = std::allocator<T>>
 class matrix {
 public:
   /// Type of scalar elements stored in the matrix.
@@ -29,7 +28,8 @@ public:
   using index_type = I;
 
   /// A tuple-like type containing:
-  /// 1. A tuple-like type with two `index_type` elements storing the row and column
+  /// 1. A tuple-like type with two `index_type` elements storing the row and
+  /// column
   ///    index of the element.
   /// 2. An element of type `scalar_type`.
   using value_type = matrix_entry<T, I>;
@@ -48,7 +48,8 @@ public:
 
   using hint_type = Hint;
 
-  using backend_type = typename pick_backend_type<Hint>:: template type<T, I, Allocator>;
+  using backend_type =
+      typename pick_backend_type<Hint>::template type<T, I, Allocator>;
 
   using iterator = typename backend_type::iterator;
   using const_iterator = typename backend_type::const_iterator;
@@ -61,22 +62,25 @@ public:
   /// Construct an empty matrix of dimension `shape[0]` x `shape[1]`
   matrix(grb::index<I> shape) : backend_(shape) {}
 
-  matrix(grb::index<I> shape, const Allocator& allocator) : backend_(shape, allocator) {}
+  matrix(grb::index<I> shape, const Allocator& allocator)
+      : backend_(shape, allocator) {}
 
   matrix(std::initializer_list<I> shape)
-    : backend_({*shape.begin(), *(shape.begin()+1)}) {}
+      : backend_({*shape.begin(), *(shape.begin() + 1)}) {}
 
   matrix(std::initializer_list<I> shape, const Allocator& allocator)
-    : backend_({*shape.begin(), *(shape.begin()+1)}, allocator) {}
+      : backend_({*shape.begin(), *(shape.begin() + 1)}, allocator) {}
 
-  /// Construct a matrix from the Matrix Market file stored at location `file_path`.
+  /// Construct a matrix from the Matrix Market file stored at location
+  /// `file_path`.
   matrix(std::string file_path) {
     auto tuples = grb::mmread<T, I>(file_path);
     reshape(tuples.shape());
     insert(tuples.begin(), tuples.end());
   }
 
-  matrix(std::string file_path, const Allocator& allocator) : backend_(allocator) {
+  matrix(std::string file_path, const Allocator& allocator)
+      : backend_(allocator) {
     auto tuples = grb::mmread<T, I>(file_path);
     reshape(tuples.shape());
     insert(tuples.begin(), tuples.end());
@@ -176,4 +180,4 @@ private:
   backend_type backend_;
 };
 
-} // end grb
+} // namespace grb

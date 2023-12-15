@@ -1,9 +1,9 @@
 #pragma once
 
-#include "device_ptr.hpp"
+#include "algorithms.hpp"
 #include "allocators.hpp"
 #include "copy.hpp"
-#include "algorithms.hpp"
-#include "vector.hpp"
-#include "tools.hpp"
 #include "device_matrices.hpp"
+#include "device_ptr.hpp"
+#include "tools.hpp"
+#include "vector.hpp"

@@ -76,7 +76,7 @@ Monoid Traits
 
 .. cpp:type:: template <typename Fn, typename T> grb::monoid_traits_v = typename grb::monoid_traits::value
 
-Identity of the 
+Identity of the
 
 Algorithms
 ----------

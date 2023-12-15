@@ -1,6 +1,6 @@
 #include <grb/grb.hpp>
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 template <typename M>
 size_t pick_random_vertex(M&& matrix) {
@@ -38,9 +38,9 @@ int main(int argc, char** argv) {
 
     grb::print(mask, "All Nodes Previously Visited");
 
-    auto b = grb::multiply(grb::transpose(a), x,
-                           grb::plus{}, grb::times<int, bool, int>{},
-                           grb::complement_view(mask));
+    auto b =
+        grb::multiply(grb::transpose(a), x, grb::plus{},
+                      grb::times<int, bool, int>{}, grb::complement_view(mask));
 
     // TODO: should use transform mask here
     for (auto&& [_, v] : b) {
@@ -49,9 +49,9 @@ int main(int argc, char** argv) {
 
     grb::print(b, "b (iteration): " + std::to_string(iteration));
 
-    auto new_mask = grb::ewise_union(b, mask, [=](auto&&, auto&&) -> int { return iteration; });
+    auto new_mask = grb::ewise_union(
+        b, mask, [=](auto&&, auto&&) -> int { return iteration; });
     std::swap(new_mask, mask);
-
 
     std::swap(x, b);
     iteration++;
