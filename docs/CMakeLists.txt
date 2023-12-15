@@ -1,5 +1,4 @@
 find_package(Doxygen REQUIRED)
-find_package(Sphinx REQUIRED)
 
 # Find all the public headers
 get_target_property(RGRI_PUBLIC_HEADER_DIR rgri INTERFACE_INCLUDE_DIRECTORIES)
@@ -32,6 +31,8 @@ add_custom_target(Doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
 set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
+
+find_program(SPHINX_EXECUTABLE sphinx-build REQUIRED)
 
 # Only regenerate Sphinx when:
 #  - Doxygen has rerun
