@@ -5,7 +5,7 @@ template <grb::TupleLike<int, int> Tuple>
 void foo(Tuple) {}
 
 int main(int argc, char** argv) {
-  grb::matrix<float> matrix("data/chesapeake.mtx");
+  grb::matrix<float> matrix("chesapeake/chesapeake.mtx");
 
   size_t m = matrix.shape()[0];
   size_t n = matrix.shape()[1];

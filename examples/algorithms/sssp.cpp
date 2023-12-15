@@ -15,7 +15,7 @@ size_t pick_random_vertex(M&& matrix) {
 int main(int argc, char** argv) {
   // srand48(0);
   // Import graph
-  grb::matrix<int> a("../data/chesapeake.mtx");
+  grb::matrix<int> a("../chesapeake/chesapeake.mtx");
 
   // Create vector to hold distances to each vertex
   grb::vector<int> dist(a.shape()[1]);

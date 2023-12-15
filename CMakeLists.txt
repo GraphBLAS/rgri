@@ -11,7 +11,14 @@ option(BUILD_DOCS "Build Sphinx documentation" OFF)
 add_subdirectory(include)
 
 if (is_top_level)
+
   include(FetchContent)
+  FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 10.1.1)
+  FetchContent_MakeAvailable(fmt)
+
   FetchContent_Declare(
     Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git

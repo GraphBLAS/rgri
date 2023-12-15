@@ -3,7 +3,7 @@
 
 int main(int argc, char** argv) {
   // Import graph
-  grb::matrix<bool> a("../data/chesapeake.mtx");
+  grb::matrix<bool> a("../chesapeake/chesapeake.mtx");
 
   auto l = grb::views::filter(a, grb::lower_triangle());
 
