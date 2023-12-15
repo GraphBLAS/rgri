@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <grb/containers/matrix_entry.hpp>
+#include <vector>
 
 namespace grb {
 
