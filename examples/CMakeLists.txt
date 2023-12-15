@@ -30,7 +30,6 @@ add_example(basic_multiply)
 add_example(ewise_example)
 add_example(matrix_stdalgs)
 add_example(multiply_example)
-add_example(test)
 add_example(views_example)
 
 add_subdirectory(algorithms)
