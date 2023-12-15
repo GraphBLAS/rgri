@@ -1,11 +1,9 @@
 #include <cstdio>
 #include <grb/grb.hpp>
 
-template <grb::TupleLike<int, int> Tuple>
-void foo(Tuple) {}
-
 int main(int argc, char** argv) {
-  grb::matrix<float> matrix("chesapeake/chesapeake.mtx");
+  grb::matrix<float> matrix =
+      grb::read_matrix<float>("chesapeake/chesapeake.mtx");
 
   size_t m = matrix.shape()[0];
   size_t n = matrix.shape()[1];
@@ -18,9 +16,6 @@ int main(int argc, char** argv) {
   grb::print(matrix, "chesapeake");
 
   auto&& [idx, _] = *matrix.begin();
-
-  std::tuple<int, int> tup;
-  foo(tup);
 
   float sum_values = 0;
   size_t sum_indices = 0;
