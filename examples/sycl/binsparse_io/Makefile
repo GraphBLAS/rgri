@@ -1,5 +1,5 @@
 
-CXX = g++
+CXX = g++-12
 
 SOURCES += $(wildcard *.cpp)
 TARGETS := $(patsubst %.cpp, %, $(SOURCES))

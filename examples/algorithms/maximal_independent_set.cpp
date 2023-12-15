@@ -5,7 +5,7 @@
 int main(int argc, char** argv) {
   // srand48(0);
   // Import graph
-  grb::matrix<int> a("../data/chesapeake.mtx");
+  grb::matrix<int> a("../chesapeake/chesapeake.mtx");
 
   std::default_random_engine generator;
   std::uniform_real_distribution<double> distribution;

@@ -1,5 +1,4 @@
 #define CATCH_CONFIG_MAIN
-#include <grb_testing/catch.hpp>
 
 #include "matrix_iterator_1.hpp"
 #include "vector_iterator_1.hpp"

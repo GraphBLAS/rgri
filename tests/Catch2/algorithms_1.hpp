@@ -2,7 +2,6 @@
 #include <string>
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
 
 TEMPLATE_PRODUCT_TEST_CASE( "can perform ewise", "[matrix][template]",
   (grb::matrix), ((float, int, grb::sparse), (float, size_t, grb::sparse),
@@ -11,7 +10,7 @@ TEMPLATE_PRODUCT_TEST_CASE( "can perform ewise", "[matrix][template]",
   using value_type = typename TestType::value_type;
 
   // These test matrices can have any kind of values.
-	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
+  std::vector<std::string> fnames = {"chesapeake/chesapeake.mtx"};
 	std::vector<std::tuple<size_t, size_t, size_t>> details = {{39, 39, 340}};
 	for (size_t i = 0; i < fnames.size(); i++) {
 		const auto& fname = fnames[i];

@@ -6,7 +6,8 @@
 #include <ranges>
 
 #include <grb/grb.hpp>
-#include <grb_testing/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
 
 TEMPLATE_PRODUCT_TEST_CASE( "basic matrix iterator tests 1", "[matrix][template]",
 	(grb::matrix), ((float, int, grb::sparse), (float, size_t, grb::sparse),
@@ -24,9 +25,9 @@ TEMPLATE_PRODUCT_TEST_CASE( "basic matrix iterator tests 1", "[matrix][template]
   static_assert(std::sentinel_for<const_iterator, iterator>);
   static_assert(std::sentinel_for<const_iterator, const_iterator>);
 
-  if (const_iterator() == iterator()) {}
+  using T = decltype(std::declval<const_iterator>() == std::declval<iterator>());
 
-	std::vector<std::string> fnames = {"../examples/data/chesapeake.mtx"};
+  std::vector<std::string> fnames = {"chesapeake/chesapeake.mtx"};
 	for (size_t i = 0; i < fnames.size(); i++) {
   }
 }

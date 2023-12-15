@@ -2,7 +2,7 @@ find_package(Doxygen REQUIRED)
 find_package(Sphinx REQUIRED)
 
 # Find all the public headers
-get_target_property(RGRI_PUBLIC_HEADER_DIR "RGRI" INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(RGRI_PUBLIC_HEADER_DIR rgri INTERFACE_INCLUDE_DIRECTORIES)
 file(GLOB_RECURSE RGRI_PUBLIC_HEADERS 
   ${RGRI_PUBLIC_HEADER_DIR}/*)
 

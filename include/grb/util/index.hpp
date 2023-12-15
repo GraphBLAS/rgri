@@ -6,6 +6,7 @@
 #include <limits>
 
 #include <grb/detail/concepts.hpp>
+#include <grb/detail/detect_index.hpp>
 
 namespace grb {
 
@@ -34,6 +35,7 @@ public:
   constexpr index(index_type first, index_type second) : first(first), second(second) {}
 
   template <grb::TupleLike<T, T> Tuple>
+  requires(!__detail::instantiation_of_index_v<Tuple>)
   constexpr index(Tuple tuple) : first(grb::get<0>(tuple)), second(grb::get<1>(tuple)) {}
 
   constexpr bool operator==(const index&) const noexcept = default;

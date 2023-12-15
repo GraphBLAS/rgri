@@ -11,9 +11,9 @@ GRB_DIR=../../include
 
 CXXFLAGS = -std=c++20 -I$(GRB_DIR)
 
-LDLIBS = -lfmt
+# LDLIBS = -lfmt
 
-HIPSYCL_FLAGS = --hipsycl-targets='cuda:sm_75'
+# HIPSYCL_FLAGS = --hipsycl-targets='cuda:sm_75'
 
 all: $(TARGETS)
 

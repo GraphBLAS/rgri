@@ -9,7 +9,7 @@ test: all
 	./tests
 
 tests: tests.cpp
-	g++ tests.cpp -o tests -std=c++20 -O3 -I$(GRB_DIR)
+	g++-13 tests.cpp -o tests -std=c++20 -O3 -I$(GRB_DIR)
 
 clean:
 	rm -fv tests
