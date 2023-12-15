@@ -1,14 +1,14 @@
 #pragma once
 
-#include "semiring.hpp"
 #include "op_definitions.hpp"
+#include "semiring.hpp"
 
 namespace grb {
 
 template <typename Reduce, typename Combine>
 struct standard_semiring {
-	using reduce_type = Reduce;
-	using combine_type = Combine;
+  using reduce_type = Reduce;
+  using combine_type = Combine;
 
   template <typename T, typename U>
   auto combine(const T& a, const U& b) const {
@@ -50,4 +50,4 @@ using land_lor = standard_semiring<grb::logical_and<>, grb::logical_or<>>;
 using lxor_land = standard_semiring<grb::logical_xor<>, grb::logical_and<>>;
 using lxnor_lor = standard_semiring<grb::logical_xnor<>, grb::logical_or<>>;
 
-} // end grb
+} // namespace grb

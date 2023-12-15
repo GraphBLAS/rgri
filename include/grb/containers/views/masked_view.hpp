@@ -3,11 +3,12 @@
 namespace grb {
 
 template <MatrixRange MatrixType, MaskMatrixRange MaskType>
-class masked_view : public std::ranges::view_interface<masked_view<MatrixType, MaskType>> {
+class masked_view
+    : public std::ranges::view_interface<masked_view<MatrixType, MaskType>> {
 private:
   struct in_matrix;
-public:
 
+public:
   using matrix_type = std::decay_t<MatrixType>;
   using mask_type = std::decay_t<MaskType>;
   using filter_matrix_type = grb::filter_view<const matrix_type&, in_matrix>;
@@ -25,7 +26,7 @@ public:
   using key_type = typename matrix_type::key_type;
 
   masked_view(const MatrixType& matrix, const MaskType& mask)
-    : mask_(&mask),  filtered_matrix_(matrix, in_matrix(*this)) {}
+      : mask_(&mask), filtered_matrix_(matrix, in_matrix(*this)) {}
 
   grb::index<index_type> shape() const noexcept {
     return filtered_matrix_.shape();
@@ -48,7 +49,6 @@ public:
   }
 
 private:
-
   struct in_matrix {
     template <typename Entry>
     bool operator()(Entry&& entry) const {
@@ -78,8 +78,7 @@ private:
 namespace views {
 
 template <grb::MaskMatrixRange M>
-class mask_adaptor_closure
-{
+class mask_adaptor_closure {
 public:
   mask_adaptor_closure(const M& mask) : mask_(mask) {}
 
@@ -107,6 +106,6 @@ auto mask(Matrix&& matrix, M&& mask) {
   return masked_view(std::forward<Matrix>(matrix), std::forward<M>(mask));
 }
 
-} // end views
+} // namespace views
 
-} // end grb
+} // namespace grb

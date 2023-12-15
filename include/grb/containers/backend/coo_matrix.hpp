@@ -1,10 +1,11 @@
 #pragma once
 
+#include <algorithm>
+#include <grb/containers/matrix_entry.hpp>
+
 namespace grb {
 
-template <typename T,
-          typename I,
-          typename Allocator = std::allocator<T>>
+template <typename T, typename I, typename Allocator = std::allocator<T>>
 class coo_matrix {
 public:
   using value_type = grb::matrix_entry<T, I>;
@@ -15,10 +16,11 @@ public:
 
   using allocator_type = Allocator;
 
-	using key_type = grb::index<I>;
-	using map_type = T;
+  using key_type = grb::index<I>;
+  using map_type = T;
 
-  using backend_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<value_type>;
+  using backend_allocator_type = typename std::allocator_traits<
+      allocator_type>::template rebind_alloc<value_type>;
   using backend_type = std::vector<value_type, backend_allocator_type>;
 
   using iterator = typename backend_type::iterator;
@@ -36,11 +38,11 @@ public:
   }
 
   size_type size() const noexcept {
-  	return tuples_.size();
+    return tuples_.size();
   }
 
   void reserve(size_type new_cap) {
-  	tuples_.reserve(new_cap);
+    tuples_.reserve(new_cap);
   }
 
   iterator begin() noexcept {
@@ -82,21 +84,19 @@ public:
     tuples_.assign(first, last);
   }
 
-  std::pair<iterator, bool>
-  insert(value_type&& value) {
-  	auto&& [insert_index, insert_value] = value;
-  	for (auto iter = begin(); iter != end(); ++iter) {
-  		auto&& [index, v] = *iter;
-  		if (index == insert_index) {
-  			return {iter, false};
-  		}
-  	}
-  	tuples_.push_back(value);
-  	return {--tuples_.end(), true};
+  std::pair<iterator, bool> insert(value_type&& value) {
+    auto&& [insert_index, insert_value] = value;
+    for (auto iter = begin(); iter != end(); ++iter) {
+      auto&& [index, v] = *iter;
+      if (index == insert_index) {
+        return {iter, false};
+      }
+    }
+    tuples_.push_back(value);
+    return {--tuples_.end(), true};
   }
 
-  std::pair<iterator, bool>
-  insert(const value_type& value) {
+  std::pair<iterator, bool> insert(const value_type& value) {
     auto&& [insert_index, insert_value] = value;
     for (auto iter = begin(); iter != end(); ++iter) {
       auto&& [index, v] = *iter;
@@ -109,31 +109,30 @@ public:
   }
 
   template <class M>
-  std::pair<iterator, bool>
-  insert_or_assign(key_type k, M&& obj) {
-  	for (auto iter = begin(); iter != end(); ++iter) {
-  		auto&& [index, v] = *iter;
-  		if (index == k) {
-  			v = std::forward<M>(obj);
-  			return {iter, false};
-  		}
-  	}
-  	tuples_.push_back({k, std::forward<M>(obj)});
-  	return {--tuples_.end(), true};
+  std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
+    for (auto iter = begin(); iter != end(); ++iter) {
+      auto&& [index, v] = *iter;
+      if (index == k) {
+        v = std::forward<M>(obj);
+        return {iter, false};
+      }
+    }
+    tuples_.push_back({k, std::forward<M>(obj)});
+    return {--tuples_.end(), true};
   }
 
   iterator find(key_type key) noexcept {
-  	return std::find_if(begin(), end(), [&](auto&& v) {
-  		                                   auto&& [i, v_] = v;
-  		                                   return i == key;
-  		                                  });
+    return std::find_if(begin(), end(), [&](auto&& v) {
+      auto&& [i, v_] = v;
+      return i == key;
+    });
   }
 
   const_iterator find(key_type key) const noexcept {
-  	return std::find_if(begin(), end(), [&](auto&& v) {
-  		                                    auto&& [i, v_] = v;
-  		                                    return i == key;
-  		                                  });
+    return std::find_if(begin(), end(), [&](auto&& v) {
+      auto&& [i, v_] = v;
+      return i == key;
+    });
   }
 
   void reshape(grb::index<I> shape) {
@@ -174,9 +173,8 @@ public:
   }
 
 private:
-
   grb::index<I> shape_;
   backend_type tuples_;
 };
 
-} // end grb
+} // namespace grb

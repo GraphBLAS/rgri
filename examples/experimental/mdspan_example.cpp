@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
 
   grb::matrix<float, std::size_t, grb::dense> b("data/chesapeake.mtx");
 
-  std::vector<float> data(b.shape()[0]*b.shape()[1], 0);
+  std::vector<float> data(b.shape()[0] * b.shape()[1], 0);
 
   std::experimental::mdspan b_span(data.data(), b.shape()[0], b.shape()[1]);
 
@@ -36,20 +36,20 @@ int main(int argc, char** argv) {
 
   grb::print(c);
 
-/*
-  auto row = csr_view.row(4);
-  for (auto&& [index, v] : row) {
-    auto&& [i, j] = index;
-    std::cout << i << ", " << j << ": " << v << std::endl;
-  }
-
-  for (auto&& row : csr_view.rows()) {
+  /*
+    auto row = csr_view.row(4);
     for (auto&& [index, v] : row) {
       auto&& [i, j] = index;
       std::cout << i << ", " << j << ": " << v << std::endl;
     }
-  }
-  */
+
+    for (auto&& row : csr_view.rows()) {
+      for (auto&& [index, v] : row) {
+        auto&& [i, j] = index;
+        std::cout << i << ", " << j << ": " << v << std::endl;
+      }
+    }
+    */
 
   return 0;
 }

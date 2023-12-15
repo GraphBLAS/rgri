@@ -1,8 +1,8 @@
 #pragma once
 
+#include "hdf5_tools.hpp"
 #include <grb/grb.hpp>
 #include <nlohmann/json.hpp>
-#include "hdf5_tools.hpp"
 
 namespace grb {
 namespace experimental {
@@ -13,23 +13,23 @@ void binsparse_mwrite(std::string fname, M&& matrix) {
   using index_type = grb::matrix_index_t<M>;
   using value_type = grb::matrix_scalar_t<M>;
 
-  std::vector<std::ranges::range_value_t<M>> tuples(matrix.begin(), matrix.end());
+  std::vector<std::ranges::range_value_t<M>> tuples(matrix.begin(),
+                                                    matrix.end());
 
   auto sort_fn = [](const auto& a, const auto& b) {
-                   auto&& [a_index, a_value] = a;
-                   auto&& [b_index, b_value] = b;
-                   auto&& [a_i, a_j] = a_index;
-                   auto&& [b_i, b_j] = b_index;
-                   if (a_i < b_i) {
-                     return true;
-                   }
-                   else if (a_i == b_i) {
-                     if (a_j < b_j) {
-                      return true;
-                     }
-                   }
-                   return false;
-                 };
+    auto&& [a_index, a_value] = a;
+    auto&& [b_index, b_value] = b;
+    auto&& [a_i, a_j] = a_index;
+    auto&& [b_i, b_j] = b_index;
+    if (a_i < b_i) {
+      return true;
+    } else if (a_i == b_i) {
+      if (a_j < b_j) {
+        return true;
+      }
+    }
+    return false;
+  };
 
   std::sort(tuples.begin(), tuples.end(), sort_fn);
 
@@ -54,14 +54,12 @@ void binsparse_mwrite(std::string fname, M&& matrix) {
   hdf5_tools::write_dataset(f, "indices_0", rows);
   hdf5_tools::write_dataset(f, "indices_1", cols);
 
-  std::string json_string =
-  "{\n"
-  "  \"format\": \"COO\",\n"
-  "  \"shape\": [";
-  json_string += std::to_string(matrix.shape()[0]) + ", " + std::to_string(matrix.shape()[1]) +
-  "],\n" +
-  "  \"nnz\": " + std::to_string(matrix.size()) + "\n" +
-  "}\n";
+  std::string json_string = "{\n"
+                            "  \"format\": \"COO\",\n"
+                            "  \"shape\": [";
+  json_string += std::to_string(matrix.shape()[0]) + ", " +
+                 std::to_string(matrix.shape()[1]) + "],\n" +
+                 "  \"nnz\": " + std::to_string(matrix.size()) + "\n" + "}\n";
 
   hdf5_tools::write_dataset(f, "metadata", json_string);
 
@@ -103,6 +101,6 @@ grb::matrix<T, I, Hint> binsparse_mread(std::string fname) {
   f.close();
 }
 
-} // end experimental
+} // namespace experimental
 
-} // end grb
+} // namespace grb

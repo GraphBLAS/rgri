@@ -1,13 +1,13 @@
 #pragma once
 
+#include "device_ref.hpp"
 #include <CL/sycl.hpp>
 #include <type_traits>
-#include "device_ref.hpp"
 
 namespace shp {
 
 template <typename T>
-requires(std::is_trivially_copyable_v<T> || std::is_void_v<T>)
+  requires(std::is_trivially_copyable_v<T> || std::is_void_v<T>)
 class device_ptr {
 public:
   using value_type = T;
@@ -33,41 +33,61 @@ public:
   }
 
   operator device_ptr<void>() const noexcept
-  requires(!std::is_void_v<T>)
+    requires(!std::is_void_v<T>)
   {
     return device_ptr<void>(reinterpret_cast<void*>(pointer_));
   }
 
   operator device_ptr<const void>() const noexcept
-  requires(!std::is_void_v<T>)
+    requires(!std::is_void_v<T>)
   {
     return device_ptr<const void>(reinterpret_cast<const void*>(pointer_));
   }
 
   operator const_pointer() const noexcept
-  requires(!std::is_const_v<T>)
+    requires(!std::is_const_v<T>)
   {
     return const_pointer(pointer_);
   }
 
-  bool operator==(std::nullptr_t) const noexcept { return pointer_ == nullptr; }
-  bool operator!=(std::nullptr_t) const noexcept { return pointer_ != nullptr; }
+  bool operator==(std::nullptr_t) const noexcept {
+    return pointer_ == nullptr;
+  }
+  bool operator!=(std::nullptr_t) const noexcept {
+    return pointer_ != nullptr;
+  }
 
   bool operator==(const device_ptr&) const noexcept = default;
   bool operator!=(const device_ptr&) const noexcept = default;
 
-  pointer operator+(difference_type offset) const noexcept { return pointer(pointer_ + offset); }
-  pointer operator-(difference_type offset) const noexcept { return pointer(pointer_ - offset); }
+  pointer operator+(difference_type offset) const noexcept {
+    return pointer(pointer_ + offset);
+  }
+  pointer operator-(difference_type offset) const noexcept {
+    return pointer(pointer_ - offset);
+  }
 
   difference_type operator-(const_pointer other) const noexcept
-  requires(!std::is_const_v<T>)
-  { return pointer_ - other.pointer_; }
-  difference_type operator-(pointer other) const noexcept { return pointer_ - other.pointer_; }
+    requires(!std::is_const_v<T>)
+  {
+    return pointer_ - other.pointer_;
+  }
+  difference_type operator-(pointer other) const noexcept {
+    return pointer_ - other.pointer_;
+  }
 
-  bool operator<(const_pointer other) const noexcept { return pointer_ < other.pointer_; }
-  bool operator>(const_pointer other) const noexcept { return pointer_ > other.pointer_; }
-  bool operator<=(const_pointer other) const noexcept { return pointer_ <= other.pointer_; }
-  bool operator>=(const_pointer other) const noexcept { return pointer_ >= other.pointer_; }
+  bool operator<(const_pointer other) const noexcept {
+    return pointer_ < other.pointer_;
+  }
+  bool operator>(const_pointer other) const noexcept {
+    return pointer_ > other.pointer_;
+  }
+  bool operator<=(const_pointer other) const noexcept {
+    return pointer_ <= other.pointer_;
+  }
+  bool operator>=(const_pointer other) const noexcept {
+    return pointer_ >= other.pointer_;
+  }
 
   pointer& operator++() noexcept {
     ++pointer_;
@@ -121,4 +141,4 @@ private:
   T* pointer_;
 };
 
-} // shp
+} // namespace shp

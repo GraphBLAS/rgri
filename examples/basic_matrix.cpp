@@ -1,5 +1,5 @@
-#include <grb/grb.hpp>
 #include <cstdio>
+#include <grb/grb.hpp>
 
 template <grb::TupleLike<int, int> Tuple>
 void foo(Tuple) {}
@@ -11,8 +11,9 @@ int main(int argc, char** argv) {
   size_t n = matrix.shape()[1];
   size_t nnz = matrix.size();
 
-  printf("Read in a file that is %lu x %lu dimensions with %lu stored values.\n",
-         m, n, nnz);
+  printf(
+      "Read in a file that is %lu x %lu dimensions with %lu stored values.\n",
+      m, n, nnz);
 
   grb::print(matrix, "chesapeake");
 

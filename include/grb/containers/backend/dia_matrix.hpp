@@ -1,18 +1,17 @@
 #pragma once
 
-#include <grb/util/index.hpp>
-#include <grb/containers/matrix_entry.hpp>
-#include <grb/util/matrix_io.hpp>
-#include <grb/containers/backend/dia_matrix_iterator.hpp>
-#include <vector>
-#include <map>
-#include <limits>
 #include <climits>
+#include <grb/containers/backend/dia_matrix_iterator.hpp>
+#include <grb/containers/matrix_entry.hpp>
+#include <grb/util/index.hpp>
+#include <grb/util/matrix_io.hpp>
+#include <limits>
+#include <map>
+#include <vector>
 
 namespace grb {
 
-template <typename T,
-          std::integral I = std::size_t,
+template <typename T, std::integral I = std::size_t,
           typename Allocator = std::allocator<T>>
 class dia_matrix {
 public:
@@ -27,13 +26,12 @@ public:
   using difference_type = std::ptrdiff_t;
 
   using allocator_type = Allocator;
-  using index_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<index_type>;
+  using index_allocator_type = typename std::allocator_traits<
+      allocator_type>::template rebind_alloc<index_type>;
 
-  using iterator = dia_matrix_iterator<T,
-                                       index_type>;
+  using iterator = dia_matrix_iterator<T, index_type>;
 
-  using const_iterator = dia_matrix_iterator<std::add_const_t<T>,
-                                             index_type>;
+  using const_iterator = dia_matrix_iterator<std::add_const_t<T>, index_type>;
 
   using reference = grb::matrix_ref<T, index_type>;
   using const_reference = grb::matrix_ref<std::add_const_t<T>, index_type>;
@@ -68,17 +66,17 @@ public:
   std::pair<iterator, bool> insert(const value_type& value) {
     auto&& [index, v] = value;
     auto&& [i, j] = index;
-    index_type diagonal = (difference_type(j) - difference_type(i)) + shape()[0] - 1;
+    index_type diagonal =
+        (difference_type(j) - difference_type(i)) + shape()[0] - 1;
     index_type idx = std::min(i, j);
-    // index_type count = std::min(m_, n_) - std::abs(difference_type(i) - difference_type(j));
+    // index_type count = std::min(m_, n_) - std::abs(difference_type(i) -
+    // difference_type(j));
     index_type count = std::min(m_ - i, n_ - j) + idx;
 
     auto iter = diagonals_.find(diagonal);
     if (iter == diagonals_.end()) {
-      auto [it, _] = diagonals_.insert({diagonal,
-         {std::vector<T>(count),
-          std::vector<bool>(count, false)}
-        });
+      auto [it, _] = diagonals_.insert(
+          {diagonal, {std::vector<T>(count), std::vector<bool>(count, false)}});
       iter = it;
     }
 
@@ -97,17 +95,18 @@ public:
   template <typename M>
   std::pair<iterator, bool> insert_or_assign(key_type k, M&& obj) {
     auto&& [i, j] = k;
-    index_type diagonal = (difference_type(j) - difference_type(i)) + shape()[0] - 1;
+    index_type diagonal =
+        (difference_type(j) - difference_type(i)) + shape()[0] - 1;
     index_type idx = std::min(i, j);
-    // index_type count = std::min(m_, n_) - std::abs(difference_type(i) - difference_type(j));
+    // index_type count = std::min(m_, n_) - std::abs(difference_type(i) -
+    // difference_type(j));
     index_type count = std::min(m_ - i, n_ - j) + idx;
 
     auto iter = diagonals_.find(diagonal);
     if (iter == diagonals_.end()) {
-      auto [it, b] = diagonals_.insert({diagonal,
-         {std::vector<T>(count, false),
-          std::vector<bool>(count, false)}
-        });
+      auto [it, b] = diagonals_.insert(
+          {diagonal,
+           {std::vector<T>(count, false), std::vector<bool>(count, false)}});
       iter = it;
     }
 
@@ -124,27 +123,19 @@ public:
   }
 
   iterator begin() noexcept {
-    return iterator(0, m_, n_,
-                    diagonals_.begin(),
-                    diagonals_.end());
+    return iterator(0, m_, n_, diagonals_.begin(), diagonals_.end());
   }
 
   const_iterator begin() const noexcept {
-    return const_iterator(0, m_, n_,
-                    diagonals_.begin(),
-                    diagonals_.end());
+    return const_iterator(0, m_, n_, diagonals_.begin(), diagonals_.end());
   }
 
   iterator end() noexcept {
-    return iterator(0, m_, n_,
-                    diagonals_.end(),
-                    diagonals_.end());
+    return iterator(0, m_, n_, diagonals_.end(), diagonals_.end());
   }
 
   const_iterator end() const noexcept {
-    return const_iterator(0, m_, n_,
-                    diagonals_.end(),
-                    diagonals_.end());
+    return const_iterator(0, m_, n_, diagonals_.end(), diagonals_.end());
   }
 
   std::size_t nbytes() const noexcept {
@@ -152,8 +143,8 @@ public:
     for (auto&& diagonal : diagonals_) {
       auto&& [_, arrays] = diagonal;
       auto&& [values, bvec] = arrays;
-      if constexpr(!std::is_same_v<scalar_type, bool>) {
-        size_bytes += values.size()*sizeof(scalar_type);
+      if constexpr (!std::is_same_v<scalar_type, bool>) {
+        size_bytes += values.size() * sizeof(scalar_type);
       } else {
         size_bytes += (values.size() + CHAR_BIT - 1) / CHAR_BIT;
       }
@@ -163,15 +154,11 @@ public:
   }
 
 private:
-
   index_type m_ = 0;
   index_type n_ = 0;
   size_type nnz_ = 0;
 
-  std::map<index_type,
-           std::pair<std::vector<T>,
-                     std::vector<bool>>
-          > diagonals_;
+  std::map<index_type, std::pair<std::vector<T>, std::vector<bool>>> diagonals_;
 };
 
-} // end grb
+} // namespace grb

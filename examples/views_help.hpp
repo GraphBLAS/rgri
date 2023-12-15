@@ -1,8 +1,8 @@
 #pragma once
 
 #include <grb/grb.hpp>
-#include <nwgraph/edge_list.hpp>
 #include <nwgraph/adjacency.hpp>
+#include <nwgraph/edge_list.hpp>
 
 template <grb::MatrixRange M>
 auto get_edge_list(M&& a) {

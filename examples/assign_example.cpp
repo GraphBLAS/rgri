@@ -1,7 +1,6 @@
 #include <grb/grb.hpp>
-#include <ranges>
 #include <iterator>
-
+#include <ranges>
 
 int main(int argc, char** argv) {
   auto x = grb::generate_random<float>({10, 10}, 0.5);

@@ -9,7 +9,6 @@ namespace detail {
 template <std::random_access_iterator Iter>
 class spanner {
 public:
-
   using value_type = std::iter_value_t<Iter>;
   using size_type = std::size_t;
   using difference_type = std::iter_difference_t<Iter>;
@@ -42,7 +41,7 @@ public:
   }
 
   reference operator[](size_type index) const {
-    return *(begin()+index);
+    return *(begin() + index);
   }
 
   spanner first(size_type n) const {
@@ -64,5 +63,5 @@ private:
 template <std::ranges::random_access_range R>
 spanner(R&&) -> spanner<std::ranges::iterator_t<R>>;
 
-} // end detail
-} // end grb
+} // namespace detail
+} // namespace grb

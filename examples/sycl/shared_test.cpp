@@ -1,5 +1,5 @@
-#include <grb/grb.hpp>
 #include <CL/sycl.hpp>
+#include <grb/grb.hpp>
 #include <span>
 
 int main(int argc, char** argv) {
@@ -20,10 +20,9 @@ int main(int argc, char** argv) {
 
   std::span view(v);
 
-  q.parallel_for(cl::sycl::range<1>(v.size()),
-                 [=](cl::sycl::id<1> i) {
-                   view[i] += 1;
-                 }).wait();
+  q.parallel_for(cl::sycl::range<1>(v.size()), [=](cl::sycl::id<1> i) {
+     view[i] += 1;
+   }).wait();
 
   print_range(v);
 

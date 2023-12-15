@@ -5,12 +5,11 @@ namespace grb {
 template <typename Reduce, typename Combine>
 class semiring {
 public:
-
   using reduce_type = Reduce;
   using combine_type = Combine;
 
   semiring(Reduce reduce, Combine combine)
-    : combine_(combine), reduce_(reduce) {}
+      : combine_(combine), reduce_(reduce) {}
 
   template <typename T, typename U>
   auto combine(const T& a, const U& b) const {
@@ -31,4 +30,4 @@ auto make_semiring(ReduceOp reduce, CombineOp combine) {
   return semiring<ReduceOp, CombineOp>(reduce, combine);
 }
 
-} // end grb
+} // namespace grb

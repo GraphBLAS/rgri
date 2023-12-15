@@ -1,9 +1,9 @@
 #pragma once
 
 #include <experimental/mdspan>
+#include <grb/containers/matrix_entry.hpp>
 #include <grb/detail/iterator_adaptor.hpp>
 #include <grb/util/index.hpp>
-#include <grb/containers/matrix_entry.hpp>
 
 namespace grb {
 
@@ -28,14 +28,18 @@ public:
 
   constexpr mdspan_matrix_accessor() noexcept = default;
   constexpr ~mdspan_matrix_accessor() noexcept = default;
-  constexpr mdspan_matrix_accessor(const mdspan_matrix_accessor&) noexcept = default;
-  constexpr mdspan_matrix_accessor& operator=(const mdspan_matrix_accessor&) noexcept = default;
+  constexpr mdspan_matrix_accessor(const mdspan_matrix_accessor&) noexcept =
+      default;
+  constexpr mdspan_matrix_accessor&
+  operator=(const mdspan_matrix_accessor&) noexcept = default;
 
-  constexpr mdspan_matrix_accessor(mdspan_type mdspan, grb::index<index_type> index) noexcept
-    : mdspan_(mdspan), i_(index[0]), j_(index[1]) { }
+  constexpr mdspan_matrix_accessor(mdspan_type mdspan,
+                                   grb::index<index_type> index) noexcept
+      : mdspan_(mdspan), i_(index[0]), j_(index[1]) {}
 
-  constexpr mdspan_matrix_accessor& operator+=(difference_type offset) noexcept {
-    auto global_idx = i_*mdspan_.extent(1) + j_;
+  constexpr mdspan_matrix_accessor&
+  operator+=(difference_type offset) noexcept {
+    auto global_idx = i_ * mdspan_.extent(1) + j_;
     auto new_idx = global_idx + offset;
     i_ = new_idx / mdspan_.extent(1);
     j_ = new_idx % mdspan_.extent(1);
@@ -61,18 +65,21 @@ public:
     return *this;
   }
 
-  constexpr difference_type operator-(const const_iterator_accessor& other) const noexcept {
+  constexpr difference_type
+  operator-(const const_iterator_accessor& other) const noexcept {
     difference_type row_diff = difference_type(i_) - difference_type(other.i_);
     difference_type col_diff = difference_type(j_) - difference_type(other.j_);
 
-    return row_diff*mdspan_.extent(1) + col_diff;
+    return row_diff * mdspan_.extent(1) + col_diff;
   }
 
-  constexpr bool operator==(const const_iterator_accessor& other) const noexcept {
+  constexpr bool
+  operator==(const const_iterator_accessor& other) const noexcept {
     return i_ == other.i_ && j_ == other.j_;
   }
 
-  constexpr bool operator<(const const_iterator_accessor& other) const noexcept {
+  constexpr bool
+  operator<(const const_iterator_accessor& other) const noexcept {
     if (i_ < other.i_) {
       return true;
     } else if (i_ == other.i_) {
@@ -93,8 +100,8 @@ private:
 };
 
 template <typename MDSpanType>
-using mdspan_matrix_iterator = grb::detail::iterator_adaptor<mdspan_matrix_accessor<MDSpanType>>;
-
+using mdspan_matrix_iterator =
+    grb::detail::iterator_adaptor<mdspan_matrix_accessor<MDSpanType>>;
 
 template <typename... Args>
 class mdspan_matrix_view {
@@ -161,21 +168,23 @@ private:
 };
 
 template <typename... Args>
-mdspan_matrix_view(std::experimental::mdspan<Args...>) -> mdspan_matrix_view<Args...>;
+mdspan_matrix_view(std::experimental::mdspan<Args...>)
+    -> mdspan_matrix_view<Args...>;
 
-}
+} // namespace grb
 
 namespace grb {
 
 namespace views {
 
 template <typename... Args>
-auto tag_invoke(grb::tag_t<grb::views::all>, std::experimental::mdspan<Args...> m)
-requires(m.rank() == 2)
+auto tag_invoke(grb::tag_t<grb::views::all>,
+                std::experimental::mdspan<Args...> m)
+  requires(m.rank() == 2)
 {
   return grb::mdspan_matrix_view(m);
 }
 
-} // end views
+} // namespace views
 
-} // end grb
+} // namespace grb

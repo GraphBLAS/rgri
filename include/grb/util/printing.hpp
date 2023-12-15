@@ -1,12 +1,12 @@
 #pragma once
 
-#include <iostream>
-#include <iomanip>
-#include <string>
 #include <grb/containers/matrix.hpp>
 #include <grb/containers/vector.hpp>
 #include <grb/containers/views/views.hpp>
 #include <grb/detail/matrix_traits.hpp>
+#include <iomanip>
+#include <iostream>
+#include <string>
 
 namespace grb {
 
@@ -14,8 +14,8 @@ namespace grb {
 /// optionally printing the string `label`.
 template <grb::MatrixRange M>
 void print(M&& matrix, std::string label = "") {
-  std::cout << grb::shape(matrix)[0] << " x " << grb::shape(matrix)[1] <<
-               " matrix with " << grb::size(matrix) << " stored values";
+  std::cout << grb::shape(matrix)[0] << " x " << grb::shape(matrix)[1]
+            << " matrix with " << grb::size(matrix) << " stored values";
   if (label != "") {
     std::cout << " \"" << label << "\"";
   }
@@ -33,8 +33,8 @@ void print(M&& matrix, std::string label = "") {
 /// optionally adding the string `label`.
 template <grb::VectorRange V>
 void print(V&& vector, std::string label = "") {
-  std::cout << grb::shape(vector)
-            << " dimension vector with " << grb::size(vector) << " stored values";
+  std::cout << grb::shape(vector) << " dimension vector with "
+            << grb::size(vector) << " stored values";
   if (label != "") {
     std::cout << " \"" << label << "\"";
   }
@@ -45,4 +45,4 @@ void print(V&& vector, std::string label = "") {
   }
 }
 
-};
+}; // namespace grb

@@ -13,10 +13,10 @@ public:
   using difference_type = typename MatrixType::difference_type;
 
   dense_matrix_impl_reference(MatrixType& matrix, size_type idx)
-    : matrix_(matrix),
-      idx_(idx) {}
+      : matrix_(matrix), idx_(idx) {}
 
-  dense_matrix_impl_reference& operator=(const dense_matrix_impl_reference& other) {
+  dense_matrix_impl_reference&
+  operator=(const dense_matrix_impl_reference& other) {
     value_reference() = other.value_reference();
     return *this;
   }
@@ -54,22 +54,24 @@ public:
     return {idx_ / matrix_.n(), idx_ % matrix_.n()};
   }
 
- private:
-   size_type idx_ = 0;
+private:
+  size_type idx_ = 0;
 
-   MatrixType& matrix_;
+  MatrixType& matrix_;
 };
 
-} // end grb
+} // namespace grb
 
 namespace std {
 
 template <typename MatrixType>
-void swap(grb::dense_matrix_impl_reference<MatrixType> a, grb::dense_matrix_impl_reference<MatrixType> b) {
-  using value_type = typename grb::dense_matrix_impl_reference<MatrixType>::value_type;
+void swap(grb::dense_matrix_impl_reference<MatrixType> a,
+          grb::dense_matrix_impl_reference<MatrixType> b) {
+  using value_type =
+      typename grb::dense_matrix_impl_reference<MatrixType>::value_type;
   value_type value = a;
   a = b.value_reference();
   b = value;
 }
 
-} // end std
+} // namespace std

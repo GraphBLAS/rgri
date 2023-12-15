@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <grb/detail/iterator_adaptor.hpp>
+
 namespace grb {
 
 /*
@@ -25,13 +27,15 @@ public:
 
   complement_vector_view_accessor() noexcept = default;
   ~complement_vector_view_accessor() noexcept = default;
-  complement_vector_view_accessor(const complement_vector_view_accessor&) noexcept = default;
-  complement_vector_view_accessor& operator=(const complement_vector_view_accessor&) noexcept = default;
+  complement_vector_view_accessor(
+      const complement_vector_view_accessor&) noexcept = default;
+  complement_vector_view_accessor&
+  operator=(const complement_vector_view_accessor&) noexcept = default;
 
-  complement_vector_view_accessor(const V& vector, index_type index) : vector_(&vector), index_(index) {
+  complement_vector_view_accessor(const V& vector, index_type index)
+      : vector_(&vector), index_(index) {
     fast_forward();
   }
-
 
   // Return whether the current index is present in the complement view.
   bool index_present() const {
@@ -75,7 +79,8 @@ private:
 };
 
 template <grb::VectorRange V>
-using complement_vector_view_iterator = grb::detail::iterator_adaptor<complement_vector_view_accessor<V>>;
+using complement_vector_view_iterator =
+    grb::detail::iterator_adaptor<complement_vector_view_accessor<V>>;
 
 template <typename V>
 class complement_view;
@@ -122,7 +127,7 @@ public:
 
     if (iter == vector_.end() || !static_cast<bool>(grb::get<1>(*iter))) {
       return iterator(vector_, key);
-    }  else {
+    } else {
       return end();
     }
   }
@@ -130,7 +135,6 @@ public:
 private:
   const V& vector_;
 };
-
 
 template <grb::MatrixRange M>
 class complement_matrix_view_accessor {
@@ -151,10 +155,13 @@ public:
 
   complement_matrix_view_accessor() noexcept = default;
   ~complement_matrix_view_accessor() noexcept = default;
-  complement_matrix_view_accessor(const complement_matrix_view_accessor&) noexcept = default;
-  complement_matrix_view_accessor& operator=(const complement_matrix_view_accessor&) noexcept = default;
+  complement_matrix_view_accessor(
+      const complement_matrix_view_accessor&) noexcept = default;
+  complement_matrix_view_accessor&
+  operator=(const complement_matrix_view_accessor&) noexcept = default;
 
-  complement_matrix_view_accessor(const M& matrix, index_type i, index_type j) : matrix_(&matrix), i_(i), j_(j) {
+  complement_matrix_view_accessor(const M& matrix, index_type i, index_type j)
+      : matrix_(&matrix), i_(i), j_(j) {
     fast_forward();
   }
 
@@ -171,7 +178,8 @@ public:
   }
 
   void fast_forward() {
-    while (linearized(index()) < linearized(matrix_->shape()) && !index_present()) {
+    while (linearized(index()) < linearized(matrix_->shape()) &&
+           !index_present()) {
       increment();
     }
   }
@@ -196,7 +204,7 @@ public:
 
 private:
   void increment() noexcept {
-    if (j_ > matrix_->shape()[1]-1) {
+    if (j_ > matrix_->shape()[1] - 1) {
       i_++;
       j_ = 0;
     } else {
@@ -209,7 +217,7 @@ private:
   }
 
   auto linearized(key_type idx) const noexcept {
-    return idx[0]*idx[1];
+    return idx[0] * idx[1];
   }
 
 private:
@@ -218,7 +226,8 @@ private:
 };
 
 template <grb::MatrixRange M>
-using complement_matrix_view_iterator = grb::detail::iterator_adaptor<complement_matrix_view_accessor<M>>;
+using complement_matrix_view_iterator =
+    grb::detail::iterator_adaptor<complement_matrix_view_accessor<M>>;
 
 template <grb::MatrixRange M>
 class complement_view<M> {
@@ -236,7 +245,7 @@ public:
   complement_view(const M& matrix) : matrix_(matrix) {}
 
   std::size_t size() const {
-    std::size_t matrix_size = shape()[0]*shape()[1] - matrix_.size();
+    std::size_t matrix_size = shape()[0] * shape()[1] - matrix_.size();
     for (auto&& [_, value] : matrix_) {
       if (!static_cast<bool>(value)) {
         matrix_size++;
@@ -262,7 +271,7 @@ public:
 
     if (iter == matrix_.end() || !static_cast<bool>(grb::get<1>(*iter))) {
       return iterator(matrix_, key[0], key[1]);
-    }  else {
+    } else {
       return end();
     }
   }
@@ -277,4 +286,4 @@ complement_view(M&& m) -> complement_view<std::remove_cvref_t<M>>;
 template <grb::VectorRange V>
 complement_view(V&& v) -> complement_view<std::remove_cvref_t<V>>;
 
-} // end grb
+} // namespace grb

@@ -24,7 +24,8 @@ auto betweenness_centrality(A&& a, std::size_t source_vertex) {
 
   grb::vector<int> p = q;
 
-  q = grb::multiply(grb::transpose(a), q, grb::plus{}, grb::times{}, grb::complement_view(p));
+  q = grb::multiply(grb::transpose(a), q, grb::plus{}, grb::times{},
+                    grb::complement_view(p));
 
   int d = 0;
   int sum = 0;
@@ -34,7 +35,8 @@ auto betweenness_centrality(A&& a, std::size_t source_vertex) {
 
     p = grb::ewise_union(p, q, grb::plus{});
 
-    q = grb::multiply(grb::transpose(a), q, grb::plus{}, grb::times{}, grb::complement_view(p));
+    q = grb::multiply(grb::transpose(a), q, grb::plus{}, grb::times{},
+                      grb::complement_view(p));
 
     ++d;
   } while (!q.empty());
@@ -44,7 +46,7 @@ auto betweenness_centrality(A&& a, std::size_t source_vertex) {
   grb::vector<float> t3(a.shape()[0]);
   grb::vector<float> t4(a.shape()[0]);
 
-  for (int i = d-1; i > 0; i--) {
+  for (int i = d - 1; i > 0; i--) {
     grb::assign(t1, 1.0f);
 
     t1 = grb::ewise_union(t1, delta, grb::plus{});
@@ -53,7 +55,7 @@ auto betweenness_centrality(A&& a, std::size_t source_vertex) {
 
     t2 = grb::ewise_intersection(t1, t2, grb::divides{});
     t3 = grb::multiply(a, t2, grb::plus{}, grb::times{});
-    t4 = sigma[i-1];
+    t4 = sigma[i - 1];
 
     t4 = grb::ewise_intersection(t4, t3, grb::times{});
 
@@ -78,14 +80,14 @@ int main(int argc, char** argv) {
   grb::print(d, "d");
   grb::vector<float> total_sum(a.shape()[0]);
 
-  for (std::size_t source_vertex = 0; source_vertex < a.shape()[0]; source_vertex++) {
+  for (std::size_t source_vertex = 0; source_vertex < a.shape()[0];
+       source_vertex++) {
     auto d = betweenness_centrality(a, source_vertex);
     grb::print(d, "d");
     total_sum = grb::ewise_union(total_sum, d, grb::plus{});
   }
 
   grb::print(total_sum, "sum");
-
 
   return 0;
 }

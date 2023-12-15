@@ -1,5 +1,5 @@
-#include <grb/grb.hpp>
 #include <algorithm>
+#include <grb/grb.hpp>
 
 int main(int argc, char** argv) {
   // Import graph

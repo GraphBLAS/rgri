@@ -1,7 +1,7 @@
-#include <grb/grb.hpp>
-#include <CL/sycl.hpp>
-#include <span>
 #include "grb_help.hpp"
+#include <CL/sycl.hpp>
+#include <grb/grb.hpp>
+#include <span>
 
 int main(int argc, char** argv) {
   namespace sycl = cl::sycl;
@@ -26,19 +26,20 @@ int main(int argc, char** argv) {
 
   print_range(x_view, "a");
 
-  using device_atomic_ref = sycl::atomic_ref<int, sycl::memory_order::relaxed, sycl::memory_scope::device>;
+  using device_atomic_ref = sycl::atomic_ref<int, sycl::memory_order::relaxed,
+                                             sycl::memory_scope::device>;
 
-  for_each(a_view, [=](auto&& entry) {
-                     auto&& [index, value] = entry;
-                     auto&& [i, j] = index;
-                     device_atomic_ref b_value(b_view[i]);
-                     b_value += value * x_view[j];
-                    }, q);
+  for_each(
+      a_view,
+      [=](auto&& entry) {
+        auto&& [index, value] = entry;
+        auto&& [i, j] = index;
+        device_atomic_ref b_value(b_view[i]);
+        b_value += value * x_view[j];
+      },
+      q);
 
   print_range(b_view, "b");
 
   return 0;
 }
-
-
-

@@ -1,6 +1,6 @@
 #include <grb/grb.hpp>
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 template <typename M>
 size_t pick_random_vertex(M&& matrix) {
@@ -31,12 +31,11 @@ int main(int argc, char** argv) {
 
   size_t iteration = 1;
 
-  auto p = grb::views::transform(a,
-                                 [](auto&& e) -> int {
-                                   auto&& [idx, v] = e;
-                                   auto&& [i, j] = idx;
-                                   return j+1;
-                                 });
+  auto p = grb::views::transform(a, [](auto&& e) -> int {
+    auto&& [idx, v] = e;
+    auto&& [i, j] = idx;
+    return j + 1;
+  });
 
   while (x.size() > 0) {
     std::cout << "Iteration " << iteration << ":" << std::endl;
@@ -44,9 +43,7 @@ int main(int argc, char** argv) {
 
     grb::print(mask, "All Nodes Previously Visited");
 
-
-    auto b = grb::multiply(p, x,
-                           grb::take_left{}, grb::take_left{},
+    auto b = grb::multiply(p, x, grb::take_left{}, grb::take_left{},
                            grb::complement_view(mask));
 
     grb::print(b, "b (iteration): " + std::to_string(iteration));

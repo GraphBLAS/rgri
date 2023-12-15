@@ -2,7 +2,8 @@
 #include <iostream>
 
 void ewise_matrix() {
-  std::cout << "Performing element-wise operations on 10 x 10 matrix." << std::endl;
+  std::cout << "Performing element-wise operations on 10 x 10 matrix."
+            << std::endl;
   grb::matrix<float> x({10, 10});
 
   size_t nnz = 10;
@@ -31,8 +32,10 @@ void ewise_matrix() {
 
   grb::print(mask, "mask");
 
-  auto z_union = grb::ewise_union(x, y, [](auto a, auto b) { return a + b; }, mask);
-  auto z_intersection = grb::ewise_intersection(x, y, [](auto a, auto b) { return a + b; }, mask);
+  auto z_union = grb::ewise_union(
+      x, y, [](auto a, auto b) { return a + b; }, mask);
+  auto z_intersection = grb::ewise_intersection(
+      x, y, [](auto a, auto b) { return a + b; }, mask);
 
   grb::print(z_union, "union");
 
@@ -40,7 +43,8 @@ void ewise_matrix() {
 }
 
 void ewise_vector() {
-  std::cout << "Performing element-wise operations on dim 10 vector." << std::endl;
+  std::cout << "Performing element-wise operations on dim 10 vector."
+            << std::endl;
   grb::vector<float> x(10);
 
   size_t nnz = 4;
@@ -67,8 +71,10 @@ void ewise_vector() {
 
   grb::print(mask, "mask");
 
-  auto z_intersection = grb::ewise_intersection(x, y, [](auto a, auto b) { return a + b; }, mask);
-  auto z_union = grb::ewise_union(x, y, [](auto a, auto b) { return a + b; }, mask);
+  auto z_intersection = grb::ewise_intersection(
+      x, y, [](auto a, auto b) { return a + b; }, mask);
+  auto z_union = grb::ewise_union(
+      x, y, [](auto a, auto b) { return a + b; }, mask);
 
   grb::print(z_intersection, "intersection");
   grb::print(z_union, "union");

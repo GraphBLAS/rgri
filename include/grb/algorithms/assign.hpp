@@ -4,7 +4,8 @@
 
 namespace grb {
 
-template <grb::MatrixRange B, grb::MutableMatrixRange<grb::matrix_scalar_t<B>> A>
+template <grb::MatrixRange B,
+          grb::MutableMatrixRange<grb::matrix_scalar_t<B>> A>
 void assign(A&& a, B&& b) {
   if (grb::shape(a) != grb::shape(b)) {
     throw grb::invalid_argument("assign: dimensions of a and b do not match.");
@@ -40,4 +41,4 @@ void assign(A&& a, const T& value) {
   }
 }
 
-} // end grb
+} // namespace grb

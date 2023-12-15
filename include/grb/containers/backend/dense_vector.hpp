@@ -1,15 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <grb/containers/vector_entry.hpp>
 #include <grb/containers/backend/dense_vector_iterator.hpp>
+#include <grb/containers/vector_entry.hpp>
 #include <numeric>
+#include <vector>
 
 namespace grb {
 
-template <typename T,
-          typename I,
-          typename Allocator>
+template <typename T, typename I, typename Allocator>
 struct dense_vector {
 public:
   using index_type = I;
@@ -23,17 +21,19 @@ public:
 
   using allocator_type = Allocator;
 
-  using bool_allocator_type = typename std::allocator_traits<allocator_type>:: template rebind_alloc<bool>;
+  using bool_allocator_type = typename std::allocator_traits<
+      allocator_type>::template rebind_alloc<bool>;
 
-  using iterator = dense_vector_iterator<T, index_type,
-                                         typename std::vector<T, allocator_type>::iterator,
-                                         typename std::vector<T, allocator_type>::const_iterator,
-                                         typename std::vector<bool, bool_allocator_type>::const_iterator>;
+  using iterator = dense_vector_iterator<
+      T, index_type, typename std::vector<T, allocator_type>::iterator,
+      typename std::vector<T, allocator_type>::const_iterator,
+      typename std::vector<bool, bool_allocator_type>::const_iterator>;
 
-  using const_iterator = dense_vector_iterator<std::add_const_t<T>, index_type,
-                                         typename std::vector<T, allocator_type>::iterator,
-                                         typename std::vector<T, allocator_type>::const_iterator,
-                                         typename std::vector<bool, bool_allocator_type>::const_iterator>;
+  using const_iterator = dense_vector_iterator<
+      std::add_const_t<T>, index_type,
+      typename std::vector<T, allocator_type>::iterator,
+      typename std::vector<T, allocator_type>::const_iterator,
+      typename std::vector<bool, bool_allocator_type>::const_iterator>;
 
   using reference = grb::vector_ref<T, index_type>;
   using const_reference = grb::vector_ref<std::add_const_t<T>, index_type>;
@@ -48,7 +48,8 @@ public:
     flags_.resize(shape, false);
   }
 
-  dense_vector(I shape, const Allocator& allocator) : data_(allocator), flags_(allocator) {
+  dense_vector(I shape, const Allocator& allocator)
+      : data_(allocator), flags_(allocator) {
     data_.resize(shape);
     flags_.resize(shape, false);
   }
@@ -138,14 +139,16 @@ public:
 
   dense_vector() = default;
 
-  dense_vector(const Allocator& allocator) : data_(allocator), flags_(allocator) {}
+  dense_vector(const Allocator& allocator)
+      : data_(allocator), flags_(allocator) {}
 
   ~dense_vector() = default;
   dense_vector(const dense_vector&) = default;
   dense_vector& operator=(const dense_vector&) = default;
 
   dense_vector(dense_vector&& other)
-    : data_(std::move(other.data_)), flags_(std::move(other.flags_)), nnz_(other.nnz_)  {
+      : data_(std::move(other.data_)), flags_(std::move(other.flags_)),
+        nnz_(other.nnz_) {
     other.nnz_ = 0;
   }
 
@@ -166,4 +169,4 @@ private:
   size_t nnz_ = 0;
 };
 
-} // end grb
+} // namespace grb

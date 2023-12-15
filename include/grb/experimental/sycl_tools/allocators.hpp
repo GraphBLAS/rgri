@@ -1,16 +1,17 @@
 #pragma once
 
+#include "device_ptr.hpp"
 #include <CL/sycl.hpp>
 #include <type_traits>
-#include "device_ptr.hpp"
 
 namespace shp {
-  
+
 template <typename T>
-using shared_allocator = cl::sycl::usm_allocator<T, cl::sycl::usm::alloc::shared>;
+using shared_allocator =
+    cl::sycl::usm_allocator<T, cl::sycl::usm::alloc::shared>;
 
 template <typename T, std::size_t Alignment = 0>
-requires(std::is_trivially_copyable_v<T>)
+  requires(std::is_trivially_copyable_v<T>)
 class device_allocator {
 public:
   using value_type = T;
@@ -22,10 +23,12 @@ public:
   using difference_type = std::ptrdiff_t;
 
   template <typename U>
-  device_allocator(const device_allocator<U, Alignment>& other) noexcept : device_(other.get_device()), context_(other.get_context()) {}
+  device_allocator(const device_allocator<U, Alignment>& other) noexcept
+      : device_(other.get_device()), context_(other.get_context()) {}
 
-  device_allocator(const cl::sycl::queue &q) noexcept : device_(q.get_device()), context_(q.get_context()) {}
-  
+  device_allocator(const cl::sycl::queue& q) noexcept
+      : device_(q.get_device()), context_(q.get_context()) {}
+
   device_allocator(const device_allocator&) = default;
   device_allocator& operator=(const device_allocator&) = default;
   ~device_allocator() = default;
@@ -33,10 +36,11 @@ public:
   using is_always_equal = std::false_type;
 
   pointer allocate(std::size_t size) {
-    if constexpr(Alignment == 0) {
+    if constexpr (Alignment == 0) {
       return pointer(cl::sycl::malloc_device<T>(size, device_, context_));
     } else {
-      return pointer(cl::sycl::aligned_alloc_device<T>(Alignment, size, device_, context_));
+      return pointer(cl::sycl::aligned_alloc_device<T>(Alignment, size, device_,
+                                                       context_));
     }
   }
 
@@ -65,4 +69,4 @@ private:
   cl::sycl::context context_;
 };
 
-} // end shp
+} // namespace shp

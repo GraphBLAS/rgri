@@ -1,8 +1,10 @@
-#include <grb/grb.hpp>
-#include <unordered_map>
 #include <concepts>
-#include <random>
+#include <grb/containers/matrix.hpp>
+#include <grb/containers/vector.hpp>
 #include <grb/exceptions/exception.hpp>
+#include <grb/util/matrix_hints.hpp>
+#include <random>
+#include <unordered_map>
 
 namespace grb {
 
@@ -14,18 +16,20 @@ struct uniform_distribution {
 };
 
 template <std::floating_point T>
-struct uniform_distribution<T>
-{
+struct uniform_distribution<T> {
   using type = std::uniform_real_distribution<T>;
 };
 
 template <typename T>
 using uniform_distribution_t = typename uniform_distribution<T>::type;
 
-}
+} // namespace
 
-template <typename T = float, std::integral I = std::size_t, typename Hint = grb::sparse>
-grb::matrix<T, I, Hint> generate_random(grb::index<I> shape, double density = 0.01, unsigned int seed = 0) {
+template <typename T = float, std::integral I = std::size_t,
+          typename Hint = grb::sparse>
+grb::matrix<T, I, Hint> generate_random(grb::index<I> shape,
+                                        double density = 0.01,
+                                        unsigned int seed = 0) {
 
   if (density > 1.0 || density < 0) {
     throw grb::invalid_argument("generate_random: invalid density argument.");
@@ -33,11 +37,11 @@ grb::matrix<T, I, Hint> generate_random(grb::index<I> shape, double density = 0.
 
   std::map<std::pair<I, I>, T> tuples;
 
-  size_t nnz = density*shape[0]*shape[1];
+  size_t nnz = density * shape[0] * shape[1];
 
   std::mt19937 gen(seed);
-  std::uniform_int_distribution<I> row(0, shape[0]-1);
-  std::uniform_int_distribution<I> column(0, shape[1]-1);
+  std::uniform_int_distribution<I> row(0, shape[0] - 1);
+  std::uniform_int_distribution<I> column(0, shape[1] - 1);
 
   uniform_distribution_t<T> values(0, 1);
 
@@ -55,7 +59,8 @@ grb::matrix<T, I, Hint> generate_random(grb::index<I> shape, double density = 0.
   return matrix;
 }
 
-template <typename T = float, std::integral I = std::size_t, typename Hint = grb::sparse>
+template <typename T = float, std::integral I = std::size_t,
+          typename Hint = grb::sparse>
 grb::vector<T, I, Hint> generate_random(I shape, double density = 0.01) {
 
   if (density > 1.0 || density < 0) {
@@ -64,11 +69,11 @@ grb::vector<T, I, Hint> generate_random(I shape, double density = 0.01) {
 
   std::map<I, T> tuples;
 
-  size_t nnz = density*shape;
+  size_t nnz = density * shape;
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<I> index(0, shape-1);
+  std::uniform_int_distribution<I> index(0, shape - 1);
 
   uniform_distribution_t<T> values(0, 1);
 
@@ -85,4 +90,4 @@ grb::vector<T, I, Hint> generate_random(I shape, double density = 0.01) {
   return vector;
 }
 
-} // end grb
+} // namespace grb

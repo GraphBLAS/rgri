@@ -1,8 +1,9 @@
 #pragma once
 
-#include <utility>
+#include <grb/detail/monoid_traits.hpp>
 #include <limits>
 #include <type_traits>
+#include <utility>
 
 namespace grb {
 
@@ -32,9 +33,9 @@ public:
 
   template <typename X>
   static constexpr X identity()
-  requires(has_identity_template_v<Fn, X>)
+    requires(has_identity_template_v<Fn, X>)
   {
-    return Fn:: template identity<X>();
+    return Fn::template identity<X>();
   }
 };
 
@@ -46,28 +47,25 @@ public:
   }
 
   static constexpr T identity()
-  requires(std::is_same_v<T, U> &&
-           has_identity_template_v<Fn, T>)
+    requires(std::is_same_v<T, U> && has_identity_template_v<Fn, T>)
   {
-    return Fn:: template identity<T>();
+    return Fn::template identity<T>();
   }
 };
 
 template <typename Fn>
-class binary_op_impl_<Fn, void, void, void>
-{
+class binary_op_impl_<Fn, void, void, void> {
 public:
   template <typename T, typename U>
-  constexpr auto operator()(T&& lhs, U&& rhs) const
-  {
+  constexpr auto operator()(T&& lhs, U&& rhs) const {
     return Fn{}(lhs, rhs);
   }
 
   template <typename T>
   static constexpr T identity()
-  requires(has_identity_template_v<Fn, T>)
+    requires(has_identity_template_v<Fn, T>)
   {
-    return Fn:: template identity<T>();
+    return Fn::template identity<T>();
   }
 };
 
@@ -120,19 +118,16 @@ struct divides_impl_ {
 
 template <typename T, typename U>
 using larger_max_integral_t =
-  std::conditional_t<std::cmp_less(std::numeric_limits<T>::max(),
-                                   std::numeric_limits<U>::max()),
-                     U, T>;
+    std::conditional_t<std::cmp_less(std::numeric_limits<T>::max(),
+                                     std::numeric_limits<U>::max()),
+                       U, T>;
 
 struct max_impl_ {
   template <std::integral T, std::integral U>
   constexpr auto operator()(const T& a, const U& b) const
-    -> std::conditional_t<
-        std::cmp_less(std::numeric_limits<T>::max(),
-                      std::numeric_limits<U>::max()),
-        U, T
-       >
-  {
+      -> std::conditional_t<std::cmp_less(std::numeric_limits<T>::max(),
+                                          std::numeric_limits<U>::max()),
+                            U, T> {
     if (std::cmp_less(a, b)) {
       return b;
     } else {
@@ -141,12 +136,9 @@ struct max_impl_ {
   }
 
   template <typename T, typename U>
-  constexpr auto operator()(const T& a, const U& b) const
-    -> std::conditional_t<
-        std::numeric_limits<T>::max() < std::numeric_limits<U>::max(),
-        U, T
-       >
-  requires(!(std::is_integral_v<T> && std::is_integral_v<U>))
+  constexpr auto operator()(const T& a, const U& b) const -> std::conditional_t<
+      std::numeric_limits<T>::max() < std::numeric_limits<U>::max(), U, T>
+    requires(!(std::is_integral_v<T> && std::is_integral_v<U>))
   {
     if (a < b) {
       return b;
@@ -157,24 +149,21 @@ struct max_impl_ {
 
   template <typename T>
   static constexpr T identity()
-  requires(std::numeric_limits<T>::is_specialized())
+    requires(std::numeric_limits<T>::is_specialized())
   {
-    return std::min(std::numeric_limits<T>::lowest(), -std::numeric_limits<T>::infinity());
+    return std::min(std::numeric_limits<T>::lowest(),
+                    -std::numeric_limits<T>::infinity());
   }
 };
-
 
 /// Binary Operator to perform min, returning the lesser of the two values,
 /// or the first element if they are equal.  Uses the `<` operator.
 struct min_impl_ {
   template <std::integral T, std::integral U>
   constexpr auto operator()(const T& a, const U& b) const
-    -> std::conditional_t<
-         std::cmp_less(std::numeric_limits<U>::lowest(),
-                       std::numeric_limits<T>::lowest()),
-         U, T
-       >
-  {
+      -> std::conditional_t<std::cmp_less(std::numeric_limits<U>::lowest(),
+                                          std::numeric_limits<T>::lowest()),
+                            U, T> {
     if (std::cmp_less(b, a)) {
       return b;
     } else {
@@ -183,12 +172,9 @@ struct min_impl_ {
   }
 
   template <typename T, typename U>
-  constexpr auto operator()(const T& a, const U& b) const
-    -> std::conditional_t<
-         std::numeric_limits<U>::lowest() < std::numeric_limits<T>::lowest(),
-         U, T
-       >
-  requires(!(std::is_integral_v<T> && std::is_integral_v<U>))
+  constexpr auto operator()(const T& a, const U& b) const -> std::conditional_t<
+      std::numeric_limits<U>::lowest() < std::numeric_limits<T>::lowest(), U, T>
+    requires(!(std::is_integral_v<T> && std::is_integral_v<U>))
   {
     if (b < a) {
       return b;
@@ -199,9 +185,10 @@ struct min_impl_ {
 
   template <typename T>
   static constexpr T identity()
-  requires(std::numeric_limits<T>::is_specialized())
+    requires(std::numeric_limits<T>::is_specialized())
   {
-    return std::max(std::numeric_limits<T>::max(), std::numeric_limits<T>::infinity());
+    return std::max(std::numeric_limits<T>::max(),
+                    std::numeric_limits<T>::infinity());
   }
 };
 
@@ -354,7 +341,7 @@ struct take_right<void> {
 };
 
 struct lower_triangle {
-  bool operator()(auto&& matrix_entry) const{
+  bool operator()(auto&& matrix_entry) const {
     auto&& [idx, _] = matrix_entry;
     auto&& [i, j] = idx;
     return j < i;
@@ -369,4 +356,4 @@ struct upper_triangle {
   }
 };
 
-} // end grb
+} // namespace grb

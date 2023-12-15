@@ -37,26 +37,25 @@ template <typename T>
 class nwgraph_view;
 
 template <typename G>
-requires(nw::graph::edge_list_graph<std::remove_reference_t<G>>)
+  requires(nw::graph::edge_list_graph<std::remove_reference_t<G>>)
 class nwgraph_view<G> {
 public:
-
   using index_type = nw::graph::vertex_id_t<std::remove_cvref_t<G>>;
   using key_type = grb::index<index_type>;
   using size_type = std::ranges::range_size_t<G>;
   using difference_type = std::ranges::range_difference_t<G>;
 
-  using scalar_reference = decltype(grb::get<2>(std::declval<std::ranges::range_reference_t<G>>()));
+  using scalar_reference =
+      decltype(grb::get<2>(std::declval<std::ranges::range_reference_t<G>>()));
   using scalar_type = std::remove_cvref_t<scalar_reference>;
 
   using value_type = grb::matrix_entry<scalar_type, index_type>;
   using reference = grb::matrix_ref<scalar_type, index_type, scalar_reference>;
 
   nwgraph_view(G graph, key_type shape)
-    : shape_(shape), graph_(std::forward<G>(graph)) {}
+      : shape_(shape), graph_(std::forward<G>(graph)) {}
 
-  nwgraph_view(G graph)
-    : graph_(std::forward<G>(graph)) {
+  nwgraph_view(G graph) : graph_(std::forward<G>(graph)) {
     auto num_vertices = nw::graph::num_vertices(base());
     shape_ = key_type(num_vertices, num_vertices);
   }
@@ -90,13 +89,12 @@ public:
 private:
   auto matrix_range() const {
     auto&& g = base();
-    return g
-     | std::views::transform([&](auto&& entry) {
-                               auto&& [i, j, v] = entry;
-                               return reference(key_type(nw::graph::source(g, entry),
-                                                         nw::graph::target(g, entry)),
-                                                v);
-                             });
+    return g | std::views::transform([&](auto&& entry) {
+             auto&& [i, j, v] = entry;
+             return reference(key_type(nw::graph::source(g, entry),
+                                       nw::graph::target(g, entry)),
+                              v);
+           });
   }
 
   decltype(auto) base() const {
@@ -111,19 +109,14 @@ private:
 template <std::ranges::viewable_range G>
 class nwgraph_adjacency_list_view_accessor {
 public:
-
   using index_type = nw::graph::vertex_id_t<std::remove_cvref_t<G>>;
   using key_type = grb::index<index_type>;
   using size_type = std::ranges::range_size_t<G>;
   using difference_type = std::ranges::range_difference_t<G>;
 
-  using scalar_reference = decltype(grb::get<1>(
-                           std::declval<
-                           std::ranges::range_reference_t<
-                            std::ranges::range_reference_t<G>
-                                                          >
-                                        >()
-                                     ));
+  using scalar_reference =
+      decltype(grb::get<1>(std::declval<std::ranges::range_reference_t<
+                               std::ranges::range_reference_t<G>>>()));
 
   using scalar_type = std::remove_cvref_t<scalar_reference>;
 
@@ -139,16 +132,17 @@ public:
   constexpr nwgraph_adjacency_list_view_accessor() noexcept = default;
   constexpr ~nwgraph_adjacency_list_view_accessor() noexcept = default;
   constexpr nwgraph_adjacency_list_view_accessor(
-      const nwgraph_adjacency_list_view_accessor &) noexcept = default;
-  constexpr nwgraph_adjacency_list_view_accessor &
-  operator=(const nwgraph_adjacency_list_view_accessor &) noexcept = default;
+      const nwgraph_adjacency_list_view_accessor&) noexcept = default;
+  constexpr nwgraph_adjacency_list_view_accessor&
+  operator=(const nwgraph_adjacency_list_view_accessor&) noexcept = default;
 
   using inner_iterator = std::ranges::iterator_t<std::ranges::range_value_t<G>>;
 
-  constexpr nwgraph_adjacency_list_view_accessor(G graph, std::size_t row, inner_iterator col) noexcept
+  constexpr nwgraph_adjacency_list_view_accessor(G graph, std::size_t row,
+                                                 inner_iterator col) noexcept
       : graph_(&graph), row_(row), col_(col) {}
 
-  constexpr bool operator==(const iterator_accessor &other) const noexcept {
+  constexpr bool operator==(const iterator_accessor& other) const noexcept {
     return row_ == other.row_ && col_ == other.col_;
   }
 
@@ -156,7 +150,7 @@ public:
     ++col_;
     if (col_ == (*graph_)[row_].end() /* && row_ != graph_->size()-1 */) {
       ++row_;
-      if (row_ != graph_->size()-1) {
+      if (row_ != graph_->size() - 1) {
         col_ = (*graph_)[row_].begin();
       }
     }
@@ -174,27 +168,22 @@ private:
   inner_iterator col_;
 };
 
+template <typename G>
+using nwgraph_adjacency_list_view_iterator =
+    grb::detail::iterator_adaptor<nwgraph_adjacency_list_view_accessor<G>>;
 
 template <typename G>
-using nwgraph_adjacency_list_view_iterator = grb::detail::iterator_adaptor<nwgraph_adjacency_list_view_accessor<G>>;
-
-template <typename G>
-requires(nw::graph::adjacency_list_graph<std::remove_reference_t<G>>)
+  requires(nw::graph::adjacency_list_graph<std::remove_reference_t<G>>)
 class nwgraph_view<G> {
 public:
-
   using index_type = nw::graph::vertex_id_t<std::remove_cvref_t<G>>;
   using key_type = grb::index<index_type>;
   using size_type = std::ranges::range_size_t<G>;
   using difference_type = std::ranges::range_difference_t<G>;
 
-  using scalar_reference = decltype(grb::get<1>(
-                           std::declval<
-                           std::ranges::range_reference_t<
-                            std::ranges::range_reference_t<G>
-                                                          >
-                                        >()
-                                     ));
+  using scalar_reference =
+      decltype(grb::get<1>(std::declval<std::ranges::range_reference_t<
+                               std::ranges::range_reference_t<G>>>()));
 
   using scalar_type = std::remove_cvref_t<scalar_reference>;
 
@@ -204,10 +193,9 @@ public:
   using iterator = nwgraph_adjacency_list_view_iterator<G>;
 
   nwgraph_view(G graph, key_type shape)
-    : shape_(shape), graph_(std::forward<G>(graph)) {}
+      : shape_(shape), graph_(std::forward<G>(graph)) {}
 
-  nwgraph_view(G graph)
-    : graph_(std::forward<G>(graph)) {
+  nwgraph_view(G graph) : graph_(std::forward<G>(graph)) {
     auto num_vertices = nw::graph::num_vertices(base());
     shape_ = key_type(num_vertices, num_vertices);
   }
@@ -240,36 +228,34 @@ public:
   }
 
   iterator end() const {
-    return iterator(base(), graph_.size(), base()[graph_.size()-1].end());
+    return iterator(base(), graph_.size(), base()[graph_.size() - 1].end());
     // return iterator(base(), graph_.size()-1, base()[graph_.size()-1].end());
   }
-
 
 private:
   decltype(auto) base() const {
     return graph_.base();
   }
 
-/*
-  static inline auto matrix_view(auto&& graph) {
-    return graph
-           | enumerate()
-           | std::views::transform(
-               [](auto&& row_entry) {
-                 auto&& [i, row] = row_entry;
-                 return row
-                        | std::views::transform(
-                            [=](auto&& entry) {
-                              auto&& [j, v] = entry;
-                              return reference(key_type(i, j), v);
-                            });
-               })
-           | std::views::join;
-  }
-  */
+  /*
+    static inline auto matrix_view(auto&& graph) {
+      return graph
+             | enumerate()
+             | std::views::transform(
+                 [](auto&& row_entry) {
+                   auto&& [i, row] = row_entry;
+                   return row
+                          | std::views::transform(
+                              [=](auto&& entry) {
+                                auto&& [j, v] = entry;
+                                return reference(key_type(i, j), v);
+                              });
+                 })
+             | std::views::join;
+    }
+    */
 
 private:
-
   key_type shape_;
   std::ranges::views::all_t<G> graph_;
 };
@@ -284,21 +270,18 @@ namespace views {
 
 template <typename G>
 auto tag_invoke(grb::tag_t<grb::views::all>, G&& graph)
-requires(nw::graph::edge_list_graph<std::remove_reference_t<G>>)
+  requires(nw::graph::edge_list_graph<std::remove_reference_t<G>>)
 {
   return grb::nwgraph_view(std::forward<G>(graph));
 }
 
 template <typename G>
 auto tag_invoke(grb::tag_t<grb::views::all>, G&& graph)
-requires(nw::graph::adjacency_list_graph<std::remove_reference_t<G>>)
+  requires(nw::graph::adjacency_list_graph<std::remove_reference_t<G>>)
 {
   return grb::nwgraph_view(std::forward<G>(graph));
 }
 
-} // end views
+} // namespace views
 
-} // end grb
-
-
-
+} // namespace grb

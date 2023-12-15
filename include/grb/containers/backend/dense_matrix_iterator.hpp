@@ -17,15 +17,15 @@ public:
 
   using iterator_category = std::random_access_iterator_tag;
 
-
   dense_matrix_impl_iterator(MatrixType& matrix) : matrix_(matrix) {}
 
   dense_matrix_impl_iterator(MatrixType& matrix, size_type idx)
-    : matrix_(matrix), idx_(idx) {
+      : matrix_(matrix), idx_(idx) {
     fast_forward();
   }
 
-  dense_matrix_impl_iterator& operator=(const dense_matrix_impl_iterator& other) {
+  dense_matrix_impl_iterator&
+  operator=(const dense_matrix_impl_iterator& other) {
     idx_ = other.idx_;
     return *this;
   }
@@ -65,7 +65,8 @@ public:
   }
 
   // TODO: this can be optimized.
-  difference_type operator-(const dense_matrix_impl_iterator& other) const noexcept {
+  difference_type
+  operator-(const dense_matrix_impl_iterator& other) const noexcept {
     auto min = std::min(*this, other);
     auto max = std::max(*this, other);
     size_t i = 0;
@@ -99,7 +100,7 @@ public:
   }
 
   void fast_forward() noexcept {
-    while (idx_ < matrix_.m()*matrix_.n() && !matrix_.flags_[idx_]) {
+    while (idx_ < matrix_.m() * matrix_.n() && !matrix_.flags_[idx_]) {
       idx_++;
     }
   }
@@ -116,4 +117,4 @@ private:
   MatrixType& matrix_;
 };
 
-} // end grb
+} // namespace grb
