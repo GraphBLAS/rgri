@@ -7,12 +7,23 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BUILD_DOCS "Build Sphinx documentation" OFF)
+option(ENABLE_BINSPARSE "Enable binsparse file parsing" OFF)
 
 add_subdirectory(include)
 
-if (is_top_level)
+include(FetchContent)
 
-  include(FetchContent)
+if (ENABLE_BINSPARSE)
+  FetchContent_Declare(
+    binsparse
+    GIT_REPOSITORY https://github.com/GraphBLAS/binsparse-reference-impl.git
+    GIT_TAG main)
+  FetchContent_MakeAvailable(binsparse)
+
+  target_link_libraries(rgri INTERFACE binsparse)
+endif()
+
+if (is_top_level)
   FetchContent_Declare(
     fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -32,5 +43,4 @@ if (is_top_level)
   if (BUILD_DOCS)
     add_subdirectory(docs)
   endif()
-
 endif()
