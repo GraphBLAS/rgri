@@ -4,6 +4,7 @@
 #include <grb/detail/iterator_adaptor.hpp>
 #include <grb/detail/matrix_traits.hpp>
 #include <grb/util/index.hpp>
+#include <variant>
 
 namespace grb {
 
