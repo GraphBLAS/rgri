@@ -61,7 +61,7 @@ Benjamin Brock, Scott McMillan, Aydın Buluc ̧, Timothy Mattson, and Jose ́ Mo
   title={Graph{BLAS} {C}++ Specification},
   author={Brock, Benjamin and McMillan, Scott and Bulu\c{c}, Ayd{\i}n and Mattson, Timothy and Moreira, Jos{\'e}},
   howpublished={\url{https://github.com/GraphBLAS/graphblas-api-cpp}},
-  volume = {Draft Version 0.1a},
-  year={2022}
+  volume = {Version 1.0},
+  year={2023}
 }
 ```
