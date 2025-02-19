@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <vector>
 #include <grb/containers/matrix_entry.hpp>
 
 namespace grb {
